@@ -11,7 +11,7 @@ close all
 % Radar parameters:
 lambda = 0.03; %m
 PRT = 1e-3;
-hits_scan = 2^20;
+hits_scan = 2^8;
 
 delta_v = lambda/(2*hits_scan*PRT);% velocity resolution
 v_amb = lambda/(4*PRT);% Doppler ambiguity limits in velocity
@@ -100,10 +100,10 @@ for  k = 2:hits_scan
     
     
 end
-omega = angle(a);
+omega = unwrap(angle(a));
 
 F = pn.^2./(1 - a .* exp(-1j .* omega));
-v = F .* lambda / 2;
+v = omega .* lambda / 2;
 time_adap = toc;
 
 
