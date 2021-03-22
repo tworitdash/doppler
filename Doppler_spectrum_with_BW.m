@@ -21,7 +21,7 @@ sigma = 0.9; % Standard deviation of velocity for ground truth model
 
 beta_wind = eps;  % Azimuthal angle direction for the wind
 
-BW_deg = 10; % Beam Width in degrees
+BW_deg = 1; % Beam Width in degrees
 
 BW = BW_deg*pi/180; % Beam width in radians
 phi_0 = 0; % Start of azimuth angle
