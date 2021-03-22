@@ -21,7 +21,7 @@ sigma = 0.9; % Standard deviation of velocity for ground truth model
 
 beta_wind = eps;  % Azimuthal angle direction for the wind
 
-BW_deg = 10; % Beam Width in degrees
+BW_deg = 1; % Beam Width in degrees
 
 BW = BW_deg*pi/180; % Beam width in radians
 phi_0 = 0; % Start of azimuth angle
@@ -218,7 +218,7 @@ zlabel('Doppler velocity width [m/s]', 'FontSize', 16);
 figure;
 
 for i = 67
-    for k = 1:180:length(mean_Phi)
+    for k = 1:17:length(mean_Phi)
         txt = ['\Phi = ', num2str(mean_Phi(k)*180/pi), ' degree'];
         hold on; 
         plot(vel_axis(i).axis, abs(Signal(i).doppler(k, :)).^2, 'DisplayName',txt);
