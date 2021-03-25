@@ -17,7 +17,7 @@ PRT = 1e-3;    % Pulse Repetition Time
 % v_min = 2;     % Minimum Doppler velocity requierd in the spectrum
 % v_max = 4;     % Maximum Doppler velocity required in the spectrum
 mu = 5;        % Mean Doppler velocity for ground truth model
-sigma = 0.9; % Standard deviation of velocity for ground truth model
+sigma = 0.2; % Standard deviation of velocity for ground truth model
 
 beta_wind = eps;  % Azimuthal angle direction for the wind
 
@@ -51,12 +51,14 @@ for i = 1:length(Omega_rpm)
             end
 
             time_axis = eps:PRT:T; % Time axis in terms of multiples of PRT for one resolution step in angle
-            hits_scan(i) = length(time_axis); % length of time axis
-
+            hits_scan_(i) = length(time_axis); % length of time axis
+            hits_scan(i) = 2^(nextpow2(hits_scan_(i)));
+            
+            
             delta_v(i) = lambda/(2*hits_scan(i)*PRT);% velocity resolution
             v_amb = lambda/(4*PRT);% Doppler ambiguity limits in velocity
             vel_axis(i).axis = linspace(-v_amb,v_amb,hits_scan(i));% velocity axis
-
+            
             Nifft = hits_scan(i); % Number of DTFT points for ifft
 
 
@@ -166,7 +168,7 @@ end
 
 
 xlabel('Azimuth Angle \Phi [deg]', 'FontSize', 16);
-ylabel('Maximum Velocity observed [m/s]', 'FontSize', 16)
+ylabel('Mean Velocity observed [m/s]', 'FontSize', 16)
 title('Maximum Doppler velocity observed', 'FontSize', 16);
 legend show;
 grid on;

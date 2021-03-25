@@ -159,6 +159,4 @@ grid on;
 
 %% Plot at 51.5 degree
 
-% figure(301); hold on; plot(vel_axis(1).axis, abs(Signal(1).doppler(52, :))/max(abs(Signal(1).doppler(52, :))))
-
-figure(301); hold on; plot(vel_axis(1).axis, abs(Signal(1).doppler(52, :)))
+figure(301); hold on; plot(vel_axis(1).axis, abs(Signal(1).doppler(52, :))/max(abs(Signal(1).doppler(52, :))))

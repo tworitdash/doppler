@@ -16,8 +16,8 @@ function [data, sig_f] = Doppler_spectrum_TD(vel_axis, mu, sigma, Nifft, SNR, la
   
 
 if sigma < 0.02
-    [~, idx1] = min(abs(vel_axis - mu));
-    S = dirac(vel_axis - vel_axis(idx1)); 
+    idx1 = min()
+    S = dirac(vel_axis - mu); 
     idx = S == Inf;
     S(idx) = 1;
 else

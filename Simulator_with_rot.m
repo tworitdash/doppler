@@ -3,7 +3,7 @@ function [sig, sig_doppler, sig_with_Omega, hits_scan, delta_v, vel_axis, time_a
 SNR = 10^(SNR_db./20); % SNR in linear scale
 
 
-N_burst = 256; % Only used when the rotation speed is 0 [RPM]
+N_burst = 1024; % Only used when the rotation speed is 0 [RPM]
 
 %% Signal generator and Doppler processing
  
@@ -16,7 +16,8 @@ N_burst = 256; % Only used when the rotation speed is 0 [RPM]
                 end
 
                 time_axis = eps:PRT:T; % Time axis in terms of multiples of PRT for one resolution step in angle
-                hits_scan = length(time_axis); % length of time axis
+                hits_scan_ = length(time_axis); % length of time axis
+                hits_scan = 2^(nextpow2(hits_scan_) - 1);
 
                 delta_v = lambda/(2*hits_scan*PRT);% velocity resolution
                 v_amb = lambda/(4*PRT);% Doppler ambiguity limits in velocity
@@ -36,7 +37,7 @@ N_burst = 256; % Only used when the rotation speed is 0 [RPM]
                 [sig, sig_doppler] = Doppler_spectrum_TD(vel_axis, mu, sigma, Nifft, SNR, lambda, X, Theta); 
 
                
-                sig_with_Omega = abs((sig)) .* exp(1j * angle(sig).* cos(beta));% + noise(i).n;
+                sig_with_Omega = abs((sig)) .* exp(1j * unwrap(angle(sig)).* cos(beta));% + noise(i).n;
 
         
 
