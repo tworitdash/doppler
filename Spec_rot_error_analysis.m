@@ -63,6 +63,8 @@ for i = 1:length(Omega_rpm)
     xlabel('Velocity axis [m/s]', 'FontSize', 16)
     zlabel('Normalized Doppler spectrum', 'FontSize', 16);
     title(['Normalized Doppler spectrum at ', num2str(Omega_rpm(i)), 'RPM'], 'FontSize', 16);
+    
+    
     figure; surface(vel_axis(i).axis, mean_Phi * 180/pi, (abs(squeeze(Signal(i).sig(1, :, :))))); shading flat; colorbar; %colormap('jet'); 
     ylabel('Azimuth Angle \Phi [deg]', 'FontSize', 16);
     xlabel('Velocity axis [m/s]', 'FontSize', 16)
