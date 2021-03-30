@@ -3,21 +3,21 @@ close all;
 
 %% Configuration 0 is off, 1 in on
 
-% Want plot for Error vs SNR?
-SNR_enable = 0;
+% Want plot for Error vs SNR? 
+SNR_enable = 1;
 
 % Want plot for Erorr vs Omega and Phi?
-OP_enable_error = 1;
+OP_enable_error = 0;
 
 % Want Doppler Azimuth plot?
 
-DS_Azimuth_plots = 1; % Doppler Azimuth Plot
+DS_Azimuth_plots = 0; % Doppler Azimuth Plot
 
 % Want to run Monte Carlo simulation?
 MC_enable = 1;
 
 % Want to plot mean Doppler and Doppler spectrum width?
-OP_enable = 1;
+OP_enable = 0;
 
 %%
 
@@ -45,7 +45,7 @@ end
 
 %% RADAR constants and wind direction
 
-beta_wind = eps;
+beta_wind = pi/2; % wind direction
 mu = 5;
 sigma = 0.2;
 
@@ -87,7 +87,7 @@ Phi = phi_0:BW:phi_end;
 
 mean_Phi = mean([Phi(1:end-1); Phi(2:end)]); % This is done to take the mid angles of all possible angular resolution cell
 
-Omega_rpm = linspace(1, 60, 4); % RPM axis for the rotation of the radar
+Omega_rpm = linspace(1, 12, 4); % RPM axis for the rotation of the radar
 % Omega_rpm = 160;
 % Omega_rpm = 60;
 
@@ -179,6 +179,8 @@ if OP_enable == 1 || OP_enable_error == 1
 end
 
 %% 1D plots of velocity with azimuth at different rotation speeds but a given Beamwidth
+
+
 figure;
 SI = 1; % Index of the SNR axis
 for i = 1:length(Omega_rpm)
