@@ -1,0 +1,16 @@
+function [] = PlotDopplerSNR(SNR_db, v_mean_e, v_spread_e, OI, PI, Omega_rpm, mean_Phi)
+    Phi_interest = mean_Phi(PI);
+    Omega_interest = Omega_rpm(OI);
+    figure; plot(SNR_db, v_mean_e(:, OI, PI));
+    
+    xlabel('SNR [dB]', 'FontSize', 16)
+    ylabel('Error in Mean Doppler velocity [m/s]', 'FontSize', 16);
+    
+    figure; plot(SNR_db, v_spread_e(:, OI, PI));
+    
+    xlabel('SNR [dB]', 'FontSize', 16)
+    ylabel('Error in Doppler velocity spread [m/s]', 'FontSize', 16);
+    
+    title(['Normalized Doppler spectrum at ', num2str(Omega_interest), 'RPM', ', SNR = ', num2str(Phi_interest), ' dB'], 'FontSize', 16);
+
+end
