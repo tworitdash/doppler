@@ -45,9 +45,9 @@ end
 
 %% RADAR constants and wind direction
 
-beta_wind = pi/2; % wind direction
+beta_wind = eps; % wind direction
 mu = 5;
-sigma = 0.2;
+sigma = 0.000002;
 
 
 
@@ -87,7 +87,7 @@ Phi = phi_0:BW:phi_end;
 
 mean_Phi = mean([Phi(1:end-1); Phi(2:end)]); % This is done to take the mid angles of all possible angular resolution cell
 
-Omega_rpm = linspace(1, 12, 4); % RPM axis for the rotation of the radar
+Omega_rpm = linspace(1, 60, 4); % RPM axis for the rotation of the radar
 % Omega_rpm = 160;
 % Omega_rpm = 60;
 
@@ -106,8 +106,11 @@ for l = 1:n_MC % Monte Carlo iterations
 
             time_axis(i).axis = eps:PRT:T;
 
-            hits_scan_(i) = length(time_axis(i).axis); % length of time axis
-            hits_scan(i) = 2^(nextpow2(hits_scan_(i)) - 1); % hits scan for Doppler processing
+            hits_scan(i) = length(time_axis(i).axis); % length of time axis
+            if hits_scan(i) == 4
+                hits_scan(i) = 5;
+            end
+%             hits_scan(i) = 2^(nextpow2(hits_scan_(i)) - 1); % hits scan for Doppler processing
             vel_axis(i).axis = linspace(-v_amb, v_amb, hits_scan(i));
             delta_v(i) = lambda/(2*hits_scan(i)*PRT);
 
@@ -159,8 +162,8 @@ end
 
 
 if DS_Azimuth_plots == 1
-    SI = 1; % Index for SNR
-    OI = 1;   % Index for Omega
+    SI = 10; % Index for SNR
+    OI = 1; % Index for Omega
     Plot2DDoppler(vel_axis(OI).axis, mean_Phi, Signal, SI, OI, SNR_db, Omega_rpm);
 end
 %% Plot Erros
@@ -174,7 +177,7 @@ end
 %% 2D plots of mean Doppler and Doppler spread and Erros
 
 if OP_enable == 1 || OP_enable_error == 1
-    SI = 1; % Index of the SNR axis
+    SI = 10; % Index of the SNR axis
     PlotDopplerOP(OP_enable, OP_enable_error, SNR_db, SI, mean_Phi, Omega_rpm, v_mean, v_spread, v_mean_e, v_spread_e);
 end
 
@@ -182,7 +185,7 @@ end
 
 
 figure;
-SI = 1; % Index of the SNR axis
+SI = 10; % Index of the SNR axis
 for i = 1:length(Omega_rpm)
    txt = ['\Omega = ', num2str(Omega_rpm(i)), ' [rpm]'];
    hold on; plot(mean_Phi * 180/pi, squeeze(v_mean(SI, i, :)), 'DisplayName', txt);
@@ -193,5 +196,16 @@ ylabel('Mean Doppler velocity [m/s]', 'FontSize', 16);
 xlabel('Azimuth \Phi [deg]', 'FontSize', 16)
 set(h,'FontSize',16, 'FontWeight', 'bold', 'Location','north');
 title(['Mean Doppler velocity when ', ' BW = ', num2str(BW_deg), ' [deg] and SNR = ', num2str(SNR_db(SI)), ' dB'], 'FontSize', 16);
+figure;
+for i = 1:length(Omega_rpm)
+   txt = ['\Omega = ', num2str(Omega_rpm(i)), ' [rpm]'];
+   hold on; plot(mean_Phi * 180/pi, squeeze(v_spread(SI, i, :)), 'DisplayName', txt);
+end
+h = legend;
+grid on;
+ylabel('Doppler spectrum width [m/s]', 'FontSize', 16);
+xlabel('Azimuth \Phi [deg]', 'FontSize', 16)
+set(h,'FontSize',16, 'FontWeight', 'bold', 'Location','north');
+title(['Doppler spectrum width when ', ' BW = ', num2str(BW_deg), ' [deg] and SNR = ', num2str(SNR_db(SI)), ' dB'], 'FontSize', 16);
 
 
