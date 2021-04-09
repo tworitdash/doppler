@@ -46,7 +46,7 @@ else
 end
 
 if BW_enable == 1
-    n_BW = 100;
+    n_BW = 10;
     BW_deg = linspace(1, 10, n_BW);
 else
     BW_deg = 1;
@@ -184,8 +184,8 @@ end
 if DS_Azimuth_plots == 1
     SI = 1; % Index for SNR
     OI = 1; % Index for Omega
-    BI = 1; % Index of Beamwidth
-    Plot2DDoppler(vel_axis(OI).axis, Phi(1:end-1), Signal, BI, SI, OI, BW_deg, SNR_db, Omega_rpm);
+    BI = 10; % Index of Beamwidth
+    Plot2DDoppler(vel_axis(OI).axis, Phi, Signal, BI, SI, OI, BW_deg, SNR_db, Omega_rpm);
 end
 %% Plot Erros with SNR and BW
 
@@ -193,7 +193,7 @@ if BW_enable == 1
     OI = 1;
     PI = 1; 
     SI = 1;
-    PlotDopplerBW(BW_deg, v_mean_e, v_spread_e, SI, OI, PI, SNR_db, Omega_rpm, Phi(1:end-1));
+    PlotDopplerBW(BW_deg, v_mean_e, v_spread_e, SI, OI, PI, SNR_db, Omega_rpm, Phi);
 end
 
 if SNR_enable == 1
