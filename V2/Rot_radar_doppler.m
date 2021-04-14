@@ -7,7 +7,7 @@ close all;
 SNR_enable = 0;
 
 % Want to plot for Error vs BW?
-BW_enable = 1;
+BW_enable = 0;
 
 % Want plot for Erorr vs Omega and Phi?
 OP_enable_error = 1;
@@ -47,7 +47,7 @@ end
 
 if BW_enable == 1
     n_BW = 10;
-    BW_deg = linspace(1, 10, n_BW);
+    BW_deg = linspace(0.1, 10, n_BW);
 else
     BW_deg = 1;
     n_BW = 1;
@@ -112,38 +112,58 @@ Phi(m).Phi = phi_0:BW:phi_end;
 
     for s = 1:n_SNR
                             
-        [data(l, s, :), data_f(l, s, :)] = DS_simulator(SNR(s), mu, sigma, n, v_amb);
+        [data(l, s, :), data_f(l, s, :)] = DS_simulator(SNR(s), 1e3, mu, sigma, n, v_amb);
         
         for i = 1:length(Omega_rpm)
 
             Omega = Omega_rpm(i) .* 2 * pi ./ 60;
 
-            T = BW/Omega;
+            T(m ,i) = BW/Omega;
 
-            time_axis(i).axis = eps:PRT:T;
+            time_axis(m, i).axis = eps:PRT:T(m, i);
+            
 
-            hits_scan(i) = length(time_axis(i).axis); % length of time axis
+            hits_scan(m, i) = length(time_axis(m, i).axis); % length of time axis
 %             if hits_scan(i) == 4
 %                 hits_scan(i) = 5;
 %             end
-%             hits_scan(i) = 2^(nextpow2(hits_scan_(i)) - 1); % hits scan for Doppler processing
-            vel_axis(i).axis = linspace(-v_amb, v_amb, hits_scan(i));
-            delta_v(i) = lambda/(2*hits_scan(i)*PRT);
+
+            time_axis_full = linspace(eps, PRT.*n, n);
+            time_axis_(m, i).axis = linspace(eps, PRT.*n, hits_scan(m, i));
+
+            hits_scan_(m, i) = 2^(nextpow2(hits_scan(m, i)) - 1); % hits scan for Doppler processing
+            
+            
+            vel_axis(m, i).axis = linspace(-v_amb, v_amb, hits_scan(m, i)); % To show the Doppler spectrum
+            vel_axis_(m, i).axis = linspace(-v_amb, v_amb, hits_scan_(m, i)); % For mean and spectrum width calculation 
+            delta_v(m, i) = lambda/(2*hits_scan(m, i)*PRT);
 
             for k = 1:length(Phi(m).Phi)-1
                beta_scan = beta_wind - linspace(Phi(m).Phi(k), Phi(m).Phi(k + 1), n);
 %                beta(k) = beta_wind - mean_Phi(k);
     %             beta(k) = eps;
                 Signal(i, m).sig(l, s, k, :) = abs(squeeze(data(l, s, :))) .* exp(1j .* unwrap(angle(squeeze(data(l, s, :)))) .* cos(beta_scan).');
-                Signal(i, m).doppler(l, s, k, :) = 1./sqrt(hits_scan(i)) .* fftshift(fft(Signal(i, m).sig(l, s, k, :), hits_scan(i)));
+                idx = 1:n;
+                idxq = linspace(min(idx), max(idx), hits_scan(m, i));
+                Signal(i, m).sig_resampled(l, s, k, :) = interp1(idx, squeeze(Signal(i, m).sig(l, s, k, :)), idxq, 'nearest');
+               
+%                 figure; plot(time_axis_(m, i).axis, abs(squeeze(Signal(i, m).sig_resampled(l, s, k, :))), '*');
+%                 hold on; plot(time_axis_full, abs(squeeze(Signal(i, m).sig(l, s, k, :))));
+                
+                Signal(i, m).doppler(l, s, k, :) = 1./sqrt(hits_scan(m, i)) .* fftshift(fft(Signal(i, m).sig(l, s, k, :), hits_scan(m, i)));
 
-                PT_integrand = abs(squeeze(Signal(i, m).doppler(l, s, k, :))).^2 .* delta_v(i);
+                
+                %% Signal Doppler for calculation of the mean Doppler velocity and Doppler spectrum width
+                
+%                 Signal(i, m).doppler_(l, s, k, :) = 1./sqrt(hits_scan_(m, i)) .* (fft(Signal(i, m).sig(l, s, k, :), hits_scan_(m, i)));
+                
+                PT_integrand = abs(squeeze(Signal(i, m).doppler(l, s, k, :))).^2 .* delta_v(m, i);
                 PT = sum(PT_integrand); % Total power of the Doppler Spectrum
 
-                v_mean_integrand = vel_axis(i).axis.' .* abs(squeeze(Signal(i, m).doppler(l, s, k, :))).^2 .* delta_v(i);
+                v_mean_integrand = vel_axis(m, i).axis.' .* abs(squeeze(Signal(i, m).doppler(l, s, k, :))).^2 .* delta_v(m, i);
                 v_mean_l(l, m, s, i, k) = sum(v_mean_integrand) ./ PT; % Mean Doppler velocity 
 
-                v_spread_integrand = (vel_axis(i).axis.' - v_mean_l(l, m, s, i, k)).^2 .* abs(squeeze(Signal(i, m).doppler(l, s, k, :))).^2 .* delta_v(i);
+                v_spread_integrand = (vel_axis(m, i).axis.' - v_mean_l(l, m, s, i, k)).^2 .* abs(squeeze(Signal(i, m).doppler(l, s, k, :))).^2 .* delta_v(m, i);
                 v_spread_l(l, m, s, i, k) = sqrt(sum(v_spread_integrand)./ PT); % Doppler spectrum width
             end
             
@@ -184,60 +204,82 @@ end
 if DS_Azimuth_plots == 1
     SI = 1; % Index for SNR
     OI = 1; % Index for Omega
-    BI = 10; % Index of Beamwidth
-    Plot2DDoppler(vel_axis(OI).axis, Phi, Signal, BI, SI, OI, BW_deg, SNR_db, Omega_rpm);
+    BI = 1; % Index of Beamwidth
+    Plot2DDoppler(vel_axis(BI, OI).axis, Phi, Signal, BI, SI, OI, BW_deg, SNR_db, Omega_rpm);
 end
-%% Plot Erros with SNR and BW
+%% Plot Erros with BW
 
 if BW_enable == 1
-    OI = 1;
-    PI = 1; 
-    SI = 1;
+    OI = 4;
+    PI = 36; 
+    SI = 10;
     PlotDopplerBW(BW_deg, v_mean_e, v_spread_e, SI, OI, PI, SNR_db, Omega_rpm, Phi);
 end
-
+%% Error with With SNR
 if SNR_enable == 1
     OI = 1; % Index for Omega
     PI = 1; % Index for Phi
-    BI = 1;
-    PlotDopplerSNR(SNR_db, v_mean_e, v_spread_e, BI, OI, PI, BW_deg, Omega_rpm, Phi(1:end-1));
+    BI = 3;
+    PlotDopplerSNR(SNR_db, v_mean_e, v_spread_e, BI, OI, PI, BW_deg, Omega_rpm, Phi);
 end
 
 %% 2D plots of mean Doppler and Doppler spread and Erros
 
 if OP_enable == 1 || OP_enable_error == 1
     SI = 1; % Index of the SNR axis
-    PlotDopplerOP(OP_enable, OP_enable_error, BW_deg, BI, SNR_db, SI, Phi(1:end-1), Omega_rpm, v_mean, v_spread, v_mean_e, v_spread_e);
+    BI = 1; % Index of the Beamwidth axis
+    PlotDopplerOP(OP_enable, OP_enable_error, BW_deg, BI, SNR_db, SI, Phi, Omega_rpm, v_mean, v_spread, v_mean_e, v_spread_e);
 end
 
 %% 1D plots of velocity with azimuth at different rotation speeds but a given Beamwidth
 
 
 figure;
-SI = 1; % Index of the SNR axis
-BI = 1; % Index of BeamWidth
+SI = 10; % Index of the SNR axis
+BI = 3; % Index of BeamWidth
+Length_Phi_axis = length(Phi(BI).Phi) - 1;
+
 
 for i = 1:length(Omega_rpm)
    txt = ['\Omega = ', num2str(Omega_rpm(i)), ' [rpm]'];
-   hold on; plot(Phi(1:end-1) * 180/pi, squeeze(v_mean(BI, SI, i, :)), 'DisplayName', txt);
+   hold on; plot(Phi(BI).Phi(1:Length_Phi_axis) * 180/pi, squeeze(v_mean(BI, SI, i, 1:Length_Phi_axis)), 'DisplayName', txt);
 end
 h = legend;
 grid on;
 ylabel('Mean Doppler velocity [m/s]', 'FontSize', 16);
 xlabel('Azimuth \Phi [deg]', 'FontSize', 16)
 set(h,'FontSize',16, 'FontWeight', 'bold', 'Location','north');
-title(['Mean Doppler velocity when ', ' [deg] and SNR = ', num2str(SNR_db(SI)), ' dB', ', BW = ', num2str(BW_deg(BI)), ' deg'], 'FontSize', 16);
+title(['Mean Doppler velocity when ', ' SNR = ', num2str(SNR_db(SI)), ' dB', ', BW = ', num2str(BW_deg(BI)), ' deg'], 'FontSize', 16);
 figure;
 for i = 1:length(Omega_rpm)
    txt = ['\Omega = ', num2str(Omega_rpm(i)), ' [rpm]'];
-   hold on; plot(Phi(1:end-1) * 180/pi, squeeze(v_spread(BI, SI, i, :)), 'DisplayName', txt);
+   hold on; plot(Phi(BI).Phi(1:Length_Phi_axis) * 180/pi, squeeze(v_spread(BI, SI, i, 1:Length_Phi_axis)), 'DisplayName', txt);
 end
 h = legend;
 grid on;
 ylabel('Doppler spectrum width [m/s]', 'FontSize', 16);
 xlabel('Azimuth \Phi [deg]', 'FontSize', 16)
 set(h,'FontSize',16, 'FontWeight', 'bold', 'Location','north');
-title(['Doppler spectrum width when ', ' [deg] and SNR = ', num2str(SNR_db(SI)), ' dB',', BW = ', num2str(BW_deg(BI)), ' deg'], 'FontSize', 16);
+title(['Doppler spectrum width when ', ' SNR = ', num2str(SNR_db(SI)), ' dB',', BW = ', num2str(BW_deg(BI)), ' deg'], 'FontSize', 16);
+
+%% Cosine compensation basics
+
+
+figure;
+SI = 10; % Index of the SNR axis
+BI = 3; % Index of BeamWidth
+OI = 2; % Index of the rotation speed vector
+Length_Phi_axis = length(Phi(BI).Phi) - 1; % length of the azimuth axis based on the beamwidth of interest
+
+Phi_axis = Phi(BI).Phi(1:Length_Phi_axis);
+
+v_mean_s = squeeze(v_mean(BI, SI, OI, 1:Length_Phi_axis)); % mean Doppler for specific rotation speed, SNR and Beamwidth with respect to the azimuth angles
+
+figure; plot(Phi_axis*180/pi, v_mean_s, 'LineWidth', 2); grid on;
+
+v_mean_s_fft = abs(fftshift(fft(v_mean_s))).^2/Length_Phi_axis;
+
+figure; plot(v_mean_s_fft, 'LineWidth', 2); grid on;
 
 
 

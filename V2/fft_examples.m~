@@ -90,26 +90,25 @@ n = 512;
 fs = 10e9;
 t = linspace(eps, 1/fs, n);
 
-sig = exp(1j.*2*pi*fs*t);
-sig_a = sig;
+sig = sin(2*pi*fs*t);
 sig_f = fftshift(fft(sig, n));
 
 figure; plot((abs(sig_f).^2));
 
-phi = eps;
+phi = pi;
 
 beta_wind = eps;
 
-% sig_a = abs(sig) .* exp(1j .* unwrap(angle(sig)) .* cos(beta_wind - phi));
+sig_a = abs(sig) .* exp(1j .* unwrap(angle(sig)) .* cos(beta_wind - phi));
 
 % figure; plot(abs(sig_a)); % hold on; plot(abs(sig), '*');
-figure; plot(abs(sig_f).^2);
+% figure; plot(abs(sig_f).^2);
 
-N = 2;
+N = 32;
 
 idx = 1:n;
 idxq = linspace(min(idx), max(idx), N);
-sig_resampled = interp1(idx, sig_a, idxq, 'nearest');
+sig_resampled = interp1(idx, sig_a, idxq, 'next');
 
 figure; plot(1:1:n, abs(sig_a)); hold on; plot(1:n/N:n, abs(sig_resampled), '*');
 
