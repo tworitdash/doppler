@@ -1,4 +1,4 @@
-function [data, data_f] = DS_simulator(SNR, mu, sigma, n, v_amb)
+function [data, data_f] = DS_simulator(SNR, m0, mu, sigma, n, v_amb)
 
 
 vel_axis = linspace(-v_amb, v_amb, n);
@@ -12,7 +12,7 @@ if sigma < 0.02
     idx = S == Inf;
     S(idx) = 1;
 else
-    S = 10^3/sqrt(2*pi*sigma^2) * exp(-(vel_axis - mu).^2/(2*sigma^2));
+    S = m0/sqrt(2*pi*sigma^2) * exp(-(vel_axis - mu).^2/(2*sigma^2));
 end
 
 % n = length(S); % Length of number of frequencies
