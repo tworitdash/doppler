@@ -1,132 +1,139 @@
+%% FFT examples with Gaussian Pulse
+
+
 clear;
 close all;
-% x = sin(2*pi*fc*t);
-
-% N = linspace(2, 10, 9);
-
-% fc = 1e3/3;
-
-
-
-% mu = fc;
-% sigma = 40/3;
-% 
-% SNR_db = Inf;
-% SNR = 10^(SNR_db/20);
-% 
-% 
-% f_true_axis = linspace(-fmax, fmax, N_true);
-% 
-% Px = 10^3/sqrt(2*pi*sigma^2) * exp(-(f_true_axis - mu).^2/(2*sigma^2));
-% xf = sqrt(Px);
-% 
-% 
-% 
-% figure; plot(f_true_axis, abs(xf).^2/N_true);
-
-fc = 10e9;
-
-t = linspace(eps, 1/fc, 256);
-
-delt = abs(t(2) - t(1));
-
-fmax = 1./(2 .* delt);
-
-x = exp(1j .* 2 * pi * fc * t);
-
-plot(t, abs(x));
-
+n = 1024;
 N = 1024;
+PRT = 1e-3;
 
-for i = 1:length(N)
+lambda = 0.03;
 
-n = N(i);
-
-y = fft(x, n);
-y_ = fftshift(fft(x, n));
-
-y_useful = abs(y(1:round(n/2)+1)).^2/n;
-y_all = abs(y_).^2/n;
-
-% delf = 1/(4 * T);
-
-f_useful = linspace(eps, fmax, round(n/2)+1);
-delf_useful = abs(f_useful(2) - f_useful(1));
+v_amb = lambda/(4*PRT);% Doppler ambiguity limits in velocity
+mu = 5;
+sigma = 0.2;
 
 
-f = linspace(-fmax, fmax, n);
-delf = abs(f(2) - f(1));
 
-P_useful = abs(y_useful).^2 .* delf_useful;
-PTu = sum(P_useful); % Total power of the Doppler Spectrum
+phi = pi;
 
-MU_useful = f_useful .* abs(y_useful).^2 .* delf_useful;
-MUu(i) = sum(MU_useful) ./ PTu; % Mean Doppler velocity 
+beta_wind = 0;
 
-P = abs(y_).^2 .* delf;
-PT = sum(P); % Total power of the Doppler Spectrum
 
-MU = f .* abs(y_).^2 .* delf;
-MUall(i) = sum(MU) ./ PT; % Mean Doppler velocity 
+[sig, sig_f, sig_f_full, X, T] = DS_simulatorV2(10^(30/10), 1, mu, sigma, n, v_amb, N);
+sig_f = fft(sig(1:256), 256);
+sig_f(end+1) = sig_f(1);
+sig_f2 = fftshift(sig_f);
 
-% figure; plot(t, x);
-figure(2); hold on; plot(f_useful*1e-9, y_useful);
-figure(3); hold on; plot(f*1e-9, y_all);
-figure(4); hold on; plot(f*1e-9, abs(y).^2/n);
+sig_fc = fft(conj(sig(1:256)), 256);
+sig_fc(end+1) = sig_fc(1);
+sig_f2c = fftshift(sig_fc);
+% 
+% % sig = exp(1j .* 2 .* pi .* 2 .* mu / lambda .* (1:N) .* PRT);
+% % sig_a = abs(sig) .* exp(1j .* unwrap(angle(sig)) .* cos(beta_wind - phi));
+% 
+% figure; plot(db(abs(fftshift(fft(sig(1:256))))),'-o');
+figure; plot(db(abs(sig_f2)), '-o'); hold on; plot(flip(db(abs(sig_f2c))));
 
+% hold on; plot(circshift(flip(db(abs(fftshift(fft(conj(sig(1:256))))))), 1));
+% hold on; plot(((db(abs(fftshift(fft(conj(sig_a(1:256)))))))));
+
+[sig_with_az, sig_with_az_f] = DS_simulatorV2_with_az(10^(30/10), 1, mu, sigma, n, v_amb, N, phi, beta_wind, X, T);
+
+% sig_ = exp(1j .* 2 .* pi .* 2 .* mu / lambda .* (1:N) .* PRT);
+% sig_f = 1./sqrt(N) .* fftshift(fft(sig_, N));
+% % 
+% sig = ifft(fftshift(sqrt(N) .* sig_f)); % .* exp(1j .* 2 .* pi .* rand(1, N))));
+% sig_with_az = exp(1j .* 2 .* pi .* 2 .* (mu .* cos(beta_wind - phi) ) / lambda .* (1:N) .* PRT);
+
+% figure; histogram(real(sig), 1000);
+% figure; histogram((sig_f), 1000); 
+% figure; histogram((sig_f).^2, 1000);
+
+
+vel_axis_full = linspace(-v_amb, v_amb, n);
+vel_axis = linspace(-v_amb, v_amb, N);
+
+
+% figure; plot(vel_axis_full, db((abs(sig_f_full).^2))/2); grid on;
+
+% v_content = mean((angle(sig)) .* lambda ./ (4 .* pi .* (1:N) .* PRT)); 
+% 
+% sig_a = abs(sig) .* exp(1j .* 4 .* pi ./ lambda .* v_content .* cos(beta_wind - phi) .* (1:N) .* PRT);
+
+sig_a = abs(sig) .* exp(1j .* unwrap(angle(sig)) .* cos(beta_wind - phi));
+
+% sig_a = [sig_a1(2:end) sig_a1(1)];
+
+% sig_a = sig .* exp(1j .* 4 .* pi/lambda .* mu .* (1 - cos(beta_wind -  phi)) .* (1:N));
+
+figure; plot(angle(sig_a) .* 180/pi); hold on; plot(angle(sig_with_az) .* 180/pi); legend('my process', 'embedded already')
+
+
+sig_doppler = 1./sqrt(N) .* abs(fftshift(fft(sig_a, N)));
+
+% sig_with_az_f = 1./sqrt(N) .* abs(fftshift(fft(sig_with_az, N)));
+
+% sig_doppler_max = 1/N .* abs(fftshift(fft(sig, N))).^2;
+
+figure; plot(vel_axis, flip(db(abs(sig_doppler))), '-o'); hold on;  
+plot(vel_axis, (db(abs(sig_f))));hold on;  
+plot(vel_axis, flip(db(abs(sig_with_az_f))));  grid on; legend('with cosine', 'actual', 'with cosine embedded')
+
+
+
+sig_doppler_req = 1./sqrt(N) .* abs ((fft(sig_a, N)));
+% figure; plot(vel_axis, db(abs(sig_doppler_req)), '-o'); title('without fftshift')
+
+
+if cos(beta_wind - phi) < 0
+    vel_axis_proc = (vel_axis(1:N/2));
+     Signal_dop_required = sig_doppler_req(N/2+1:N);
+%                     vel_axis_proc(m, i).axis = vel_axis(m, i).axis(hits_scan_(m, i)/2:hits_scan_(m, i));
+else
+    vel_axis_proc = vel_axis([N/2+1:N]);
+    Signal_dop_required = sig_doppler_req(1:N/2);
 end
 
 
+PRT = 1e-3; lambda = 3e-2;
+
+del_v = lambda/(2*N*PRT);
+                
+figure; plot(vel_axis_proc, db(abs(squeeze(Signal_dop_required))), 'o', 'color', 'k');
+                
+PT_integrand = abs(Signal_dop_required).^2 .* del_v;
+PT = sum(PT_integrand); % Total power of the Doppler Spectrum
+
+v_mean_integrand = vel_axis_proc .* abs(Signal_dop_required).^2 .* del_v;
+v_mean_l = sum(v_mean_integrand) ./ PT; % Mean Doppler velocity 
+
+v_spread_integrand = (vel_axis_proc - v_mean_l).^2 .* abs(Signal_dop_required).^2 .* del_v;
+v_spread_l = sqrt(sum(v_spread_integrand)./ PT); % Doppler spectrum width
+                
 
 
 
+PT_integrand = abs(sig_doppler).^2 .* del_v;
+PT = sum(PT_integrand); % Total power of the Doppler Spectrum
 
-%% FFT examples with Gaussian Pulse
-clear;
-close all;
-n = 512;
-% [sig, sig_f] = DS_simulator(10^(Inf/20), 1, 5, 0.2, n, 7.5);
+v_mean_integrand = vel_axis .* abs(sig_doppler).^2 .* del_v;
+v_mean = sum(v_mean_integrand) ./ PT; % Mean Doppler velocity 
 
-fs = 10e9;
-t = linspace(eps, 1/fs, n);
+v_spread_integrand = (vel_axis - v_mean_l).^2 .* abs(sig_doppler).^2 .* del_v;
+v_spread = sqrt(sum(v_spread_integrand)./ PT); % Doppler spectrum width
 
-sig = exp(1j.*2*pi*fs*t);
-sig_a = sig;
-sig_f = fftshift(fft(sig, n));
+%%
+phi = pi;
+beta_wind = 0;
 
-figure; plot((abs(sig_f).^2));
+sig = exp(1j .* 2 .* pi .* 2 .* mu / lambda .* (1:N) .* PRT);
+sig_a = abs(sig) .* exp(1j .* unwrap(angle(sig)) .* cos(beta_wind - phi));
+sig_c = exp(1j .* 2 .* pi .* 2 .* (mu .* cos(beta_wind - phi)) ./ lambda .* (1:N) .* PRT);
+N = 256
+sig_f = 1./sqrt(N) .* fftshift(fft(sig, N));
+sig_af = 1./sqrt(N) .* fftshift(fft(sig_a, N));
+sig_cf = 1./sqrt(N) .* fftshift(fft(sig_c, N));
 
-phi = eps;
-
-beta_wind = eps;
-
-% sig_a = abs(sig) .* exp(1j .* unwrap(angle(sig)) .* cos(beta_wind - phi));
-
-% figure; plot(abs(sig_a)); % hold on; plot(abs(sig), '*');
-figure; plot(abs(sig_f).^2);
-
-N = 2;
-
-idx = 1:n;
-idxq = linspace(min(idx), max(idx), N);
-sig_resampled = interp1(idx, sig_a, idxq, 'nearest');
-
-figure; plot(1:1:n, abs(sig_a)); hold on; plot(1:n/N:n, abs(sig_resampled), '*');
-
-
-sig_resamp_doppler = 1/N .* abs(fftshift(fft(sig_resampled, N))).^2;
-sig_doppler = 1/N .* abs(fftshift(fft(sig_a, N))).^2;
-% sig_doppler_max = 1/N .* abs(fftshift(fft(sig, N))).^2;
-
-figure; plot(abs(sig_doppler)); hold on;  plot(abs(sig_resamp_doppler));
-
-
-
-
-
-
-
-
-
-
+figure; plot(db(abs(sig_f))); hold on; plot(flip(db(abs(sig_af)))); hold on; plot(flip(db(abs(sig_cf))))
 

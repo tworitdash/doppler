@@ -4,7 +4,7 @@ close all;
 %% Configuration 0 is off, 1 in on
 
 % Want plot for Error vs SNR? 
-SNR_enable = 1;
+SNR_enable = 0;
 
 % Want to plot for Error vs BW?
 BW_enable = 0;
@@ -137,9 +137,7 @@ Phi(m).Phi = phi_0:BW:phi_end;
              
              if hits_scan_(m, i) < 32
                 hits_scan_1(m, i) = 65;
-             else
-                 hits_scan_1(m, i) = hits_scan_(m, i) + 1;
-             end
+             el
 %             time_axis_full = linspace(eps, PRT.*n, n); % High resolution time axis
 %             
 %             
@@ -160,7 +158,7 @@ Phi(m).Phi = phi_0:BW:phi_end;
                 %disp(m);
                 beta_scan = beta_wind - linspace(Phi(m).Phi(k), Phi(m).Phi(k + 1), hits_scan_(m, i));
                 beta_scan_hd = beta_wind - linspace(Phi(m).Phi(k), Phi(m).Phi(k + 1), n);
-             [data(i, m).data(l, s, k, :), data(i, m).data_f(l, s, k, :)] = DS_simulatorV2(SNR(s), 1, mu, sigma, n, v_amb, hits_scan_(m, i));
+             [data(i, m).data(l, s, k, :), data(i, m).data_f(l, s, k, :)] = DS_simulatorV2(SNR, 1, mu, sigma, n, v_amb, hits_scan_(m, i));
 %                [Signal(i, m).sig(l, s, k, :)] = DS_simulatorV3_with_az(SNR(s), 1, mu, sigma, n, v_amb, hits_scan_(m, i), beta_scan_hd);
                
 %                beta(k) = beta_wind - mean_Phi(k);
@@ -291,8 +289,8 @@ end
 %% 2D plots of mean Doppler and Doppler spread and Erros
 
 if OP_enable == 1 || OP_enable_error == 1
-    SI = 10; % Index of the SNR axis
-    BI = 1; % Index of the Beamwidth axis
+    SI = 1; % Index of the SNR axis
+    BI = 9; % Index of the Beamwidth axis
     PlotDopplerOP(OP_enable, OP_enable_error, BW_deg, BI, SNR_db, SI, Phi, Omega_rpm, v_mean, v_spread, v_mean_e, v_spread_e);
 end
 
@@ -300,7 +298,7 @@ end
 
 
 figure;
-SI = 10; % Index of the SNR axis
+SI = 1; % Index of the SNR axis
 BI = 1; % Index of BeamWidth
 Length_Phi_axis = length(Phi(BI).Phi) - 1;
 

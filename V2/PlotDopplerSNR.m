@@ -9,7 +9,7 @@ function [] = PlotDopplerSNR(SNR_db, v_mean_e, v_spread_e, BI, OI, PI, BW_deg, O
     title(['Error in Mean Doppler velocity at ', num2str(Omega_interest), 'RPM', ', \Phi = ', num2str(Phi_interest), ' deg', ', BW = ', num2str(BW_interest), ' deg'], 'FontSize', 16);
     
     
-    figure; plot(SNR_db, squeeze(v_spread_e(:, OI, PI)), 'color', [0.6350, 0.0780, 0.1840], 'LineWidth', 2);
+    figure; plot(SNR_db, squeeze(v_spread_e(BI, :, OI, PI)), 'color', [0.6350, 0.0780, 0.1840], 'LineWidth', 2);
     grid on;
     xlabel('SNR [dB]', 'FontSize', 16)
     ylabel('Error in Doppler spectrum width [m/s]', 'FontSize', 16);

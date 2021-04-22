@@ -11,7 +11,7 @@ close all
 % Radar parameters:
 lambda = 0.03; %m
 PRT = 1e-3;
-hits_scan = 5;
+hits_scan = 256;
 
 delta_v = lambda/(2*hits_scan*PRT);% velocity resolution
 v_amb = lambda/(4*PRT);% Doppler ambiguity limits in velocity
@@ -30,7 +30,7 @@ target_pos = 5e3;% target position in [m]
 % For point target
 tau = .1e3;
 
-vt = -5;% target velocity [m/s] 
+vt = 5 .* cos(pi/4);% target velocity [m/s] 
 data = [];
 for i = 1:hits_scan
 
@@ -46,7 +46,7 @@ target_range_index = round(target_range/dR);
 
 %4. Create the signal with phase information at corresponding range bin value
 signal = zeros(1,numel(range));
-signal(target_range_index) = exp(1i*ph*cos(pi));
+signal(target_range_index) = exp(1i*ph);
 
 %5. Save signals in a matrix
 data(i,:) = signal;

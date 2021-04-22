@@ -2,8 +2,9 @@ function [] = Plot2DDoppler(vel_axis, Phi, Signal, BI, SI, OI, BW_deg, SNR_db, O
     SNR_interest = SNR_db(SI);
     Omega_interest = Omega_rpm(OI);
     BW_interest = BW_deg(BI);
-    s = squeeze(mean(abs(squeeze(Signal(OI, BI).doppler(:, SI, :, :))), 1));
-    figure; imagesc(vel_axis, Phi(BI).Phi * 180/pi, abs(s)); shading flat; colorbar; colormap('jet'); 
+    Length_Phi_axis = length(Phi(BI).Phi) - 1;
+    s = squeeze(mean(abs(squeeze(Signal(OI, BI).doppler(:, SI, 1:Length_Phi_axis, :))), 1));
+    figure; imagesc(vel_axis, Phi(BI).Phi(1:Length_Phi_axis) * 180/pi, db(abs(s))); shading flat; colorbar; colormap('jet'); 
     ylabel('Azimuth Angle \Phi [deg]', 'FontSize', 16);
     xlabel('Velocity axis [m/s]', 'FontSize', 16)
     zlabel('Doppler spectrum', 'FontSize', 16);
