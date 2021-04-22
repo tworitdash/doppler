@@ -7,7 +7,7 @@ close all;
 SNR_enable = 1;
 
 % Want to plot for Error vs BW?
-BW_enable = 0;
+BW_enable = 1;
 
 % Want plot for Erorr vs Omega and Phi?
 OP_enable_error = 1;
@@ -282,7 +282,7 @@ if BW_enable == 1
 end
 %% Error with With SNR
 if SNR_enable == 1
-    OI = 2; % Index for Omega
+    OI = 1; % Index for Omega
     PI = 1; % Index for Phi
     BI = 1;
     PlotDopplerSNR(SNR_db, v_mean_e, v_spread_e, BI, OI, PI, BW_deg, Omega_rpm, Phi);
@@ -346,5 +346,6 @@ title(['Doppler spectrum width when ', ' SNR = ', num2str(SNR_db(SI)), ' dB',', 
 % 
 % figure; plot(v_mean_s_fft, 'LineWidth', 2); grid on;
 % 
-
+%% To do list
+%% Make cosine compensation and use for multiple rotations
 
