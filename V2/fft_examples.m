@@ -21,19 +21,19 @@ beta_wind = 0;
 
 
 [sig, sig_f, sig_f_full, X, T] = DS_simulatorV2(10^(30/10), 1, mu, sigma, n, v_amb, N);
-sig_f = fft(sig(1:256), 256);
-sig_f(end+1) = sig_f(1);
-sig_f2 = fftshift(sig_f);
-
-sig_fc = fft(conj(sig(1:256)), 256);
-sig_fc(end+1) = sig_fc(1);
-sig_f2c = fftshift(sig_fc);
+% sig_f = fft(sig(1:256), 256);
+% sig_f(end+1) = sig_f(1);
+% sig_f2 = fftshift(sig_f);
+% 
+% sig_fc = fft(conj(sig(1:256)), 256);
+% sig_fc(end+1) = sig_fc(1);
+% sig_f2c = fftshift(sig_fc);
 % 
 % % sig = exp(1j .* 2 .* pi .* 2 .* mu / lambda .* (1:N) .* PRT);
 % % sig_a = abs(sig) .* exp(1j .* unwrap(angle(sig)) .* cos(beta_wind - phi));
 % 
 % figure; plot(db(abs(fftshift(fft(sig(1:256))))),'-o');
-figure; plot(db(abs(sig_f2)), '-o'); hold on; plot(flip(db(abs(sig_f2c))));
+% figure; plot(db(abs(sig_f2)), '-o'); hold on; plot(flip(db(abs(sig_f2c))));
 
 % hold on; plot(circshift(flip(db(abs(fftshift(fft(conj(sig(1:256))))))), 1));
 % hold on; plot(((db(abs(fftshift(fft(conj(sig_a(1:256)))))))));
@@ -77,7 +77,7 @@ sig_doppler = 1./sqrt(N) .* abs(fftshift(fft(sig_a, N)));
 % sig_doppler_max = 1/N .* abs(fftshift(fft(sig, N))).^2;
 
 figure; plot(vel_axis, flip(db(abs(sig_doppler))), '-o'); hold on;  
-plot(vel_axis, (db(abs(sig_f))));hold on;  
+plot(vel_axis_full, (db(abs(sig_f_full))));hold on;  
 plot(vel_axis, flip(db(abs(sig_with_az_f))));  grid on; legend('with cosine', 'actual', 'with cosine embedded')
 
 
@@ -130,7 +130,7 @@ beta_wind = 0;
 sig = exp(1j .* 2 .* pi .* 2 .* mu / lambda .* (1:N) .* PRT);
 sig_a = abs(sig) .* exp(1j .* unwrap(angle(sig)) .* cos(beta_wind - phi));
 sig_c = exp(1j .* 2 .* pi .* 2 .* (mu .* cos(beta_wind - phi)) ./ lambda .* (1:N) .* PRT);
-N = 256
+N = 256;
 sig_f = 1./sqrt(N) .* fftshift(fft(sig, N));
 sig_af = 1./sqrt(N) .* fftshift(fft(sig_a, N));
 sig_cf = 1./sqrt(N) .* fftshift(fft(sig_c, N));

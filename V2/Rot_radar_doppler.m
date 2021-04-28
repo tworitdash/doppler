@@ -4,10 +4,10 @@ close all;
 %% Configuration 0 is off, 1 in on
 
 % Want plot for Error vs SNR? 
-SNR_enable = 1;
+SNR_enable = 0;
 
 % Want to plot for Error vs BW?
-BW_enable = 1;
+BW_enable = 0;
 
 % Want plot for Erorr vs Omega and Phi?
 OP_enable_error = 1;
@@ -58,13 +58,13 @@ end
 
 beta_wind = eps; % wind direction
 mu = 5;
-sigma = 0.02;
+sigma = 0.2;
 
 
 
 PRT = 1e-3;
 lambda = 3e-2;
-n = 2^8;
+n = 2^10;
 
 v_amb = lambda/(4*PRT);% Doppler ambiguity limits in velocity
 
@@ -92,7 +92,7 @@ Omega_rpm = linspace(1, 60, 4);
 
 %% 
 
-for l = 1:n_MC % Monte Carlo iterations
+for l = 1:n_MC % Monte Carlo iterations v
     
 
 for m = 1:n_BW
@@ -135,10 +135,10 @@ Phi(m).Phi = phi_0:BW:phi_end;
 %             hits_scan_(m, i) = 2^(nextpow2(hits_scan(m, i)) - 1) + 1; % hits scan for Doppler processing
              hits_scan_(m, i) = 2^(nextpow2(hits_scan(m, i)) - 1);
              
-             if hits_scan_(m, i) < 32
+             if hits_scan_(m, i) < 0
                 hits_scan_1(m, i) = 65;
              else
-                 hits_scan_1(m, i) = hits_scan_(m, i) + 1;
+                 hits_scan_1(m, i) = hits_scan_(m, i) + 1; % +1 is used for odd number of samples
              end
 %             time_axis_full = linspace(eps, PRT.*n, n); % High resolution time axis
 %             
@@ -161,11 +161,11 @@ Phi(m).Phi = phi_0:BW:phi_end;
                 beta_scan = beta_wind - linspace(Phi(m).Phi(k), Phi(m).Phi(k + 1), hits_scan_(m, i));
                 beta_scan_hd = beta_wind - linspace(Phi(m).Phi(k), Phi(m).Phi(k + 1), n);
              [data(i, m).data(l, s, k, :), data(i, m).data_f(l, s, k, :)] = DS_simulatorV2(SNR(s), 1, mu, sigma, n, v_amb, hits_scan_(m, i));
-%                [Signal(i, m).sig(l, s, k, :)] = DS_simulatorV3_with_az(SNR(s), 1, mu, sigma, n, v_amb, hits_scan_(m, i), beta_scan_hd);
+             
+%                [Signal(i, m).sig(l, s, k, :)] = DS_simulatorV3_with_az(SNR(s), 1, mu, sigma, n, v_amb, hits_scan_(m, i), beta_scan_hd, 0);
                
-%                beta(k) = beta_wind - mean_Phi(k);
-    %             beta(k) = eps;
-                Signal(i, m).sig(l, s, k, :) = abs(squeeze(data(i, m).data(l, s, k, :))) .* exp(1j .* unwrap(angle(squeeze(data(i, m).data(l, s, k, :)))) .* cos(beta_scan).');
+                
+             Signal(i, m).sig(l, s, k, :) = abs(squeeze(data(i, m).data(l, s, k, :))) .* exp(1j .* unwrap(angle(squeeze(data(i, m).data(l, s, k, :)))) .* cos(beta_scan).');
 %                 Signal(i, m).doppler_whole(l, s, k, :) = 1./sqrt(n) .* fftshift(fft(Signal(i, m).sig(l, s, k, :), n));
                 
 %                 idx = 1:n;
@@ -291,7 +291,7 @@ end
 %% 2D plots of mean Doppler and Doppler spread and Erros
 
 if OP_enable == 1 || OP_enable_error == 1
-    SI = 10; % Index of the SNR axis
+    SI = 1; % Index of the SNR axis
     BI = 1; % Index of the Beamwidth axis
     PlotDopplerOP(OP_enable, OP_enable_error, BW_deg, BI, SNR_db, SI, Phi, Omega_rpm, v_mean, v_spread, v_mean_e, v_spread_e);
 end
@@ -300,7 +300,7 @@ end
 
 
 figure;
-SI = 10; % Index of the SNR axis
+SI = 1; % Index of the SNR axis
 BI = 1; % Index of BeamWidth
 Length_Phi_axis = length(Phi(BI).Phi) - 1;
 
