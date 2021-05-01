@@ -46,8 +46,8 @@ else
 end
 
 if BW_enable == 1
-    n_BW = 9;
-    BW_deg = linspace(1.2, 10, n_BW);
+    n_BW = 10;
+    BW_deg = linspace(1, 10, n_BW);
 else
     BW_deg = 1;
     n_BW = 1;
@@ -275,8 +275,8 @@ end
 
 
 if DS_Azimuth_plots == 1
-    SI = 1; % Index for SNR
-    OI = 3; % Index for Omega
+    SI = 10; % Index for SNR
+    OI = 4; % Index for Omega
     BI = 1; % Index of Beamwidth
     Plot2DDoppler(vel_axis(BI, OI).axis, Phi, Signal, BI, SI, OI, BW_deg, SNR_db, Omega_rpm);
 end
@@ -288,7 +288,7 @@ end
 %% Plot Erros with BW
 
 if BW_enable == 1
-    OI = 4;
+    OI = 1;
     PI = 1; 
     SI = 1;
     PlotDopplerBW(BW_deg, v_mean_e, v_spread_e, SI, OI, PI, SNR_db, Omega_rpm, Phi);
@@ -296,12 +296,16 @@ end
 
 
 %% Error with With SNR
+figure(101); hold on;
+Omega_interest = Omega_rpm(OI);
 if SNR_enable == 1
-    OI = 1; % Index for Omega
+    OI = 4; % Index for Omega
     PI = 1; % Index for Phi
     BI = 1;
     PlotDopplerSNR(SNR_db, v_mean_e, v_spread_e, BI, OI, PI, BW_deg, Omega_rpm, Phi);
 end
+%%
+legend show;
 
 %% 2D plots of mean Doppler and Doppler spread and Erros
 

@@ -2,7 +2,7 @@ function [] = PlotDopplerBW(BW_deg, v_mean_e, v_spread_e, SI, OI, PI, SNR_db, Om
 %    Phi_interest = Phi.Phi(PI) .* 180/pi;
     Omega_interest = Omega_rpm(OI);
     SNR_interest = SNR_db(SI);
-    figure; plot(BW_deg, squeeze(v_mean_e(:, SI, OI, PI)), 'color', [0.6350, 0.0780, 0.1840], 'LineWidth', 2);
+    figure(101); hold on; plot(BW_deg, squeeze(v_mean_e(:, SI, OI, PI)), 'color', [0.6350, 0.0780, 0.1840], 'LineWidth', 2);
     grid on;
     xlabel('BW [deg]', 'FontSize', 16)
     ylabel('Error in Mean Doppler velocity [m/s]', 'FontSize', 16);
