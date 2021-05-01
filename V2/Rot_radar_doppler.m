@@ -310,7 +310,7 @@ legend show;
 %% 2D plots of mean Doppler and Doppler spread and Erros
 
 if OP_enable == 1 || OP_enable_error == 1
-    SI = 1; % Index of the SNR axis
+    SI = 10; % Index of the SNR axis
     BI = 1; % Index of the Beamwidth axis
     PlotDopplerOP(OP_enable, OP_enable_error, BW_deg, BI, SNR_db, SI, Phi, Omega_rpm, v_mean, v_spread, v_mean_e, v_spread_e);
 end
@@ -319,7 +319,7 @@ end
 
 
 figure;
-SI = 1; % Index of the SNR axis
+SI = 10; % Index of the SNR axis
 BI = 1; % Index of BeamWidth
 Length_Phi_axis = length(Phi(BI).Phi) - 1;
 
