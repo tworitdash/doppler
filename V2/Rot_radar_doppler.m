@@ -4,23 +4,23 @@ clear;
 %% Configuration 0 is off, 1 in on
 
 % Want plot for Error vs SNR? 
-SNR_enable = 1;
+SNR_enable = 0;
 
 % Want to plot for Error vs BW?
-BW_enable = 1;
+BW_enable = 0;
 
 % Want plot for Erorr vs Omega and Phi?
-OP_enable_error = 1;
+OP_enable_error = 0;
 
 % Want Doppler Azimuth plot?
 
-DS_Azimuth_plots = 1; % Doppler Azimuth Plot
+DS_Azimuth_plots = 0; % Doppler Azimuth Plot
 
 % Want to run Monte Carlo simulation?
 MC_enable = 1;
 
 % Want to plot mean Doppler and Doppler spectrum width?
-OP_enable = 1;
+OP_enable = 0;
 
 %%
 
@@ -319,7 +319,7 @@ end
 
 
 figure;
-SI = 10; % Index of the SNR axis
+SI = 1; % Index of the SNR axis
 BI = 1; % Index of BeamWidth
 Length_Phi_axis = length(Phi(BI).Phi) - 1;
 
