@@ -58,7 +58,7 @@ end
 
 beta_wind = eps; % wind direction
 mu = 5;
-sigma = 0.2;
+sigma = 0.000002;
 
 
 
@@ -296,16 +296,15 @@ end
 
 
 %% Error with With SNR
-figure(101); hold on;
-Omega_interest = Omega_rpm(OI);
+
 if SNR_enable == 1
     OI = 4; % Index for Omega
     PI = 1; % Index for Phi
     BI = 1;
     PlotDopplerSNR(SNR_db, v_mean_e, v_spread_e, BI, OI, PI, BW_deg, Omega_rpm, Phi);
 end
-%%
-legend show;
+% %%
+% legend show;
 
 %% 2D plots of mean Doppler and Doppler spread and Erros
 
@@ -330,10 +329,10 @@ for i = 1:length(Omega_rpm)
 end
 h = legend;
 grid on;
-ylabel('Mean Doppler velocity [m/s]', 'FontSize', 16);
-xlabel('Azimuth \Phi [deg]', 'FontSize', 16)
-set(h,'FontSize',16, 'FontWeight', 'bold', 'Location','north');
-title(['Mean Doppler velocity when ', ' SNR = ', num2str(SNR_db(SI)), ' dB', ', BW = ', num2str(BW_deg(BI)), ' deg'], 'FontSize', 16);
+ylabel('Mean Doppler velocity [m/s]', 'FontSize', 12);
+xlabel('Azimuth \Phi [deg]', 'FontSize', 12)
+set(h,'FontSize',12, 'FontWeight', 'bold', 'Location','north');
+title(['Mean Doppler velocity when ', ' SNR = ', num2str(SNR_db(SI)), ' dB', ', BW = ', num2str(BW_deg(BI)), ' deg'], 'FontSize', 12);
 figure;
 for i = 1:length(Omega_rpm)
    txt = ['\Omega = ', num2str(Omega_rpm(i)), ' [rpm]'];
@@ -341,10 +340,10 @@ for i = 1:length(Omega_rpm)
 end
 h = legend;
 grid on;
-ylabel('Doppler spectrum width [m/s]', 'FontSize', 16);
-xlabel('Azimuth \Phi [deg]', 'FontSize', 16)
-set(h,'FontSize',16, 'FontWeight', 'bold', 'Location','north');
-title(['Doppler spectrum width when ', ' SNR = ', num2str(SNR_db(SI)), ' dB',', BW = ', num2str(BW_deg(BI)), ' deg'], 'FontSize', 16);
+ylabel('Doppler spectrum width [m/s]', 'FontSize', 12);
+xlabel('Azimuth \Phi [deg]', 'FontSize', 12)
+set(h,'FontSize',12, 'FontWeight', 'bold', 'Location','north');
+title(['Doppler spectrum width when ', ' SNR = ', num2str(SNR_db(SI)), ' dB',', BW = ', num2str(BW_deg(BI)), ' deg'], 'FontSize', 12);
 
 %% Cosine compensation basics
 

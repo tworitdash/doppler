@@ -9,14 +9,14 @@ dv = vel_axis(2) - vel_axis(1);
 X_full = rand(1, n);
 Theta_full = 2 .* pi * rand(1, n);
 
-% if sigma < 0.02
-%     [~, idx1] = (min(abs(vel_axis - mu)));
-%     S_ = dirac(vel_axis - vel_axis(idx1)); 
-%     idx = S_ == Inf;
-%     S_(idx) = 1;
-% else
+if sigma < 0.02
+    [~, idx1] = (min(abs(vel_axis - mu)));
+    S_ = dirac(vel_axis - vel_axis(idx1)); 
+    idx = S_ == Inf;
+    S_(idx) = 1;
+else
 S_ = m0/sqrt(2*pi*sigma^2) * exp(-(vel_axis - mu).^2/(2*sigma^2));
-% end
+end
 
 Noise_full = sum(S_) ./ (n .* SNR); % Noise Power
 
