@@ -15,7 +15,11 @@ hits_scan = 256;
 
 delta_v = lambda/(2*hits_scan*PRT);% velocity resolution
 v_amb = lambda/(4*PRT);% Doppler ambiguity limits in velocity
-vel = linspace(-v_amb,v_amb,hits_scan);% velocity axis
+
+Axis =((0:hits_scan-1) -ceil((hits_scan-1)/2))/hits_scan;
+vel =2*v_amb*Axis;
+
+% vel = linspace(-v_amb,v_amb,hits_scan);% velocity axis
 
 dR = 1;% m % range resolution [m]
 Rmax = 15e3; %max unabiguous range [m]
@@ -30,7 +34,7 @@ target_pos = 5e3;% target position in [m]
 % For point target
 tau = .1e3;
 
-vt = 5 .* cos(pi/4);% target velocity [m/s] 
+vt = 5;% target velocity [m/s] 
 data = [];
 for i = 1:hits_scan
 

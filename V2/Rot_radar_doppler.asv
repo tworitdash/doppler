@@ -4,23 +4,23 @@ clear;
 %% Configuration 0 is off, 1 in on
 
 % Want plot for Error vs SNR? 
-SNR_enable = 1;
+SNR_enable = 0;
 
 % Want to plot for Error vs BW?
-BW_enable = 1;
+BW_enable = 0;
 
 % Want plot for Erorr vs Omega and Phi?
-OP_enable_error = 1;
+OP_enable_error = 0;
 
 % Want Doppler Azimuth plot?
 
 DS_Azimuth_plots = 1; % Doppler Azimuth Plot
 
 % Want to run Monte Carlo simulation?
-MC_enable = 1;
+MC_enable = 0;
 
 % Want to plot mean Doppler and Doppler spectrum width?
-OP_enable = 1;
+OP_enable = 0;
 
 %%
 
@@ -144,8 +144,8 @@ Phi(m).Phi = phi_0:BW:phi_end;
 %             
 %             
             time_axis_(m, i).axis = linspace(eps, PRT.*n, hits_scan_(m, i));
-%           Axis(m, i).axis =((0:hits_scan_1(m, i)-1) -ceil((hits_scan_1(m, i)-1)/2))/hits_scan_1(m, i);
-            Axis(m, i).axis = linspace(-hits_scan_1(m, i)/2, hits_scan_1(m, i)/2 - 1, hits_scan_1(m, i))/hits_scan_1(m, i);
+            Axis(m, i).axis =((0:hits_scan_1(m, i)-1) -ceil((hits_scan_1(m, i)-1)/2))/hits_scan_1(m, i);
+            Axis_(m, i).axis = 
           
             vel_axis(m, i).axis =2*v_amb*Axis(m, i).axis;
             
