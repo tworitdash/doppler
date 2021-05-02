@@ -14,7 +14,7 @@ OP_enable_error = 0;
 
 % Want Doppler Azimuth plot?
 
-DS_Azimuth_plots = 0; % Doppler Azimuth Plot
+DS_Azimuth_plots = 1; % Doppler Azimuth Plot
 
 % Want to run Monte Carlo simulation?
 MC_enable = 1;
@@ -58,7 +58,7 @@ end
 
 beta_wind = eps; % wind direction
 mu = 5;
-sigma = 0.000002;
+sigma = 0.2;
 
 
 
@@ -275,8 +275,8 @@ end
 
 
 if DS_Azimuth_plots == 1
-    SI = 10; % Index for SNR
-    OI = 4; % Index for Omega
+    SI = 1; % Index for SNR
+    OI = 2; % Index for Omega
     BI = 1; % Index of Beamwidth
     Plot2DDoppler(vel_axis(BI, OI).axis, Phi, Signal, BI, SI, OI, BW_deg, SNR_db, Omega_rpm);
 end

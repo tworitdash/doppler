@@ -16,7 +16,7 @@ PRT = 1e-3;
 % Omega_rpm = 1;
 Omega_rpm = ones(1, 10) .* 40;
 
-BW_deg = 1.8;
+BW_deg = 1;
 BW = BW_deg * pi / 180;
 
 Phi = eps:BW:2*pi;
@@ -90,7 +90,8 @@ legend({'Real', 'Imaginary'})
 %% Frequency domain analysis
 
 N = 2^(nextpow2(All_scan(end)));
-vel_axis = linspace(-v_amb, v_amb, N);
+Axis = linspace(-N/2, N/2-1, N);
+vel_axis = 2 .* v_amb .* Axis ./ N;
 
 
 sig_doppler = 1./sqrt(N) .* fftshift(fft(sig, N, 3), 3);

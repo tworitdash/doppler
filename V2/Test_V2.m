@@ -80,7 +80,7 @@ grid on;
 % x_conj_fft = 1/sqrt(N) .* fftshift(fft(x_conj, N));
 % figure; plot(vel_axis, db(abs(x_fft)), 'LineWidth', 2); hold on; plot(vel_axis, (db(abs(x_conj_fft))), 'LineWidth', 2);grid on;
 % 
-% legend({'Spectrum', 'Conjugate Spectrum flipped'}, 'FontSize', 16);
+% legend({'Spectrum', 'Conjugate Spectrum'}, 'FontSize', 16);
 
 %% 
 v_max = 7.5;
@@ -132,8 +132,8 @@ grid on;
 
 v_max = 7.5;
 v = 5;
-N = 8;
-Nfft = 8;
+N = 128;
+Nfft = 128;
 PRT = 1e-3;
 lambda=0.03;
 Axis=((0:Nfft-1) -ceil((Nfft-1)/2))/Nfft;
@@ -163,7 +163,7 @@ figure; plot(vel_axis, fftshift(db(abs(x_fft))), 'LineWidth', 2);
 hold on; 
 plot(vel_axis, fftshift(db(abs(x_conj_fft))), 'LineWidth', 2);
 hold on;
-plot(vel_axis, flipit(fftshift(db(abs(x_conj_fft)))), '*', 'LineWidth', 2);
+% plot(vel_axis, flipit(fftshift(db(abs(x_conj_fft)))), '*', 'LineWidth', 2);
 % plot(vel_axis, (db(abs(sig_with_az_f))), 'LineWidth', 2) 
 % hold off
 grid on;

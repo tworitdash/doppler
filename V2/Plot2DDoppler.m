@@ -6,7 +6,7 @@ function [] = Plot2DDoppler(vel_axis, Phi, Signal, BI, SI, OI, BW_deg, SNR_db, O
     
     s = squeeze(mean(Signal(OI, BI).doppler(:, SI, 1:Length_Phi_axis, :), 1));
    
-    figure; imagesc(vel_axis, Phi(BI).Phi(1:Length_Phi_axis) * 180/pi, db(abs(s))); shading interp; colorbar; colormap('jet'); 
+    figure; surface(vel_axis, Phi(BI).Phi(1:Length_Phi_axis) * 180/pi, db(abs(s))); shading interp; colorbar; colormap('jet'); 
     xlim([vel_axis(1) vel_axis(end)]);
     ylabel('Azimuth Angle \Phi [deg]', 'FontSize', 14);
     xlabel('Velocity axis [m/s]', 'FontSize', 14)
