@@ -45,7 +45,7 @@ range = sqrt(vx(end).^2 + vy(end).^2);
 % x_ = x(:, :, indz(end));
 % y_ = y(:, :, indz(end));
 
-idx = (abs(theta(:) - pi/2) < 1e1) & (abs(r(:) - 5e2) < 1e-3);
+idx = (abs(theta(:) - pi/2) < 1e-2) & (abs(r(:) - 5e2) < 1e1);
 
 idx = reshape(idx, size(theta));
 
