@@ -1,0 +1,22 @@
+%% Wind field in 3D space
+nx = 1000; 
+ny = 1000;
+nz = 1000;
+
+
+vx = linspace(eps, 5e3, nx); % positions of x, y and z in space
+vy = linspace(eps, 5e3, ny);
+vz = linspace(eps, 5e3, nz);
+
+[x, y, z] = ndgrid(vx, vy, vz); % ndgrid of position vectors
+
+vx = 5; % uniform wind only in x direction 
+vy = 0; 
+vz = 0;
+
+u = zeros(size(x));
+v = zeros(size(x));
+w = zeros(size(x));
+
+%%
+
