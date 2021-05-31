@@ -2,8 +2,10 @@ function [data, data_f, data_f_full, data_full, X_full, Theta_full] = DS_simulat
 
 %% N is the number of Doppler bins permitted for a specific rotation speed and radar beam width 
 
+axis = linspace(-n/2, n/2-1, n)/(n);
+vel_axis = 2 * v_amb * axis;
 
-vel_axis = linspace(-v_amb, v_amb, n);
+% vel_axis = linspace(-v_amb, v_amb, n);
 dv = vel_axis(2) - vel_axis(1);
 
 X_full = rand(1, n);
@@ -24,8 +26,10 @@ P_full = -(S_ + Noise_full) .* log(X_full); % Power spectrum
 
 data_f_full = sqrt(P_full) .* exp(1j .* Theta_full);
 data_full = ifft(fftshift(sqrt(n) .* data_f_full));
-
-vel_axis_permitted = linspace(-v_amb, v_amb, N);
+% 
+axis_permitted = linspace(-N/2, N/2-1, N)/(N);
+vel_axis_permitted = 2 * v_amb * axis_permitted;
+% vel_axis_permitted = linspace(-v_amb, v_amb, N);
 
 for i = 1:N
     [~, indices(i)] = min(abs(vel_axis - vel_axis_permitted(i)));
@@ -60,7 +64,7 @@ data_f = sqrt(P) .* exp(1j .* Theta); % frequency domain
 
 % figure(1); hold on; plot(vel_axis, sqrt(abs(P))); grid on;
 
-data = ifft(fftshift(sqrt(N) .* data_f));% complex time domain signal 
+data = ifft(ifftshift(sqrt(N) .* data_f));% complex time domain signal 
 % data = ifft(fftshift(sqrt(P) .* exp(1j .* Theta)));% complex time domain signal 
 
 % figure; plot(abs(data)); 
