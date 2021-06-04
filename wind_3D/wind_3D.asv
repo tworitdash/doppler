@@ -59,6 +59,13 @@ w = zeros(size(x));
 % w = zeros(size(x));
 
 
+% position
+
+x0 = 1e2;
+y0 = 1e2;
+
+a = 10;
+b = 10;
 
 
 

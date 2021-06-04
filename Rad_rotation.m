@@ -64,24 +64,10 @@ sigma = 0.2;
 
 PRT = 1e-3;
 lambda = 3e-2;
-n = 2^10;
+% n = 2^10;
 
 v_amb = lambda/(4*PRT);% Doppler ambiguity limits in velocity
 
-% for l = 1:n_MC
-%     for s = 1:n_SNR
-%         [data_(l, s, :), data_f_(l, s, :)] = DS_simulator(SNR(s), mu, sigma, n, v_amb); % One time simulation of the spectrum and the signal with fine sampling
-%     end
-% end
-
-% data = squeeze(mean(data_, 1));
-% data_f = squeeze(mean(data_f_, 1));
-
-% n_ = 4;
-% vel_ = linspace(-v_amb, v_amb, n);
-% vel__ = linspace(-v_amb, v_amb, n_);
-% 
-% figure; plot(vel_, abs(data_f)); hold on; plot(vel__, 1/sqrt(n) .* abs(fftshift(fft(data, n_))));
 
 %% 
 
@@ -111,15 +97,9 @@ Phi(m).Phi = phi_0:BW:phi_end;
 %% resampling based on the rotation of the radar
 
     for s = 1:n_SNR
-                            
-%         [data(l, s, :), data_f(l, s, :)] = DS_simulator(SNR(s), 1e3, mu, sigma, n, v_amb);
-        
-%         [data, data_f] = DS_simulatorV2(SNR, m0, mu, sigma, n, v_amb, N)
         
         for i = 1:length(Omega_rpm)
             
-           
-
             Omega = Omega_rpm(i) .* 2 * pi ./ 60;
 
             T(m ,i) = BW/Omega;
@@ -128,38 +108,33 @@ Phi(m).Phi = phi_0:BW:phi_end;
             
 
             hits_scan(m, i) = length(time_axis(m, i).axis); % length of time axis
-%             if hits_scan(i) == 4
-%                 hits_scan(i) = 5;
-%             end
-
-           
-
-%             hits_scan_(m, i) = 2^(nextpow2(hits_scan(m, i)) - 1) + 1; % hits scan for Doppler processing
-             hits_scan_(m, i) = 2^(nextpow2(hits_scan(m, i)) - 1);
-             
-             if hits_scan_(m, i) < 32
-                hits_scan_1(m, i) = 64 + 1;
-             else
-                 hits_scan_1(m, i) = hits_scan_(m, i) + 1; % +1 is used for odd number of samples
-             end
-%             time_axis_full = linspace(eps, PRT.*n, n); % High resolution time axis
-%             
-%             
-            time_axis_(m, i).axis = linspace(eps, PRT.*(hits_scan_(m, i) + 1), (hits_scan_(m, i) + 1));
-%           Axis(m, i).axis =((0:hits_scan_1(m, i)-1) -ceil((hits_scan_1(m, i)-1)/2))/hits_scan_1(m, i);
-            Axis(m, i).axis = linspace(-hits_scan_1(m, i)/2, hits_scan_1(m, i)/2 - 1, hits_scan_1(m, i))/hits_scan_1(m, i);
+            
+            N = hits_scan(m, i) .* length(Phi(m).Phi);
+            
+            if mod(N, 2) ~= 0
+                N = N + 1;
+            end
+       %% This if clause is only to decide the number of points required for Doppler processing for every azimuthal angle
+            if hits_scan(m, i) < 32
+                hits_scan_1(m, i) = 64 + 1; % For Doppler processing when hits per scan is too small [zero padding purposes]
+            else
+                hits_scan_1(m, i) = hits_scan(m, i); 
+            end
+       %% 
+          time_axis_full = linspace(eps, PRT.*N, N); % High resolution time axis
+          Axis(m, i).axis_full = linspace(-N/2, n/2 - 1, n)/n;
+            
+          vel_axis_full = 2.*v_amb.*Axis(m, i).axis_full;
+            
+          [data(i, m).data(l, s, k, :), data(i, m).data_f(l, s, k, :), data(i, m).data_f_full(l, s, k, :)] = ...
+              DS_simulatorV2B(SNR(s), 1, mu, sigma, n, v_amb, hits_scan_(m, i));
           
-%             vel_axis(m, i).axis =2*v_amb*Axis(m, i).axis;
+          % (i -> for each rotation speed, m -> For different BW, l ->
+          % Monte Carlo axis, s -> SNR axis, k -> For each azimuth angle) 
+         
+          vel_axis(m, i).axis = linspace(-v_amb, v_amb, hits_scan_1(m, i)); % To show the Doppler spectrum
             
-            vel_axis(m, i).axis = linspace(-v_amb, v_amb, hits_scan_1(m, i)); % To show the Doppler spectrum
-            
-            
-            vel_axis_(m, i).axis = linspace(-v_amb, v_amb, hits_scan_1(m, i)+1); % For mean and spectrum width calculation 
-            
-            
-            Axis(m, i).axis_full = linspace(-n/2, n/2 - 1, n)/n;
-            
-            vel_axis_full = 2.*v_amb.*Axis(m, i).axis_full;
+          
             
             
             delta_v(m, i) = lambda/(2*hits_scan_(m, i)*PRT);
@@ -174,7 +149,7 @@ Phi(m).Phi = phi_0:BW:phi_end;
 %                 beta_scan = beta_wind - linspace(Phi(m).Phi(k), Phi(m).Phi(k + 1), hits_scan_(m, i) + 1);
                 beta_scan = beta_wind - (Phi(m).Phi(k) + Omega .* time_axis_(m, i).axis);
                 beta_scan_hd = beta_wind - linspace(Phi(m).Phi(k), Phi(m).Phi(k + 1), n);
-                [data(i, m).data(l, s, k, :), data(i, m).data_f(l, s, k, :), data(i, m).data_f_full(l, s, k, :)] = DS_simulatorV2B(SNR(s), 1, mu, sigma, n, v_amb, hits_scan_(m, i));
+                
              
 %                [Signal(i, m).sig(l, s, k, :)] = DS_simulatorV3_with_az(SNR(s), 1, mu, sigma, n, v_amb, hits_scan_(m, i), beta_scan_hd, 0);
                
@@ -184,63 +159,16 @@ Phi(m).Phi = phi_0:BW:phi_end;
              Signal(i, m).sig(l, s, k, :) = hamming(hits_scan_(m, i) + 1) .* ((abs(squeeze(data(i, m).data(l, s, k, :)))...
                 .* exp(1j .* unwrap(angle(squeeze(data(i, m).data(l, s, k, :)))) .* cos(beta_scan).')));
              
-             
-%                 Signal(i, m).doppler_whole(l, s, k, :) = 1./sqrt(n) .* fftshift(fft(Signal(i, m).sig(l, s, k, :), n));
-                
-%                 idx = 1:n;
-%                 idxq = linspace(min(idx), max(idx), hits_scan_(m, i));
-% 
-%                 Signal(i, m).sig_resampled(l, s, k, :) = interp1(idx, squeeze(Signal(i, m).sig(l, s, k, :)), idxq, 'spline'); % resample the HR signal
-
-
-%                 
-%                 figure; plot(time_axis_(m, i).axis, real(squeeze(Signal(i, m).sig_resampled(l, s, k, :))), '*');
-%                 hold on; plot(time_axis_full, real(squeeze(Signal(i, m).sig(l, s, k, :))), 'o');
-                
-%                 Signal(i, m).doppler_resampled(l, s, k, :) = 1./sqrt(hits_scan_(m, i)) .* fftshift(fft(Signal(i, m).sig_resampled(l, s, k, :), hits_scan_(m, i)));
-                
-                Signal(i, m).doppler(l, s, k, :) = 1./sqrt(hits_scan_1(m, i)) .* fftshift(fft(Signal(i, m).sig(l, s, k, :), hits_scan_1(m, i)));
-                Signal(i, m).doppler_fft(l, s, k, :) = 1./sqrt(hits_scan_1(m, i)) .* (fft(Signal(i, m).sig(l, s, k, :), hits_scan_1(m, i)));
+             Signal(i, m).doppler(l, s, k, :) = 1./sqrt(hits_scan_1(m, i)) .* fftshift(fft(Signal(i, m).sig(l, s, k, :), hits_scan_1(m, i)));
+             Signal(i, m).doppler_fft(l, s, k, :) = 1./sqrt(hits_scan_1(m, i)) .* (fft(Signal(i, m).sig(l, s, k, :), hits_scan_1(m, i)));
 %                 
 %                 figure; plot(vel_axis(m, i).axis, db(abs(squeeze(Signal(i, m).doppler_fft(l, s, k, :)).^2))/2, '-o'); 
 %                 
 %                 hold on;  plot(vel_axis(m, i).axis, db(abs(squeeze(data(i, m).data_f(l, s, k, :))).^2)/2, '*'); grid on;
 % %                 hold on;  plot(vel_axis_full, db(abs(squeeze(data(i, m).data_f_full(l, s, k, :))).^2)/2, '-.'); grid on;
 % %                 figure; 
-%                 plot(vel_axis_full, abs(squeeze(Signal(i, m).doppler_whole(l, s, k, :))));
-%                 hold on; 
-%                 plot(vel_axis_(m, i).axis, abs(squeeze(Signal(i, m).doppler_resampled(l, s, k, :))), 'x');
-%                 hold on; 
-%                 plot(vel_axis_(m, i).axis, abs(squeeze(Signal(i, m).doppler(l, s, k, :))), 'o', 'color', 'k');
                 
-                %% Signal Doppler for calculation of the mean Doppler velocity and Doppler spectrum width
-                
-%                 Signal(i, m).doppler_(l, s, k, :) = 1./sqrt(hits_scan_(m, i)) .* (fft(Signal(i, m).sig(l, s, k, :), hits_scan_(m, i)));
-                
-                
-%                 Signal(i, m).dop_for_process(l, s, k, :) = 1./sqrt(hits_scan_(m, i)) .* (fft(Signal(i, m).sig(l, s, k, :), hits_scan_(m, i)));
-                
-                
-%                 if cos(beta_scan(end)) < 0
-%                     vel_axis_proc(m, i).axis = (vel_axis(m, i).axis(1:hits_scan_(m, i)/2+1));
-%                     
-%                     Signal_dop_required = squeeze(Signal(i, m).dop_for_process(l, s, k, hits_scan_(m, i)/2:hits_scan_(m, i)));
-%                 else
-%                     vel_axis_proc(m, i).axis = vel_axis(m, i).axis(hits_scan_(m, i)/2:hits_scan_(m, i));
-%                     Signal_dop_required = squeeze(Signal(i, m).dop_for_process(l, s, k, 1:hits_scan_(m, i)/2+1));
-%                 end
-%                 
-% %                 plot(vel_axis_proc(m, i).axis, abs(squeeze(Signal_dop_required)), 'o', 'color', 'k');
-%                 
-%                 PT_integrand = abs(Signal_dop_required).^2 .* delta_v(m, i);
-%                 PT = sum(PT_integrand); % Total power of the Doppler Spectrum
-% 
-%                 v_mean_integrand = vel_axis_proc(m, i).axis.' .* abs(Signal_dop_required).^2 .* delta_v(m, i);
-%                 v_mean_l(l, m, s, i, k) = sum(v_mean_integrand) ./ PT; % Mean Doppler velocity 
-% 
-%                 v_spread_integrand = (vel_axis_proc(m, i).axis.' - v_mean_l(l, m, s, i, k)).^2 .* abs(Signal_dop_required).^2 .* delta_v(m, i);
-%                 v_spread_l(l, m, s, i, k) = sqrt(sum(v_spread_integrand)./ PT); % Doppler spectrum width
-                
+              
            %% Moments calculation
            
                 PT_integrand = abs(squeeze(Signal(i, m).doppler(l, s, k, :))).^2 .* delta_v(m, i);
@@ -270,20 +198,12 @@ Phi(m).Phi = phi_0:BW:phi_end;
 %                 end
             end
             
-    %         figure; surface(vel_axis(i).axis, mean_Phi * 180/pi, abs(squeeze(Signal(i).doppler(s, :, :)))); shading flat; colorbar; %colormap('jet'); 
-    %         ylabel('Azimuth Angle \Phi [deg]', 'FontSize', 16);
-    %         xlabel('Velocity axis [m/s]', 'FontSize', 16)
-    %         zlabel('Normalized Doppler spectrum', 'FontSize', 16);
-    %         title(['Normalized Doppler spectrum at ', num2str(Omega_rpm(i)), 'RPM', ', SNR = ', num2str(SNR_db), ' dB'], 'FontSize', 16);
         end
 
     end
 end
 
 end
-
-% v_mean = squeeze(mean(v_mean_l, 1));
-% v_spread = squeeze(mean(v_spread_l, 1));
 
 %% Error calculations
 
@@ -382,26 +302,4 @@ ylabel('Doppler spectrum width [m/s]', 'FontSize', 12);
 xlabel('Azimuth \Phi [deg]', 'FontSize', 12)
 set(h,'FontSize',12, 'FontWeight', 'bold', 'Location','north');
 title(['Doppler spectrum width when ', ' SNR = ', num2str(SNR_db(SI)), ' dB',', BW = ', num2str(BW_deg(BI)), ' deg'], 'FontSize', 12);
-
-%% Cosine compensation basics
-
-
-% figure;
-% SI = 1; % Index of the SNR axis
-% BI = 1; % Index of BeamWidth
-% OI = 1; % Index of the rotation speed vector
-% Length_Phi_axis = length(Phi(BI).Phi) - 1; % length of the azimuth axis based on the beamwidth of interest
-% 
-% Phi_axis = Phi(BI).Phi(1:Length_Phi_axis);
-% 
-% v_mean_s = squeeze(v_mean(BI, SI, OI, 1:Length_Phi_axis)); % mean Doppler for specific rotation speed, SNR and Beamwidth with respect to the azimuth angles
-% 
-% figure; plot(Phi_axis*180/pi, v_mean_s, 'LineWidth', 2); grid on;
-% 
-% v_mean_s_fft = abs(fftshift(fft(v_mean_s))).^2/Length_Phi_axis;
-% 
-% figure; plot(v_mean_s_fft, 'LineWidth', 2); grid on;
-% 
-%% To do list
-%% Make cosine compensation and use for multiple rotations
 

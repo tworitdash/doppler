@@ -13,9 +13,9 @@ theta = 0; % Elevation angle from x axis
 
 PRT = 1e-3;
 
-% Omega_rpm = linspace(30, 40, 4);
+Omega_rpm = linspace(2, 4, 3);
 % Omega_rpm = 1;
-Omega_rpm = ones(1, 128) .* 40;
+% Omega_rpm = ones(1, 1) .* 4;
 
 BW_deg = 1;
 BW = BW_deg * pi / 180;
@@ -53,8 +53,8 @@ for m = 1:n_MC
            
             
             for k = 1:length(Phi)-1
-%                 beta_scan = beta_wind - linspace(Phi(k), Phi(k + 1), hits_scan(i));
-                beta_scan = beta_wind - (Phi(k) + BW .* rand(1, hits_scan(i)));
+                beta_scan = beta_wind - linspace(Phi(k), Phi(k + 1), hits_scan(i));
+%                 beta_scan = beta_wind - (Phi(k) + BW .* rand(1, hits_scan(i)));
                
                 beta_scan_extra = [beta_scan]; % zeros(1, hits_scan_residual(i))];
                 if mod(hits_scan(i), 2) == 0
@@ -102,8 +102,8 @@ title(['Time domain signal at SNR = ', num2str(SNR_db), ' dB and \Phi = ' num2st
 
 %% Frequency domain analysis
 
-N = 2^(nextpow2(All_scan(end)));
-% N = All_scan(end);
+% N = 2^(nextpow2(All_scan(end)));
+N = All_scan(end);
 
 if mod(N, 2) == 0
 
@@ -129,13 +129,13 @@ sig_doppler = 1./sqrt(N) .* fftshift(fft(sig, N, 3), 3);
 
 %% Plot the Doppler spectrum
 SI = 1;
-figure; imagesc(vel_axis, Phi(1:length(Phi)-1).*180/pi, db(abs(squeeze(sig_doppler(SI, :, :))))); shading flat; xlim([-v_amb v_amb]);
+figure; surface(vel_axis, Phi(1:length(Phi)-1).*180/pi, db(abs(squeeze(sig_doppler(SI, :, :))))); shading flat; xlim([-v_amb v_amb]);
 colormap('jet'); colorbar; title(['Doppler Spectrum at SNR = ', num2str(SNR_db), ' dB'])
 xlabel('Velocity [m/s]', 'FontSize', 12);
 ylabel('Power spectrum [dB]', 'FontSize', 12)
 %% Plot for a specific angle 
 
-PI = 1;
+PI = 120;
 SI = 1;
 figure; plot(vel_axis.', abs(squeeze(sig_doppler(SI, PI, :))).^2, 'LineWidth', 2, 'color', [0.6350, 0.0780, 0.1840]); grid on;
 
@@ -158,13 +158,25 @@ end
 
 %% Plot mean 
 SI = 1;
-figure(4); hold on; plot(Phi(1:length(Phi) - 1) .* 180/pi, v_mean(SI, :), 'LineWidth', 2 ); title('Mean Doppler Velocity', 'FontSize', 16); grid on;
+txt1 = [num2str(Omega_rpm), ' [RPM]'];
+figure(4); hold on; plot(Phi(1:length(Phi) - 1) .* 180/pi, v_mean(SI, :), 'LineWidth', 2, 'DisplayName', txt1 ); title('Mean Doppler Velocity', 'FontSize', 16); grid on;
 ylabel('Mean Doppler velocity [m/s]', 'FontSize', 12);
 xlabel('Azimuth \Phi [deg]', 'FontSize', 12)
-% set(h,'FontSize',12, 'FontWeight', 'bold', 'Location','north');
+h = legend;
+set(h,'FontSize',12, 'FontWeight', 'bold', 'Location','north');
 title(['Mean Doppler velocity'], 'FontSize', 12);
 
 % figure; plot(Phi(1:length(Phi) - 1) .* 180/pi, v_spread, 'LineWidth', 2, 'color', [0.6350, 0.0780, 0.1840]); title('Doppler Spectrum Width', 'FontSize', 16); grid on;
+%% Plot spread
+txt2 = [num2str(Omega_rpm), ' [RPM]'];
+SI = 1;
+figure(5); hold on; plot(Phi(1:length(Phi) - 1) .* 180/pi, v_spread(SI, :), 'LineWidth', 2, 'DisplayName', txt2); title('Mean Doppler Velocity', 'FontSize', 16); grid on;
+ylabel('Mean Doppler velocity [m/s]', 'FontSize', 12);
+xlabel('Azimuth \Phi [deg]', 'FontSize', 12)
+h = legend;
+set(h,'FontSize',12, 'FontWeight', 'bold', 'Location','north');
+title(['Mean Doppler velocity'], 'FontSize', 12);
+
 %% Finding the direction of wind flow
 
 [val, idx] = max(v_mean(:, 1:181), [], 2);
