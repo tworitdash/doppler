@@ -14,7 +14,7 @@ sigma = 0.2; % Standard deviation of wind velocity
 
 SNR_db = 30;
 SNR = 10^(SNR_db/10);
-BW_deg = 1;
+BW_deg = 1.8;
 PRT = 1e-3;
 lambda = 3e-2;
 v_amb = lambda/(4*PRT);% Doppler ambiguity limits in velocity
@@ -22,9 +22,9 @@ v_amb = lambda/(4*PRT);% Doppler ambiguity limits in velocity
 
 %% Radar rotation and Azimuth angle axes
 
-Omega_rpm = linspace(1, 60, 4); % RPM axis for the rotation of the radar
+% Omega_rpm = linspace(1, 60, 4); % RPM axis for the rotation of the radar
 
-% Omega_rpm = 40.33; % use this when only one rotation speed is needed 
+Omega_rpm = 1; % use this when only one rotation speed is needed 
 
 Phi_0_deg = 0; % start of the azimuth angle of observation in degree 
 Phi_end_deg = 360; % End of the azimuth angle of observation in degree
@@ -52,15 +52,16 @@ for i = 1:length(Omega_rpm) % Loop over each angular velocity of the radar
 
      hits_scan = length(time_axis); % length of time axis for one beam width (also known as hits per scan)
             
-     N(i) = hits_scan .* length(Phi); % When creating HD spectrum and signal, we need number of points = hits_scan \times (Number of beam widths in an entire rotation)
+     N(i) = hits_scan .* length(mean_Phi); % When creating HD spectrum and signal, we need number of points = hits_scan \times (Number of beam widths in an entire rotation)
             
-     if mod(N(i), 2) ~= 0 % If it is even, make it odd
+     if mod(N(i), 2) == 0 % If it is even, make it odd
          N(i) = N(i) + 1;
      end
-            
+     
+     phi_axis = linspace(phi_0, phi_end, N(i)); phi_axis = phi_axis(1:end-1);
             
 %% This if clause is only to decide the number of points required for Doppler processing for every azimuthal angle
-     if hits_scan < 32 % (Make it 0 if no zero padding is required)
+     if hits_scan < 0 % (Make it 0 if no zero padding is required)
          hits_scan_1(i) = 64 + 1; % For Doppler processing when hits per scan is too small [zero padding purposes]
      else
          hits_scan_1(i) = hits_scan; 
@@ -82,10 +83,11 @@ for i = 1:length(Omega_rpm) % Loop over each angular velocity of the radar
 
      for k = 1:length(mean_Phi) % For each direction in azimuth 
                 
-         beta_scan = beta_wind - (Phi(k) + Omega .* time_axis);
-            
-                 
-         Signal(i).sig(k, :) = hamming(hits_scan).' .* (abs(squeeze(data(i).data((k - 1)*hits_scan + 1: k*hits_scan)))...
+%          beta_scan = beta_wind - (Phi(k) + Omega .* time_axis);
+%          beta_scan = beta_wind - linspace(Phi(k), Phi(k + 1), hits_scan(i));
+           
+           beta_scan = beta_wind - phi_axis((k - 1)*hits_scan+1:k*hits_scan);
+         Signal(i).sig(k, :) = (abs(squeeze(data(i).data((k - 1)*hits_scan + 1: k*hits_scan)))...
                 .* exp(1j .* unwrap(angle(squeeze(data(i).data((k - 1)*hits_scan + 1: k*hits_scan)))) .* cos(beta_scan)));
              
          Signal(i).doppler(k, :) = 1./sqrt(hits_scan_1(i)) .* fftshift(fft(Signal(i).sig(k, :), hits_scan_1(i))); % To be used for moments calculation
@@ -113,7 +115,7 @@ for i = 1:length(Omega_rpm) % Loop over each angular velocity of the radar
 end
 
 %% Plot Doppler spectrum (Azimuth vs Doppler Velocity)
-OI = 3; % Index for Omega
+OI = 1; % Index for Omega
 
 Plot2DDopplerV2(hits_scan_1(OI), mean_Phi, v_amb, Signal, OI, SNR_db, Omega_rpm);
 
@@ -145,4 +147,41 @@ ylabel('Doppler spectrum width [m/s]', 'FontSize', 12);
 xlabel('Azimuth \Phi [deg]', 'FontSize', 12)
 set(h,'FontSize',12, 'FontWeight', 'bold', 'Location','north');
 title(['Doppler spectrum width when ', ' SNR = ', num2str(SNR_db), ' dB'], 'FontSize', 12);
+
+%% 
+
+TD_sig = reshape(Signal(1).sig, 1, size(Signal(1).sig, 1) .* size(Signal(1).sig, 2));
+
+
+
+TD_sig_comp = abs(TD_sig) .* exp(1j .* (angle(TD_sig)) ./ cos(phi_axis));
+    
+   
+
+
+TD_doppler_comp = 1./sqrt(length(TD_sig_comp)) .* fftshift(fft(TD_sig_comp));
+
+HD_doppler = 1./sqrt(length(data(1).data)) .* fftshift(fft(data(1).data));
+
+
+figure; plot(vel_axis_full(1:end-1), db(abs(TD_doppler_comp)));
+
+figure; plot(vel_axis_full, db(abs(HD_doppler)));
+
+% TD_sig_comp = abs(TD_sig) .* exp(1j .* unwrap(angle(TD_sig)) .* )
+
+
+
+%% 
+HD_ph = angle(data(1).data);
+
+TD_ph = angle(TD_sig);
+
+TD_ph_re = TD_ph./cos(phi_axis);
+
+
+figure; plot(HD_ph);  title('Original')
+hold on; plot(TD_ph_re, '*'); title('Reassembled'); ylim([-pi pi]);
+
+figure; plot(TD_ph); title('Manipulated')
 
