@@ -3,7 +3,7 @@ close all;
 
 
 lambda = 0.03;
-M = 1;
+M = 360;
 hs = 128;
 
 N = hs * M;
@@ -28,8 +28,6 @@ s_ = exp(1j .* ph_);
 
 
 
-
-
 s_f = fftshift(fft(s_));
 
 v_amb = 7.5;
@@ -42,8 +40,8 @@ figure; plot(v_axis, db(abs(s_f))); title('Original spectrum')
 % th = pi/2;
 
 BW = 1*pi/180;
-p0 = 179*pi/180;
-p1 = 270*pi/180;
+p0 = 0*pi/180;
+p1 = 360*pi/180;
 
 th = linspace(p0, p1, N);
 
