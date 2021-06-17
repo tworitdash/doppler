@@ -17,7 +17,7 @@ PRT = 1e-3;
 p0 = 0*pi/180; % start angle
 p1 = 360*pi/180; % end angle
 
-N_BW = 1;  % Number of beam widths to integrate 
+N_BW = 10;  % Number of beam widths to integrate 
 
 M = round((p1 - p0)/(BW * N_BW)); % Number of azimuth points 
 
@@ -50,7 +50,7 @@ s_man = (exp(1j .* unwrap(angle(s_)) .* (eps + sin(th)./(eps + Omega .* t1)))); 
 
 vel_axis = linspace(-v_amb, v_amb, N); % velocity axis for the entire rotation
 
-plot(vel_axis, db(abs(fftshift(fft(s_man))))); % Spectrum of cosine modulated signal
+figure; plot(vel_axis, db(abs(fftshift(fft(s_man))))); % Spectrum of cosine modulated signal
 xlabel('Doppler velocity [ms^{-1}]', 'FontSize', 12, 'FontWeight', 'bold');
 ylabel('Spectrum in dB for entire rotation', 'FontSize', 12, 'FontWeight', 'bold');
 title('Spectrum function'); grid on;
@@ -92,7 +92,7 @@ for k = 1:size(S1_norm, 1)
 end
 
 txt = ['Angle integration = ', num2str(N_BW*BW_deg), ' [deg]'];
-figure(101); plot(phi * 180/pi, v_mean, 'LineWidth', 2, 'DisplayName', txt); hold on; grid on;
+figure(101); hold on; plot(phi * 180/pi, v_mean, 'LineWidth', 2, 'DisplayName', txt); grid on;
 legend;
 title('Mean Doppler velocity')
 xlabel('Angle [deg]', 'FontSize', 12, 'FontWeight', 'bold');
