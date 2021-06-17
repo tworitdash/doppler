@@ -6,9 +6,9 @@ lambda = 0.03;
 
 
 mu = 4; % Mean Doppler
-Omega_rpm = 1; % in RPM
+Omega_rpm = 60; % in RPM
 Omega = 2*pi/60 * Omega_rpm; % In rad/s
-BW_deg = 1; % beam width in degree
+BW_deg = 1.8; % beam width in degree
 BW = BW_deg * pi/180; % beam width in radian
 
 v_amb = 7.5;
@@ -48,14 +48,14 @@ s_ = exp(1j .* ph_);
 
 s_man = (exp(1j .* unwrap(angle(s_)) .* (eps + sin(th)./(eps + Omega .* t1)))); % manipulated signal with phase correction
 
-vel_axis = linspace(-N/2, N/2-1, N)/N * 2 * v_amb; % velocity axis for the entire rotation
+vel_axis = linspace(-v_amb, v_amb, N); % velocity axis for the entire rotation
 
 plot(vel_axis, db(abs(fftshift(fft(s_man))))); % Spectrum of cosine modulated signal
 xlabel('Doppler velocity [ms^{-1}]', 'FontSize', 12, 'FontWeight', 'bold');
 ylabel('Spectrum in dB for entire rotation', 'FontSize', 12, 'FontWeight', 'bold');
 title('Spectrum function'); grid on;
 
-vel_axis_hs = linspace(-hs/2, hs/2-1, hs)/hs .* 2 * v_amb; % velocity axis for one beamwidth
+vel_axis_hs = linspace(-v_amb, v_amb, hs); % velocity axis for one beamwidth
 
 diff_v = diff(vel_axis_hs); 
 dv = diff_v(1); % velocity resolution
@@ -97,3 +97,5 @@ legend;
 title('Mean Doppler velocity')
 xlabel('Angle [deg]', 'FontSize', 12, 'FontWeight', 'bold');
 ylabel('v_{mean} [m s^{-1}]', 'FontSize', 12, 'FontWeight', 'bold');
+
+
