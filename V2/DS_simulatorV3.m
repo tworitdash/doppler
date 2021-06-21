@@ -21,14 +21,15 @@ if sigma < 0.02
     idx = S_ == Inf;
     S_(idx) = 1;
 else
-    S_ = m0/sqrt(2*pi*sigma^2) * exp(-(vel_axis - mu).^2/(2*sigma^2));
+    S_ = m0./sqrt(2*pi*sigma.^2) .* exp(-(vel_axis - mu).^2./(2*sigma.^2));
 end
 
 Noise = sum(S_) ./ (N .* SNR); % Noise Power
 
 
 P = -(S_ + Noise) .* log(X); % Power spectrum 
+% P = -S_;
 data_f = sqrt(P) .* exp(1j .* Theta);
-data = ifft(fftshift(sqrt(N) .* data_f));
+data = ifft(ifftshift(sqrt(N) .* data_f));
 
 end

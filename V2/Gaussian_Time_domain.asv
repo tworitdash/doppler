@@ -6,6 +6,7 @@ lambda = 0.03;
 
 
 mu = 4; % Mean Doppler
+sigma = 0.2;
 Omega_rpm = 1; % in RPM
 Omega = 2*pi/60 * Omega_rpm; % In rad/s
 BW_deg = 1.8; % beam width in degree
@@ -37,26 +38,22 @@ phi = linspace(th(1), th(end), M); % Angle of the sectors
 t1 = 0:PRT:(N - 1)*PRT; % Time axis 
 
 
-% ths = 0:PRT:(hs-1)*PRT;
-% 
-% t = repmat(ths, [1, M]);
-% % 
-
-% ph_ = (4 * pi * mu / lambda .* t1);
-% % s_ = (exp(1j .* ph_ .* (sin(eps + Omega .* t1)./(eps + Omega .* t1) - 1)));
-% s_ = exp(1j .* ph_);
+% t1 = -N/2*PRT:PRT:(N/2 - 1)*PRT; % Time axis
+s_analyt = m0./sqrt(2*pi*sigma.^2) .* exp(-(vel_axis - mu).^2./(2*sigma.^2));
+s_analyt = ifftshift((2/pi)^(1/4) * sqrt(sigma * 4 * pi /lambda) .* exp(-t1 .* ((sigma * 4 * pi /lambda)^2 .* t1 - 1j .* 4 * pi /lambda * mu)));
 
 vel_axis = linspace(-v_amb, v_amb, N); % velocity axis for the entire rotation
 
-[~, idx1] = (min(abs(vel_axis - mu)));
-s_f = dirac(vel_axis - vel_axis(idx1)); 
-idx = s_f == Inf;
-s_f(idx) = 1;
+figure; plot(t1, abs((s_analyt)));
 
-s_ = ifft(ifftshift(s_f));
+s_analyt_f = fftshift(fft(s_analyt)); 
 
-s_man = (exp(1j .* unwrap(angle(s_)) .* (eps + sin(th)./(eps + Omega .* t1)))); % manipulated signal with phase correction
+figure; plot(vel_axis, db(abs(s_analyt_f)));
 
+% s_man = (2/pi)^(1/4) * sqrt(sigma * 4 * pi /lambda ) .* exp(-t1 .* ((sigma * 4 * pi /lambda)^2  .* t1 + 1j .* mu .* 4 * pi /lambda .* cos(th)));
+% s_man = s_analyt;
+s_man = abs((s_analyt)) .* exp(1j .* unwrap(angle((s_analyt))) .* (eps + sin(Omega .* t1))./((eps + Omega .* t1)));
+ 
 % vel_axis = linspace(-v_amb, v_amb, N); % velocity axis for the entire rotation
 
 figure; plot(vel_axis, db(abs(fftshift(fft(s_man))))); % Spectrum of cosine modulated signal
