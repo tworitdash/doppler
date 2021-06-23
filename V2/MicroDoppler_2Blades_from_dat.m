@@ -42,7 +42,7 @@ hop = 31;
 nfft = wlen;                        % number of fft points (recomended to be power of 2)
 
 % Calculating Fs from PRI
-Omega = 1; % rpm
+Omega = 60000; % rpm
 Omega_s = Omega/60; % rps
 
 % L = 21.7e-2+2.5e-2; %length of the blades
@@ -66,14 +66,14 @@ S1_norm_db = 20*log(abs(fftshift(S1',2)));
 
 % i = i + 1;
 figure;
-imagesc(F1_doppler*lamb/2, Ti1 * 10^(3), S1_norm_db);
+imagesc(F1_doppler*lamb/2, Ti1, S1_norm_db);
 colormap('jet');
 colorbar;
 
 xlabel('Dopplervelocity [ms^{-1}]', 'FontSize', 12, 'FontWeight', 'bold');
-ylabel('Time[ms]', 'FontSize', 12, 'FontWeight', 'bold');
+ylabel('Time[s]', 'FontSize', 12, 'FontWeight', 'bold');
 title([' Micro Doppler N_{fft} = ', num2str(nfft), ', overlap = ', num2str(hop),...
-    ', fs = ', num2str(fs*1e-6), ' MHz, ', 'WINDOW = ', num2str(wlen), ' PEC'], 'FontSize', 10, 'FontWeight', 'bold');
+    ', fs = ', num2str(fs*1e-6), ' MHz, ', 'WINDOW = ', num2str(wlen), ' Material = PEC'], 'FontSize', 10, 'FontWeight', 'bold');
 % title([' Micro Doppler N_{fft} = ', num2str(nfft), ', overlap = ', num2str(hop),...
 %     ', fs = ', num2str(fs*1e-6), ' MHz, ', 'WINDOW = ', num2str(wlen), ', For side ', s], 'FontSize', 10, 'FontWeight', 'bold');
 
