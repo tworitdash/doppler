@@ -3,8 +3,8 @@ close all;
 
 
 lambda = 0.03;
-M = 4;
-hs = 16;
+M = 360;
+hs = 128;
 
 N = hs * M;
 
@@ -26,8 +26,8 @@ t1 = 0:PRT:(N - 1)*PRT;
 ph_ = (4 * pi * mu / lambda) .* t1;
 s_ = exp(1j .* ph_);
 
-p0 = 0*pi/180;
-p1 = 360*pi/180;
+p0 = 179*pi/180;
+p1 = 270*pi/180;
 
 th = linspace(p0, p1, N);
 % th = pi/3;
@@ -35,13 +35,11 @@ th = linspace(p0, p1, N);
 
 phi = linspace(th(1), th(end), M);
 
-% s_man = abs(s_) .* exp(1j * (angle(s_))  + 1j * (4*pi/lambda * mu * (cos(th) - 1) .* t1));
-
-% s_man = s_ .* exp(1j * (4*pi/lambda * mu * (cos(th) - 1) .* t1));
-
-s_man = abs(s_) .* exp(1j .* unwrap(angle(s_)) .* sin(th) ./ th);
 
 
+% s_man = s_ .* exp(1j .* 4*pi/lambda * mu .* (cos(th) - 1) .* t1);
+
+s_man = exp(1j .* ph_ .* cos(th));
 
 
 for i = 1:length(phi)
@@ -90,6 +88,21 @@ ylabel('Azimuth [Deg]', 'FontSize', 12, 'FontWeight', 'bold');
 
 
 %% Phase change
+figure; plot((angle(s_man_i_reshape)));  hold on; plot((angle(s_man)));
 
 
-figure; plot(diff(angle(s_man_i_reshape))); hold on; plot(diff(angle(s_man)));
+
+%% Compensation
+
+
+for i = 1:length(phi)
+    th_ = th((i - 1)*hs+1:hs*i);
+    s_man_i_re(i, :) = abs(s_man_i(i, :)) .* exp(1j * unwrap(angle(s_man_i(i, :))) ./ cos(th_));
+    
+%     s_man_i(i, :) = s_man((i - 1)*hs+1:hs*i) ;
+    s_man_f_re(i, :) = fftshift(fft(s_man_i_re(i, :)));
+    
+end
+
+figure; imagesc(vel_axis_hs, phi*180/pi, db(abs(s_man_f_re))); title('Manipulated spec compensated'); ...
+    colormap('jet');
