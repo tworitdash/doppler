@@ -7,7 +7,7 @@ n_rot = 20;
 
 phi_0_deg = 0;
 PRT = 1e-3;
-Omega_rpm = 60;
+Omega_rpm = 6;
 
 lambda = 0.03;
 %% 

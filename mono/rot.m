@@ -3,11 +3,11 @@ clear;
 %% Generating time domain data for a monochriomatic wind within a rotating radar
 
 BW_deg = 1.8;
-n_rot = 2;
+n_rot = 1;
 
 phi_0_deg = 0;
 PRT = 1e-3;
-Omega_rpm = 60;
+Omega_rpm = 1;
 
 lambda = 0.03;
 %% 
@@ -31,8 +31,8 @@ beta_wind_deg = 0;
 
 beta_wind = beta_wind_deg .* pi/180;
 
-mu = 3;
-
+mu = normrnd(3, 0.1, [1 N]);
+% mu = 3;
 [s] = TD_generator(mu, lambda, beta_wind, phi_0, Omega, t);
 
 %% variables for real life scenario
@@ -120,15 +120,24 @@ for k = 1:size(S1_norm, 1)
     v_mean_i(k, :) = vel_axis_hs .* abs(S1_norm(k, :)).^2 .* dv;
     v_mean(k) = 1./PT .* sum(v_mean_i(k, :));
     
+    v_spread_i(k, :) = (vel_axis_hs - v_mean(k)).^2 .* abs(S1_norm(k, :)).^2 .* dv;
+    v_spread(k) = 1./PT .* sum(v_spread_i(k, :));
+    
 end
 % mu_der = (mu(2) - mu(1))./(t(2) - t(1));
 % beta_wind_der = beta_wind(2) - beta_wind(1);
 % v_max = (-1/Omega) .* (mu_der .* sin(- phi_0) + mu .* (beta_wind_der - Omega).*cos( - phi_0));
 % txt = ['Angle integration = ', num2str(N_BW*BW_deg), ' [deg]'];
 % figure(101); hold on; plot(phi * 180/pi, v_mean, 'LineWidth', 2, 'DisplayName', txt); grid on;
-figure(101); hold on; plot(phi_axis, v_mean, 'LineWidth', 2); grid on; % hold on; plot(phi_0 + Omega .* t, v_max); 
+figure(101); hold on; plot(phi_axis * 180/pi, v_mean, 'LineWidth', 2); grid on; % hold on; plot(phi_0 + Omega .* t, v_max); 
 legend;
 title('Mean Doppler velocity')
+xlabel('Angle [deg]', 'FontSize', 12, 'FontWeight', 'bold');
+ylabel('v_{mean} [m s^{-1}]', 'FontSize', 12, 'FontWeight', 'bold');
+
+figure(102); hold on; plot(phi_axis * 180/pi, v_spread, 'LineWidth', 2); grid on; % hold on; plot(phi_0 + Omega .* t, v_max); 
+legend;
+title('Doppler spectrum width')
 xlabel('Angle [deg]', 'FontSize', 12, 'FontWeight', 'bold');
 ylabel('v_{mean} [m s^{-1}]', 'FontSize', 12, 'FontWeight', 'bold');
 
