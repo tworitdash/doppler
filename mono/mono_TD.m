@@ -5,8 +5,8 @@ close all;
 lambda = 0.03;
 
 
-
-Omega_rpm = 1; % in RPM
+mu = 4 * 2/lambda; % Mean Doppler
+Omega_rpm = 60; % in RPM
 Omega = 2*pi/60 * Omega_rpm; % In rad/s
 BW_deg = 1.8; % beam width in degree
 BW = BW_deg * pi/180; % beam width in radian
@@ -40,30 +40,17 @@ phi = linspace(th(1), th(end), M); % Angle of the sectors
 
 t1 = 0:PRT:(N - 1)*PRT; % Time axis 
 
-vel_axis = linspace(-f_amb, f_amb, N); % velocity axis for the entire rotation
-
-% mu = linspace(4, 6, 100) .* 2/lambda; % Mean Doppler
-[~, idx1] = min(abs(vel_axis - 3 .* 2 / lambda));
-[~, idx2] = min(abs(vel_axis - 5 .* 2 / lambda));
-mu = vel_axis(idx1:idx2);
 
 % ths = 0:PRT:(hs-1)*PRT;
 % 
 % t = repmat(ths, [1, M]);
 % % 
-s_ = zeros(1, length(t1));
-s_unmodulated = zeros(1, length(t1));
 
-for i = 1:length(mu)
-    ph_ = (2 * pi * mu(i) .* t1);
-    s_unmodulated = s_unmodulated + exp(1j .* ph_);
-    s_ = s_ + (exp(1j .* ph_ .* (sin(eps + Omega .* t1)./(eps + Omega .* t1))));
-end
-
-% s_ = smoothdata(s_);
+ph_ = (2 * pi * mu .* t1);
+s_ = (exp(1j .* ph_ .* (sin(eps + Omega .* t1)./(eps + Omega .* t1))));
 % s_ = exp(1j .* ph_);
 % 
-
+vel_axis = linspace(-f_amb, f_amb, N); % velocity axis for the entire rotation
 % 
 % [~, idx1] = (min(abs(vel_axis - mu)));
 % s_f = dirac(vel_axis - vel_axis(idx1)); 
@@ -77,14 +64,6 @@ figure; plot(vel_axis*lambda/2, db(abs(s_f)), 'LineWidth', 2); grid on;
 xlabel('Doppler velocity [ms^{-1}]', 'FontSize', 12, 'FontWeight', 'bold');
 ylabel('Spectrum', 'FontSize', 12, 'FontWeight', 'bold');
 title('Spectrum function'); grid on;
-
-s_f_unmodulated = fftshift(fft(hamming(1, N) .* s_unmodulated));
-figure; plot(vel_axis*lambda/2, (abs(s_f_unmodulated)), 'LineWidth', 2); grid on; 
-
-xlabel('Doppler velocity [ms^{-1}]', 'FontSize', 12, 'FontWeight', 'bold');
-ylabel('Spectrum', 'FontSize', 12, 'FontWeight', 'bold');
-title('Spectrum function'); grid on;
-
 
 s_man = s_;
 % s_man = (exp(1j .* unwrap(angle(s_)) .* (eps + sin(th)./(eps + Omega .* t1)))); % manipulated signal with phase correction

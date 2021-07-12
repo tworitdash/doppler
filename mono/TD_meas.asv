@@ -1,0 +1,7 @@
+function [s] = TD_meas(mu_0, lambda, beta_wind_0, phi_0, Omega, t)
+
+    alpha_wind = 
+
+    beta_wind = beta_wind_0 + alpha_wind 
+
+end
