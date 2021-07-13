@@ -48,10 +48,10 @@ mu_meas = 3;
 
 %% Time domain correction
 
-figure; plot(t(1:hs), real(s(1:hs)), 'LineWidth', 2); hold on; plot(t(1:hs), real(s_meas(1:hs)), '*');
-
-figure; plot(t(1:hs), imag(s(1:hs)), 'LineWidth', 2); hold on; plot(t(1:hs), imag(s_meas(1:hs)), '*');
-
+% figure; plot(t(1:hs), real(s(1:hs)), 'LineWidth', 2); hold on; plot(t(1:hs), real(s_meas(1:hs)), '*');
+% 
+% figure; plot(t(1:hs), imag(s(1:hs)), 'LineWidth', 2); hold on; plot(t(1:hs), imag(s_meas(1:hs)), '*');
+% 
 
 %% Store the time domain data sector-wise
 
@@ -74,9 +74,9 @@ end
 
 phi_axis_one_rot = linspace(0, 2*pi, sec_in_one_rot);
 
-figure; surface(1:hs*n_rot, phi_axis_one_rot*180/pi, real(s_sectors)); shading flat; colormap('jet');
-
-figure; surface(1:hs*n_rot, phi_axis_one_rot*180/pi, real(s_sectors_meas)); shading flat; colormap('jet');
+% figure; surface(1:hs*n_rot, phi_axis_one_rot*180/pi, real(s_sectors)); shading flat; colormap('jet');
+% 
+% figure; surface(1:hs*n_rot, phi_axis_one_rot*180/pi, real(s_sectors_meas)); shading flat; colormap('jet');
 
 %%
 
