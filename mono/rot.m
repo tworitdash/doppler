@@ -7,7 +7,7 @@ n_rot = 1;
 
 phi_0_deg = 0;
 PRT = 1e-3;
-Omega_rpm = 1;
+Omega_rpm = 60;
 
 lambda = 0.03;
 %% 
@@ -32,18 +32,19 @@ beta_wind_deg = 0;
 beta_wind = beta_wind_deg .* pi/180;
 
 mu = normrnd(3, 0.1, [1 N]);
+n_sig = 1;
 % mu = 3;
-[s] = TD_generator(mu, lambda, beta_wind, phi_0, Omega, t);
+[s] = TD_generator(mu, lambda, beta_wind, phi_0, Omega, t, n_sig);
 
 %% variables for real life scenario
 
-beta_wind_meas_deg = 0;
-
-beta_wind_meas = beta_wind_meas_deg .* pi/180;
-
-mu_meas = 3;
-
-[s_meas] = TD_meas(mu_meas, lambda, beta_wind_meas, phi_0, Omega, t);
+% beta_wind_meas_deg = 0;
+% 
+% beta_wind_meas = beta_wind_meas_deg .* pi/180;
+% 
+% mu_meas = 3;
+% 
+% [s_meas] = TD_meas(mu_meas, lambda, beta_wind_meas, phi_0, Omega, t);
 
 
 %% Time domain correction
@@ -101,7 +102,7 @@ S1_norm_db = 20*log(abs(S1_norm));
 
 
 figure;
-imagesc(vel_axis_hs, phi_axis*180/pi, S1_norm_db); shading flat;
+surface(vel_axis_hs, phi_axis*180/pi, S1_norm_db); shading flat;
 colormap('jet');
 colorbar;
 
@@ -121,7 +122,7 @@ for k = 1:size(S1_norm, 1)
     v_mean(k) = 1./PT .* sum(v_mean_i(k, :));
     
     v_spread_i(k, :) = (vel_axis_hs - v_mean(k)).^2 .* abs(S1_norm(k, :)).^2 .* dv;
-    v_spread(k) = 1./PT .* sum(v_spread_i(k, :));
+    v_spread(k) = sqrt(1./PT .* sum(v_spread_i(k, :)));
     
 end
 % mu_der = (mu(2) - mu(1))./(t(2) - t(1));
