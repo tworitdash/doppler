@@ -28,16 +28,17 @@ phi_axis = linspace(phi_0, Omega*t(end), sec);
 m0 = 1;
 v_amb = lambda/(4 * PRT) .* 2./lambda;
 % mu_r = 1./2;
-mu_r = linspace(-1, 1, 100);
+mu_r = linspace(-1, 1, 10);
 mu = v_amb .* mu_r;
 
-p = 2; % skew of the spectrum
+p = 1.5; % skew of the spectrum
 % wts = linspace(0, 0.14, 10);
 wts = 0.0625;
 % sigma = wts/(p .* PRT);
 sigma = wts / (2 .* PRT);
 
-SNR_db = linspace(0, 40, 4);
+% SNR_db = linspace(0, 40, 4);
+SNR_db = 40;
 SNR = 10.^(SNR_db/10);
 %% Gathering time domain data from a Gaussian spectrum
 for s = 1:length(SNR)
@@ -53,7 +54,7 @@ else
 end
 
 dv = vel_axis(2) - vel_axis(1);
-
+% 
 % figure; plot(vel_axis/v_amb, db(P_wNoise./max(P_wNoise))./2, 'LineWidth', 2); grid on;
 % figure; plot(vel_axis/v_amb, (-P./max(-P)), 'LineWidth', 2); grid on;
 
@@ -115,8 +116,8 @@ end
 % 
 % txt = ['Input SNR = ', num2str(SNR_db(s)), ' dB'];
 % figure(1); hold on; plot(wts, 2 .* PRT .* abs(M2_PP), 'DisplayName', txt, 'LineWidth', 2); grid on; 
-txt = ['Input SNR = ', num2str(SNR_db(s)), ' dB']; figure(1); hold on;
-plot(mu_r, f_ppp_vppn./v_amb, 'DisplayName', txt, 'LineWidth', 2); grid on;
+txt = ['Input SNR = ', num2str(SNR_db(s)), ' dB']; figure(101); hold on;
+plot(mu_r, f_ppp_vpn./v_amb, 'DisplayName', txt, 'LineWidth', 2); grid on;
 end
 
 % xlabel('2 \sigma_{fTrue} PRT', 'FontSize', 12, 'FontWeight', 'bold');
