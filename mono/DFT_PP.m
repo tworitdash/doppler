@@ -16,7 +16,7 @@ Omega = Omega_rpm * 2*pi/60; % rotation speed in rad/s
 Td = BW/Omega;
 hs = round(Td/PRT);
 phi_0 = phi_0_deg * pi/180;
-
+ 
 sec = round((n_rot*2*pi)/BW);
 % N = sec * hs;
 N = 2048;
@@ -27,13 +27,13 @@ phi_axis = linspace(phi_0, Omega*t(end), sec);
 % phi_axis = zeros(size(phi_axis));
 m0 = 1;
 v_amb = lambda/(4 * PRT) .* 2./lambda;
-% mu_r = 1./2;
-mu_r = linspace(-1, 1, 10);
+mu_r = 1./2;
+% mu_r = linspace(-1, 1, 10);
 mu = v_amb .* mu_r;
 
-p = 1.5; % skew of the spectrum
-% wts = linspace(0, 0.14, 10);
-wts = 0.0625;
+p = 3; % skew of the spectrum
+wts = linspace(eps, 0.4, 10);
+% wts = 0.28;
 % sigma = wts/(p .* PRT);
 sigma = wts / (2 .* PRT);
 
@@ -42,9 +42,9 @@ SNR_db = 40;
 SNR = 10.^(SNR_db/10);
 %% Gathering time domain data from a Gaussian spectrum
 for s = 1:length(SNR)
-for m = 1:length(mu)
+for m = 1:length(sigma)
 
-[data, data_f, data_f_Sig, X, Theta, P_wNoise, P] = DS_simulatorV3(SNR(s), m0, mu(m), sigma, N, v_amb, p);
+[data, data_f, data_f_Sig, X, Theta, P_wNoise, P] = DS_simulatorV3(SNR(s), m0, mu, sigma(m), N, v_amb, p);
 data = data.';
 
 if mod(N, 2) == 0
@@ -97,17 +97,17 @@ M1_VPC(m) = (1./(2 .* pi .* PRT)) .* angle(dum + 1j .* num);
 
 %% Poly Pulse Pair
 
-k = 1:1:round(N/2)- 1;
+k = 1:1:5;
 
 for l = 1:length(k)
-    R_pppn(l) = 1./N .* data(k(l)+1:end).' * (data(1:end-k(l))').';
-    f_pppn(l) = 1./k(l) .* 1./(2 .* pi .* PRT) .* angle(R_pppn(l));
+    R_pppn(m, l) = 1./N .* data(k(l)+1:end).' * (data(1:end-k(l))').';
+    f_pppn(m, l) = 1./k(l) .* 1./(2 .* pi .* PRT) .* angle(R_pppn(m, l));
 end
 
 
 %% VPP-N
 
-f_ppp_vppn(m) = 1./(2 .* pi .* PRT) .* angle(sum(R_pppn));
+f_ppp_vppn(m) = 1./(2 .* pi .* PRT) .* angle(sum(R_pppn(m, :)));
 
 end
 
@@ -116,8 +116,13 @@ end
 % 
 % txt = ['Input SNR = ', num2str(SNR_db(s)), ' dB'];
 % figure(1); hold on; plot(wts, 2 .* PRT .* abs(M2_PP), 'DisplayName', txt, 'LineWidth', 2); grid on; 
-txt = ['Input SNR = ', num2str(SNR_db(s)), ' dB']; figure(101); hold on;
-plot(mu_r, f_ppp_vpn./v_amb, 'DisplayName', txt, 'LineWidth', 2); grid on;
+txt = ['Input SNR = ', num2str(SNR_db(s)), ' dB', ' skew = ', num2str(p)]; figure(101); hold on;
+plot(wts, (f_pppn(:, 1)./v_amb - mu./v_amb)./(mu/v_amb) .* 100, 'DisplayName', txt, 'LineWidth', 2); grid on;
+hold on; 
+plot(wts, abs(abs(f_pppn(:, 4))./v_amb - mu./v_amb)./(mu/v_amb) .* 100, 'DisplayName', txt, 'LineWidth', 2); grid on;
+hold on;
+% plot(wts, (f_pppn(:, 4)./v_amb - mu./v_amb)./(mu/v_amb) .* 100, 'DisplayName', txt, 'LineWidth', 2); grid on;
+
 end
 
 % xlabel('2 \sigma_{fTrue} PRT', 'FontSize', 12, 'FontWeight', 'bold');

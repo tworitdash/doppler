@@ -28,6 +28,8 @@ else
     S_(i) = (2 .* p./ (1 + p)) .* m0./sqrt(2*pi*(sigma .* p).^2) .* exp(-(vel_axis(i) - mu).^2./(2*(sigma .* p).^2));
 end
 end
+
+% figure; plot(abs(S_))
 % end
 %% Doviak
 

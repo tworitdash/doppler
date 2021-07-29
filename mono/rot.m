@@ -1,5 +1,5 @@
 clear;
-% close all;
+close all;
 %% Generating time domain data for a monochriomatic wind within a rotating radar
 
 BW_deg = 1.8;
@@ -31,8 +31,12 @@ beta_wind_deg = 0;
 
 beta_wind = beta_wind_deg .* pi/180;
 
+<<<<<<< Updated upstream
 mu = normrnd(3, 0.1, [1 N]);
 n_sig = 1;
+=======
+mu = normrnd(4, 1, [1 N]);
+>>>>>>> Stashed changes
 % mu = 3;
 [s] = TD_generator(mu, lambda, beta_wind, phi_0, Omega, t, n_sig);
 
@@ -136,7 +140,7 @@ title('Mean Doppler velocity')
 xlabel('Angle [deg]', 'FontSize', 12, 'FontWeight', 'bold');
 ylabel('v_{mean} [m s^{-1}]', 'FontSize', 12, 'FontWeight', 'bold');
 
-figure(102); hold on; plot(phi_axis * 180/pi, v_spread, 'LineWidth', 2); grid on; % hold on; plot(phi_0 + Omega .* t, v_max); 
+figure(102); hold on; plot(phi_axis * 180/pi, sqrt(v_spread), 'LineWidth', 2); grid on; % hold on; plot(phi_0 + Omega .* t, v_max); 
 legend;
 title('Doppler spectrum width')
 xlabel('Angle [deg]', 'FontSize', 12, 'FontWeight', 'bold');

@@ -3,7 +3,7 @@ close all;
 %% Generating time domain data for a monochriomatic wind within a rotating radar
 
 BW_deg = 1.8;
-n_rot = 20;
+n_rot = 1;
 
 phi_0_deg = 0;
 PRT = 1e-3;
