@@ -27,11 +27,11 @@ phi_axis = linspace(phi_0, Omega*t(end), sec);
 % phi_axis = zeros(size(phi_axis));
 m0 = 1;
 v_amb = lambda/(4 * PRT) .* 2./lambda;
-mu_r = 1./2;
+mu_r = 1e-7;
 % mu_r = linspace(-1, 1, 10);
 mu = v_amb .* mu_r;
 
-p = 3; % skew of the spectrum
+p = 10; % skew of the spectrum
 wts = linspace(eps, 0.4, 10);
 % wts = 0.28;
 % sigma = wts/(p .* PRT);
@@ -54,9 +54,9 @@ else
 end
 
 dv = vel_axis(2) - vel_axis(1);
-% 
-% figure; plot(vel_axis/v_amb, db(P_wNoise./max(P_wNoise))./2, 'LineWidth', 2); grid on;
-% figure; plot(vel_axis/v_amb, (-P./max(-P)), 'LineWidth', 2); grid on;
+
+figure; plot(vel_axis/v_amb, db(P_wNoise./max(P_wNoise))./2, 'LineWidth', 2); grid on;
+figure; plot(vel_axis/v_amb, (-P./max(-P)), 'LineWidth', 2); grid on;
 
 
 I = real(data);
@@ -119,8 +119,11 @@ end
 txt = ['Input SNR = ', num2str(SNR_db(s)), ' dB', ' skew = ', num2str(p)]; figure(101); hold on;
 plot(wts, (f_pppn(:, 1)./v_amb - mu./v_amb)./(mu/v_amb) .* 100, 'DisplayName', txt, 'LineWidth', 2); grid on;
 hold on; 
-plot(wts, abs(abs(f_pppn(:, 4))./v_amb - mu./v_amb)./(mu/v_amb) .* 100, 'DisplayName', txt, 'LineWidth', 2); grid on;
+plot(wts, abs(abs(f_pppn(:, 3))./v_amb - mu./v_amb)./(mu/v_amb) .* 100, 'DisplayName', txt, 'LineWidth', 2); grid on;
 hold on;
+plot(wts, abs(abs(f_pppn(:, 5))./v_amb - mu./v_amb)./(mu/v_amb) .* 100, 'DisplayName', txt, 'LineWidth', 2); grid on;
+hold on;
+
 % plot(wts, (f_pppn(:, 4)./v_amb - mu./v_amb)./(mu/v_amb) .* 100, 'DisplayName', txt, 'LineWidth', 2); grid on;
 
 end
