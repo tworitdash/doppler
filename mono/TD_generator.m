@@ -1,4 +1,4 @@
-function [s] = TD_generator(mu, lambda, beta_wind, phi_0, Omega, t, n_sig)
+function [s, SNR] = TD_generator(mu, lambda, beta_wind, phi_0, Omega, t, n_sig)
 % 
 %     ph_ = (4 * pi/lambda * mu .* t);
 %     s = (exp(1j .* ph_ .* (sin(eps + beta_wind - Omega .* t - phi_0)./(eps - Omega .* t))));
@@ -15,5 +15,7 @@ function [s] = TD_generator(mu, lambda, beta_wind, phi_0, Omega, t, n_sig)
     
     ph_ = 4 * pi / lambda .* dis;
     s = exp(1j .* ph_) + n_sig .* randn(size(t));
+    
+    SNR = sum(abs(s).^2)/(length(t) .* n_sig^2);
 
 end

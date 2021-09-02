@@ -33,7 +33,7 @@ beta_wind = beta_wind_deg .* pi/180;
 
 mu = 3;
 
-[s] = TD_generator(mu, lambda, beta_wind, phi_0, Omega, t);
+[s] = TD_generator(mu, lambda, beta_wind, phi_0, Omega, t, 0.2);
 
 
 figure; plot(t, unwrap(angle(s)));
