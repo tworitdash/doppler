@@ -5,14 +5,16 @@ hFigure = figure;
 
 
 allTheFrames = cell(NF,1);
-vidHeight = 344;
-vidWidth = 446;
+vidHeight = 305;
+vidWidth = 304;
 
 allTheColorMaps = cell(NF,1);
-allTheColorMaps(:) = {zeros(256, 3)};
 
+allTheColorMaps(:) = {zeros(256, 3)};
+allTheFrames(:) = {zeros(vidHeight, vidWidth, 3, 'uint8')};
+% Next get a cell array with all the colormaps.
 myMovie = struct('cdata', allTheFrames, 'colormap', allTheColorMaps);
-set(gcf, 'renderer', 'zbuffer');
+% set(gcf, 'renderer', 'zbuffer');
 
 x = rho .* cos(phi);
 y = rho .* sin(phi);
@@ -20,12 +22,18 @@ y = rho .* sin(phi);
 for frameIndex = 1 : NF
     clear z;
 	z = (R(frameIndex, :, :));
-	
-	surface(x,y,db(abs(squeeze(z)))); shading flat; colormap('jet'); colorbar;
+    if frameIndex == 1
+        h = surface(x,y,db(abs(squeeze(z)))); shading flat; colormap('jet'); colorbar;
+        set(ax, 'XLimMode', 'manual', 'YLimMode', 'manual', 'ZLimMode', 'manual');
+    else
+        set(h(1), 'ZData', z);
+    end
+        
 % 	axis('tight')
 % 	zlim([0, 1]);
 	caption = sprintf('Frame #%d of %d, t = %.1f', frameIndex, NF, t(frameIndex));
-	title(caption, 'FontSize', 15);
+	title(caption, 'FontSize', 15, 'Interpreter', 'tex');
+    
 	drawnow;
 	thisFrame = getframe(gca);
 	% Write this frame out to a new video file.

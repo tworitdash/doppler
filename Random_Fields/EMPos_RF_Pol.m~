@@ -4,72 +4,131 @@ close all;
 %% Random Fields in 2D
 
 
-dx = 227;
-dy = 227;
-x_ = -15e3:dx:15e3;
-y_ = -15e3:dy:15e3;
+dr = 227;
+dph = pi/180;
+r = 1e-6:dr:15e3;
+ph = eps:dph:2*pi;
 
-[x, y] = meshgrid(x_, y_); % Meshgrid of rho and phi forming a circle 
-
-% Min = 0.0001;
-Max = 1;
-
-R0 = Max .* (rand(size(x)) + 1j .* rand(size(x)));
-
-% R0 = (rand(size(x))./sqrt(2) + 1j .* rand(size(x))./sqrt(2));
-
-
-figure; imagesc(x_, y_, (abs(R0))); colormap('jet')
-
-shading flat; colorbar; axis equal tight;
+[rho, phi] = meshgrid(r, ph); % Meshgrid of rho and phi forming a circle 
 
 %% GENERATE RANDOM FUNCTION 
 SNR_db = 40;
 SNR = 10^(SNR_db/10);
 
-f = 0.02;
+f = 0.05;
 
 % rand('seed', 0);
 
-nx1 = 1 + floor(0.9999.*f*length(x_));
-nx2 = length(x_) - nx1 + 1; 
+nr1 = 1 + floor(0.9999.*f*length(r));
+nr2 = length(r) - nr1 + 1; 
 
-ny1 = 1 + floor(0.9999.*f*length(y_));
-ny2 = length(y_) - ny1 + 1; 
+np1 = 1 + floor(0.9999.*f*length(ph));
+np2 = length(ph) - np1 + 1; 
 
-F = 10^4 .* (rand(length(x), length(y)) + 1j .* rand(length(x), length(y)) - 0.5);
+
+
+F = 10^4 .* (rand(length(r), length(ph)) + 1j .* rand(length(r), length(ph)) - 0.5);
+figure; pcolor(rho .* cos(phi) .* 1e-3, rho .* sin(phi) .* 1e-3, db(abs(F).')./2); colorbar; shading interp;
+
 F = fft2(F);
-
-F(nx1:nx2, :) = 0;
-F(:, ny1:ny2) = 0;
+F(nr1:nr2, :) = 0;
+F(:, np1:np2) = 0;
 
 F             = (ifft2(F));
-N             = sqrt(max(abs(F)).^2./SNR) .* (rand(length(x), length(y)) + 1j .* rand(length(x), length(y)));
+N             = sqrt(max(abs(F)).^2./SNR) .* (rand(length(r), length(ph)) + 1j .* rand(length(r), length(ph)));
 F             = F + N;
 
-pcolor(x_.*1e-3, y_.*1e-3, db(abs(F).')./2); colorbar; 
+figure; pcolor(rho .* cos(phi) .* 1e-3, rho .* sin(phi) .* 1e-3, db(abs(F).')./2); colorbar; shading interp;
 
 % pcolor(x_.*1e-3, y_.*1e-3, db(abs(N).')./2); colorbar; 
-shading interp; axis equal tight; 
+shading interp; 
+
+% axis equal tight; 
 
 xlim([-15 15]);
 ylim([-15 15]);
 
-T = [-15:5:15];
-L = {};
-for m = 1:length(T)
-    if T(m) == 0
-        L{m} = '0';
-    else
-        L{m} = num2str(T(m), '%3.1f');
-    end
-end
-
-set(gca, 'XTick', T, 'XTickLabel', L);
-set(gca, 'YTick', T, 'YTickLabel', L);
+% T = [-15:5:15];
+% L = {};
+% for m = 1:length(T)
+%     if T(m) == 0
+%         L{m} = '0';
+%     else
+%         L{m} = num2str(T(m), '%3.1f');
+%     end
+% end
+% 
+% set(gca, 'XTick', T, 'XTickLabel', L);
+% set(gca, 'YTick', T, 'YTickLabel', L);
 
 set(gca, 'FontSize', 18, 'LineWidth', 4);
 
 title('Relectivity $\eta(x, y)$', 'Interpreter', 'latex', 'FontSize', 22);
 xlabel('$X$ [km]', 'Interpreter', 'latex', 'FontSize', 22);
 ylabel('$Y$ [km]', 'Interpreter', 'latex', 'FontSize', 22);
+
+%% 
+%% R1 is the cloud reflectivity field
+PRT = 0.001;
+
+t = eps:PRT:16*PRT;
+
+Rt = zeros(length(t), length(ph), length(r));
+Rt(1, :, :) = F.';
+
+U = normrnd(8, 1, size(rho));
+V = normrnd(1, 1, size(rho));
+
+Vr = U .* cos(phi) + V .* sin(phi);
+Vaz = U .* sin(phi) - V .* cos(phi);
+
+for k  = 1:length(t) - 1
+    for i = 1:length(ph)
+        for l = 1:length(r)
+           if ((i == 1) && (l == 1))
+                Rt(k + 1, i, l) = Rt(k, i, l) - Vr(i, l) ./ (2 .* dr) .* PRT .* (Rt(k, i, l + 1) - Rt(k, i, l))...
+               - Vaz(i, l) ./ r(l)./ (2 .* dph) .* PRT .* (Rt(k, i + 1, l) - Rt(k, i, l));
+           elseif ((i == 1) && (l == length(r)))
+               Rt(k + 1, i, l) = Rt(k, i, l) - Vr(i, l) ./ (2 .* dr) .* PRT .* (Rt(k, i, l) - Rt(k, i, l - 1))...
+               - Vaz(i, l) ./ r(l)./ (2 .* dph) .* PRT .* (Rt(k, i + 1, l) - Rt(k, i, l));
+           elseif ((i == length(ph)) && (l == 1))
+               Rt(k + 1, i, l) = Rt(k, i, l) - Vr(i, l) ./ (2 .* dr) .* PRT .* (Rt(k, i, l + 1) - Rt(k, i, l))...
+               - Vaz(i, l) ./ r(l)./ (2 .* dph) .* PRT .* (Rt(k, i, l) - Rt(k, i - 1, l));
+           elseif ((i == length(ph)) && (l == length(r)))
+               Rt(k + 1, i, l) = Rt(k, i, l) - Vr(i, l) ./ (2 .* dr) .* PRT .* (Rt(k, i, l) - Rt(k, i, l - 1))...
+               - Vaz(i, l) ./ r(l)./ (2 .* dph) .* PRT .* (Rt(k, i, l) - Rt(k, i - 1, l));
+           
+           
+           elseif ((i == 1)) && (l ~= 1) && (l ~= length(r))
+               Rt(k + 1, i, l) = Rt(k, i, l) - Vr(i, l) ./ ( 2.* dr ) .* PRT .* (Rt(k, i, l + 1) - Rt(k, i, l - 1))...
+               - Vaz(i, l) ./ r(l)./(2 .* dph) .* PRT .* (Rt(k, i + 1, l) - Rt(k, i, l));
+           elseif ((l == 1)) && ((i ~= 1) && (i ~= length(ph)))
+               Rt(k + 1, i, l) = Rt(k, i, l) - Vr(i, l) ./ ( 2.* dr ) .* PRT .* (Rt(k, i, l + 1) - Rt(k, i, l))...
+               - Vaz(i, l) ./ r(l)./( 2 .* dph) .* PRT .* (Rt(k, i + 1, l) - Rt(k, i - 1, l));
+           
+           elseif ((i == length(ph))) && (l ~= 1) && (l ~= length(r))
+               Rt(k + 1, i, l) = Rt(k, i, l) - Vr(i, l) ./ ( 2.* dr ) .* PRT .* (Rt(k, i, l + 1) - Rt(k, i, l - 1))...
+               - Vaz(i, l) ./ r(l)./(2 .* dph) .* PRT .* (Rt(k, i, l) - Rt(k, i - 1, l));
+           elseif ((l == length(r))) && (i ~= 1) && (i ~= length(ph))
+               Rt(k + 1, i, l) = Rt(k, i, l) - Vr(i, l) ./ ( 2.* dr ) .* PRT .* (Rt(k, i, l) - Rt(k, i, l - 1))...
+               - Vaz(i, l) ./ r(l)./( 2 .* dph) .* PRT .* (Rt(k, i + 1, l) - Rt(k, i - 1, l));
+           else
+               Rt(k + 1, i, l) = Rt(k, i, l) - Vr(i, l) ./ ( 2.* dr ) .* PRT .* (Rt(k, i, l + 1) - Rt(k, i, l - 1))...
+               - Vaz(i, l) ./ r(l)./( 2 .* dph) .* PRT .* (Rt(k, i + 1, l) - Rt(k, i - 1, l));
+           end
+           if db(abs(Rt(k+1, i, l))) > 40
+               Rt(k + 1, i, l) = 10^(40/20);
+           end
+        end
+    end
+%     figure(k); surface(rho .* cos(phi), rho .* sin(phi), db(abs(squeeze(Rt(k+1, :, :))))); ...
+%     shading flat; colormap('jet'); colorbar;
+end
+
+
+
+
+% figure;surface(rho .* cos(phi), rho .* sin(phi), db(abs(squeeze(Rt(3, :, :))))); ...
+%     shading flat; colormap('jet'); colorbar;
+
+makevideo(Rt, rho, phi, t)
