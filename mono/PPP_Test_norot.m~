@@ -97,7 +97,8 @@ grid on;
 
 figure; plot(sigma*lambda/2,lambda/2*(fn(:, 1)));
 hold on; plot(sigma*lambda/2,lambda/2*(fn(:, 3)));
-hold on;  plot(sigma*lambda/2, lambda/2*(fn(:, 5)));
+hold on;  plot(sigma*lambda/2, lamb
+da/2*(fn(:, 5)));
 
 grid on;
 % hold on; plot(sigma * lambda/2, f_vppn * lambda/2); hold on;

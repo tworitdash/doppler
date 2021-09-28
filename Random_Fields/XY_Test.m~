@@ -1,0 +1,37 @@
+clear; 
+close all;
+
+L = 20;
+N = 13;
+
+dx = 1;
+dt = 0.1;
+
+x_ = 0:dx:L;
+
+t_ = 0:dt:N*dt;
+
+[x, t] = meshgrid(x_, t_);
+
+eta = sin(2 .* acot(exp((2 .* pi * t + L .* log(cot(pi .* x/L + eps)))./L)));
+
+
+figure; plot(x_, (eta(1, :)), 'o'); hold on ; plot(x_, (eta(end, :)), '*-');grid on;
+
+eta_n = zeros(size(x));
+
+eta_n(1, :) = sin(2 .* pi .* (x_)/L);
+
+for k = 1:length(t_) - 1
+    for i = 1:length(x_) - 1
+        if k == 1
+            eta_n(k + 1, i) = eta_n(k, i) - sin(2 * pi * x_(i)/L)./dx .* dt .* (eta_n(k, i+1) - eta_n(k, i));
+        elseif k == length(t_) - 1
+            
+        else
+        end
+    end 
+end
+
+hold on; plot(x_, (eta_n(end, :)), '*-');grid on;
+% plot(x_, (eta_n(1, :)), 'o'); hold on ; plot(x_, (eta_n(end, :)), '*-');grid on;
