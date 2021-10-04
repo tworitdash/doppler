@@ -78,61 +78,53 @@ ylabel('$Y$ [km]', 'Interpreter', 'latex', 'FontSize', 22);
 %% VELOCITY FIELDS
 
 
-U = normrnd(30, 0.1, size(x));
-V = normrnd(30, 0.1, size(x));
+U = 3; 
+V = 1;
 
+% e = 10;
+% figure; quiver(x(1:e:end, 1:e:end).*1e-3, y(1:e:end, 1:e:end).*1e-3, U(1:e:end, 1:e:end), V(1:e:end, 1:e:end));
+xlim([-15 15]);
+ylim([-15 15]);
 
-PRT = 1;
+T = [-15:5:15];
+L = {};
+for m = 1:length(T)
+    if T(m) == 0
+        L{m} = '0';
+    else
+        L{m} = num2str(T(m), '%3.1f');
+    end
+end
+
+set(gca, 'XTick', T, 'XTickLabel', L);
+set(gca, 'YTick', T, 'YTickLabel', L);
+
+set(gca, 'FontSize', 18, 'LineWidth', 4);
+
+title('Wind Fields $U \hat x + V \hat y$', 'Interpreter', 'latex', 'FontSize', 22);
+xlabel('$X$ [km]', 'Interpreter', 'latex', 'FontSize', 22);
+ylabel('$Y$ [km]', 'Interpreter', 'latex', 'FontSize', 22);
+
+PRT = 10;
 
 t = eps:PRT:64*PRT;
 
 Rt = zeros(length(t), length(y), length(x));
 Rt(1, :, :) = F;
 
-ETa_energy(1) = sum(sum(squeeze(abs(Rt(1, :, :)).^2) .* dx .* dy));
-
-for k  = 1:length(t) - 1
-    for i = 1:length(y)
-        for l = 1:length(x)
-           if ((i == 1) && (l == 1))
-                Rt(k + 1, i, l) = Rt(k, i, l) - U(i, l) ./ (2 .* dx) .* PRT .* (Rt(k, i, l + 1) - Rt(k, i, l))...
-               - V(i, l)./ (2 .* dy) .* PRT .* (Rt(k, i + 1, l) - Rt(k, i, l));
-           elseif ((i == 1) && (l == length(x)))
-               Rt(k + 1, i, l) = Rt(k, i, l) - U(i, l) ./ (2 .* dx) .* PRT .* (Rt(k, i, l) - Rt(k, i, l - 1))...
-               - V(i, l)./ (2 .* dy) .* PRT .* (Rt(k, i + 1, l) - Rt(k, i, l));
-           elseif ((i == length(y)) && (l == 1))
-               Rt(k + 1, i, l) = Rt(k, i, l) - U(i, l) ./ (2 .* dx) .* PRT .* (Rt(k, i, l + 1) - Rt(k, i, l))...
-               - V(i, l)./ (2 .* dy) .* PRT .* (Rt(k, i, l) - Rt(k, i - 1, l));
-           elseif ((i == length(y)) && (l == length(x)))
-               Rt(k + 1, i, l) = Rt(k, i, l) - U(i, l) ./ (2 .* dx) .* PRT .* (Rt(k, i, l) - Rt(k, i, l - 1))...
-               - V(i, l)./ (2 .* dy) .* PRT .* (Rt(k, i, l) - Rt(k, i - 1, l));
-           
-           
-           elseif ((i == 1)) && (l ~= 1) && (l ~= length(x))
-               Rt(k + 1, i, l) = Rt(k, i, l) - U(i, l) ./ ( 2.* dx ) .* PRT .* (Rt(k, i, l + 1) - Rt(k, i, l - 1))...
-               - V(i, l)./(2 .* dy) .* PRT .* (Rt(k, i + 1, l) - Rt(k, i, l));
-           elseif ((l == 1)) && ((i ~= 1) && (i ~= length(y)))
-               Rt(k + 1, i, l) = Rt(k, i, l) - U(i, l) ./ ( 2.* dx ) .* PRT .* (Rt(k, i, l + 1) - Rt(k, i, l))...
-               - V(i, l) ./( 2 .* dy) .* PRT .* (Rt(k, i + 1, l) - Rt(k, i - 1, l));
-           
-           elseif ((i == length(y))) && (l ~= 1) && (l ~= length(x))
-               Rt(k + 1, i, l) = Rt(k, i, l) - U(i, l) ./ ( 2.* dx ) .* PRT .* (Rt(k, i, l + 1) - Rt(k, i, l - 1))...
-               - V(i, l)./(2 .* dy) .* PRT .* (Rt(k, i, l) - Rt(k, i - 1, l));
-           elseif ((l == length(x))) && (i ~= 1) && (i ~= length(y))
-               Rt(k + 1, i, l) = Rt(k, i, l) - U(i, l) ./ ( 2.* dx ) .* PRT .* (Rt(k, i, l) - Rt(k, i, l - 1))...
-               - V(i, l)./( 2 .* dy) .* PRT .* (Rt(k, i + 1, l) - Rt(k, i - 1, l));
-           else
-               Rt(k + 1, i, l) = Rt(k, i, l) - U(i, l) ./ ( 2.* dx ) .* PRT .* (Rt(k, i, l + 1) - Rt(k, i, l - 1))...
-               - V(i, l)./( 2 .* dy) .* PRT .* (Rt(k, i + 1, l) - Rt(k, i - 1, l));
-           end
-          
-        end
-    end
+for k = 1:length(t)-1
     
-    ETa_energy(k+1) = sum(sum(squeeze(abs(Rt(k+1, :, :)).^2) .* dx .* dy));
-%     figure(k); surface(rho .* cos(phi), rho .* sin(phi), db(abs(squeeze(Rt(k+1, :, :))))); ...
-%     shading flat; colormap('jet'); colorbar;
+            if (U * PRT > dx) || (V * PRT > dy)
+                if U * PRT > dx
+                    Rt(k + 1, :, :) = circshift(squeeze(Rt(k, :, :)), 1, 2);
+                end
+                if V * PRT > dy
+                    Rt(k + 1, :, :) = circshift(squeeze(Rt(k, :, :)), 1, 1);
+                end
+            else
+                Rt(k + 1, :, :) = Rt(k, :, :);
+            end
 end
-% figure; plot(t/PRT, ETa_energy);
-
+% 
+% 
 makevideo_XY(Rt, x, y, t)

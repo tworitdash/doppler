@@ -21,7 +21,7 @@ for frameIndex = 1 : NF
     clear z;
 	z = (R(frameIndex, :, :));
 
-    surface(x,y,db(abs(squeeze(z)))/2); shading flat; colormap('jet'); colorbar; caxis([36.8 37.1]);
+    surface(x,y,db(abs(squeeze(z)))/2); shading flat; colormap('jet'); colorbar;
 	caption = sprintf('Frame #%d of %d, t = %.1f', frameIndex, NF, t(frameIndex));
 	title(caption, 'FontSize', 15);
 	drawnow;

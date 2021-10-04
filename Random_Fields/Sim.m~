@@ -1,0 +1,30 @@
+clear;
+close all;
+
+
+dx = 1e-3;
+dy = 1e-3;
+
+x_ = eps:dx:10;
+y_ = eps:dy:3;
+
+R0 = rand(length(x_), (length(y_))) + 1j .* rand(length(x_), (length(y_))); 
+
+F = fft2(R0);
+
+f = 0.05;
+
+nx1 = 1 + floor(0.9999.*f*length(x_));
+nx2 = length(x_) - nx1 + 1; 
+
+ny1 = 1 + floor(0.9999.*f*length(y_));
+ny2 = length(y_) - ny1 + 1;
+
+
+F(nx1:nx2, :) = 0;
+F(:, ny1:ny2) = 0;
+
+F = ifft2(F);
+R1            = imgaussfilt(real(F), 1) + 1j .* imgaussfilt(imag(F), 1);
+
+fig
