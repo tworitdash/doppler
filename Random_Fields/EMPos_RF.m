@@ -96,6 +96,7 @@ for m = 1:length(T)
     end
 end
 
+<<<<<<< Updated upstream
 set(gca, 'XTick', T, 'XTickLabel', L);
 set(gca, 'YTick', T, 'YTickLabel', L);
 
@@ -105,6 +106,8 @@ title('Wind Fields $U \hat x + V \hat y$', 'Interpreter', 'latex', 'FontSize', 2
 xlabel('$X$ [km]', 'Interpreter', 'latex', 'FontSize', 22);
 ylabel('$Y$ [km]', 'Interpreter', 'latex', 'FontSize', 22);
 
+=======
+>>>>>>> Stashed changes
 PRT = 10;
 
 t = eps:PRT:64*PRT;
