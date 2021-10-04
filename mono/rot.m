@@ -1,5 +1,5 @@
 clear;
-% close all;
+close all;
 %% Generating time domain data for a monochriomatic wind within a rotating radar
 
 BW_deg = 1.8;
@@ -54,7 +54,7 @@ for l = 1:length(mu_mean)
 
 mu = normrnd(mu_mean(l), 1, [1 N]);
 % mu = normrnd(4, 1, [1 N]);
-n_sig = sqrt(0.001);
+n_sig = sqrt(0.01);
 
 % mu = 3;
 
@@ -121,8 +121,8 @@ end
 [S1, F1, Ti1, P1] = spectrogram(s, hs, 0, hs , N*1/60);
 
 
-S1 = S1./max(S1(:));
-S1_norm = fftshift(S1',2);
+% S1 = S1./max(S1(:));
+S1_norm = 1./sqrt(hs) .* fftshift(S1',2);
 S1_norm_db = 20*log(abs(S1_norm));
 
 
@@ -134,6 +134,7 @@ figure;
 imagesc(vel_axis_hs, phi_axis*180/pi, S1_norm_db); shading flat;
 colormap('jet');
 colorbar;
+
 
 xlabel('Doppler velocity [ms^{-1}]', 'FontSize', 12, 'FontWeight', 'bold');
 ylabel('Azimuth [Deg]', 'FontSize', 12, 'FontWeight', 'bold');
