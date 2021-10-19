@@ -1,0 +1,18 @@
+v = 4;
+
+PRT = 1e-3;
+
+t = eps:PRT:1024*PRT;
+
+dis = v .* t;
+
+for i = 1:length(t)
+    if mod(i, 5) == 0
+        dis(i) = 0;
+    end
+end
+
+s = exp(1j .* 4 * pi/lambda * dis);
+
+sfft = 1./sqrt(length(s)) .* fftshift(fft(s));
+

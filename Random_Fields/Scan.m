@@ -230,7 +230,7 @@ for i = 1:length(r)
     end
 end
 
-figure; pcolor(xr.*1e-3, yr.*1e-3, db(abs(Rr).')./2); colorbar; shading flat; 
+figure; pcolor(xr.*1e-3, yr.*1e-3, db(abs(Rr).')./2); colorbar; shading flat; grid on;
 % 
 xlim([-5 5]);
 ylim([-5 5]);
