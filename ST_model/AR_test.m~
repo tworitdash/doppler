@@ -10,19 +10,13 @@ dx = 1;
 dy = 1;
 Nx = 32;
 Ny = 32;
-x_ = 1:dx:Nx;
-y_ = 1:dy:Ny;
-
-x = repmat(x_, [1 Ny]);
-y = repmat(y_, [1 Nx]);
-
-X.x = x;
-X.y = y;
+x = 1:dx:Nx;
+y = 1:dy:Ny;
 
 % delta = sqrt((x - x(1)).^2 + (y - y(1)).^2);
 
 % tau = eps:dt:5;
-Nt_ = 32;
+Nt_ = 16;
 
 tau_v = 0:dt:Nt_*dt;
 
@@ -38,59 +32,26 @@ theta = 1;
 
 Theta = [bs cs bt ct theta];
 
-vx = 0.5; vy = 0.2;
-Nxy = Nx * Ny;
-% 
-% for t = 1:length(tau_v)
-%     for k = 1:length(x)
-%        for m = 1:length(y)
-%             for l = 1:length(x)
-%                 for n = 1:length(y)
-%                     DL(t, k, m, l, n) = sqrt((x(k) - tau_v(t) .* vx - x(l)).^2 ...
-%                         + (y(m) - tau_v(t) .* vy - y(n)).^2);
-%                 end
-%             end
-%         end
-%     end
-% end
+vx = 0.5; vy = 0.5;
 
 
-for t = 1:Nt
-    for i = 1:length(Nxy)
-        for k = 1:length(Nxy)
-            xi = X.x(i);
-            yi = X.y(i);
-            xk = X.x(k);
-            yk = X.y(k);
-
-            Xi = [xi yi];
-            Xk = [xk yk];
-
-            u = W.u(i);
-            v = W.v(i);
-
-            Wt = [u v] .* tau_v(t); 
-%             Wt = [1 0];
-            
-            D = eye(2, 2);
-
-            K(t, i, k) = 0.33 * exp(-(Xi - Xk - Wt) * inv(D) * (Xi - Xk - Wt).');
-
-%             if i == k
-%                 K(t, i, k) = 1;
-%             else
-%                 K(t, i, k) = 0;
-%             end
-            
-            sigma = sqrt(1e-3);
-            gamma = 3.33;
-            Dik = sqrt(sum((Xi - Xk).^2));
-            Q(t, i, k) = sigma^2 * exp(-Dik/gamma);
+for t = 1:length(tau_v)
+    for k = 1:length(x)
+       for m = 1:length(y)
+            for l = 1:length(x)
+                for n = 1:length(y)
+                    DL(t, k, m, l, n) = sqrt((x(k) - tau_v(t) .* vx - x(l)).^2 ...
+                        + (y(m) - tau_v(t) .* vy - y(n)).^2);
+                end
+            end
         end
     end
 end
 
 
+
+
+Nxy = Nx * Ny;
 
 DL_ = reshape(squeeze(DL(2, :, :, :, :)), [Nxy Nxy]);
 
@@ -100,16 +61,31 @@ DeltaLT = reshape(squeeze(DL), [Nt Nxy Nxy]);
 % figure; imagesc(1:Nxy, [1:Nxy].', squeeze(DeltaLT(2, :, :))); shading flat;
 
 
-alpha = 1;
+alpha = 0.33;
+
 
 for t = 1:length(tau_v)
 %     [K(t, :, :)] = AMHW_corr(Theta, squeeze(DeltaLT(t, :, :)), tau_v(t));
+   
     K(t, :, :) = alpha * exp(- squeeze(DeltaLT(t, :, :)).^2);
     gamma = 3.33;
     sigma = 1e-3;
     Q(t, :, :) = sigma^2 * exp(-DeltaLT(t, :, :)/gamma);
 end
-
+%%
+% figure; l = surface(1:Nxy, [1:Nxy].', abs(squeeze(K(1, :, :)).')); shading interp; colorbar; colormap('jet');
+% 
+% for t = 2:Nt
+%     l.CData = abs(squeeze(K(t, :, :)).'); 
+%     caption = sprintf('Frame #%d of %d, t = %.1f', t, Nt, tau_v(t));
+% 	title(caption, 'FontSize', 15);
+% % 	drawnow;
+% 	thisFrame = getframe(gca);
+% 	% Write this frame out to a new video file.
+% %  	writeVideo(writerObj, thisFrame);
+% % 	myMovie(t) = thisFrame;
+%     
+% end
 
 %% Initial field
 
@@ -119,24 +95,26 @@ R = zeros(Nt, Nx, Ny);
 R(1, :, :) = R0./max(max(R0));
 
 for t = 2:Nt
-    qt =  mvnrnd(zeros(1, Nxy), squeeze(Q(t, :, :)));
+%     qt =  mvnrnd(zeros(1, Nxy), squeeze(Q(t, :, :)));
     R0_vec = reshape(squeeze(R(t - 1, :, :)), [Nxy 1]);
     R1_vec = squeeze(K(t - 1, :, :)) * R0_vec;
-    R(t, :, :) = reshape(R1_vec, Nx, Ny) + reshape(qt, Nx, Ny);
+    R1_vec = R1_vec./max(max(R1_vec));
+    R(t, :, :) = reshape(R1_vec, Nx, Ny); % + reshape(qt, Nx, Ny);
 end
 
 %% Plot fields
-
-for t = 1:Nt
-    surface(x, y, abs(squeeze(R(t, :, :)).')); shading interp; colorbar; colormap('jet');
-    caption = sprintf('Frame #%d of %d, t = %.1f', t, Nt, tau_v(t));
+figure; h = surface(x, y, abs(squeeze(R(1, :, :)).')); shading interp; colorbar; colormap('jet');
+for t = 2:Nt
+%     h.CData = abs(squeeze(R(t, :, :)).'); 
+    contourf(x, y, abs(squeeze(R(t, :, :)).')); shading interp; colorbar; colormap('jet');
+    caption = sprintf('Frame #%d of %d, t = %.1f', t, Nt, tau_v(t)); caxis([0.5 1]);
 	title(caption, 'FontSize', 15);
-	drawnow;
+% 	drawnow;
 	thisFrame = getframe(gca);
 	% Write this frame out to a new video file.
 %  	writeVideo(writerObj, thisFrame);
-	myMovie(t) = thisFrame;
+% 	myMovie(t) = thisFrame;
     
 end
 
-movie(myMovie);
+% movie(myMovie);

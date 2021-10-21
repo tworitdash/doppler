@@ -2,10 +2,10 @@ clear;
 close all;
 
 L = 20;
-N = 13;
+N = 10240;
 
-dx = 1;
-dt = 0.1;
+dx = 0.01;
+dt = 0.001;
 
 x_ = 0:dx:L;
 
@@ -15,9 +15,13 @@ t_ = 0:dt:N*dt;
 
 eta = sin(2 .* acot(exp((2 .* pi * t + L .* log(cot(pi .* x/L + eps)))./L)));
 
+txt = ['Intial field defined at time =  ', num2str(t(1)), ' [s]'];
+figure; plot(x_, (eta(1, :)), 'o', 'DisplayName', txt); 
 
-figure; plot(x_, (eta(1, :)), 'o'); hold on ; plot(x_, (eta(end, :)), '*-');grid on;
 
+txt = ['Analytical at time =  ', num2str(t(end)), ' [s]'];
+hold on ; plot(x_, (eta(end, :)), '*-', 'DisplayName', txt);grid on;
+ 
 eta_n = zeros(size(x));
 
 eta_n(1, :) = sin(2 .* pi .* (x_)/L);
@@ -33,6 +37,10 @@ for k = 1:length(t_)
         end
     end 
 end
+txt = ['Numerical at time =  ', num2str(t(end)), ' [s]'];
 
-hold on; plot(x_, (eta_n(end, :)), '*-');grid on;
+hold on; plot(x_, (eta_n(end, :)), '*-', 'DisplayName', txt);grid on;
+
+legend;
+
 % plot(x_, (eta_n(1, :)), 'o'); hold on ; plot(x_, (eta_n(end, :)), '*-');grid on;

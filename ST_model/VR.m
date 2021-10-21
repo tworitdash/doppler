@@ -24,15 +24,15 @@ X.y = y;
 % delta = sqrt((x - x(1)).^2 + (y - y(1)).^2);
 
 % tau = eps:dt:5;
-Nt_ = 128;
+Nt_ = 16;
 
 tau_v = 0:dt:Nt_*dt;
 
 Nt = length(tau_v);
 
 
-W.u = 100 * ones(1, Nxy);
-W.v = 0 * ones(1, Nxy);
+W.u = 1 * ones(1, Nxy);
+W.v = 1 * ones(1, Nxy);
 K = zeros(Nt, Nxy, Nxy);
 Q = zeros(Nt, Nxy, Nxy);
 
@@ -87,16 +87,17 @@ for t = 2:Nt
 end
 
 %% Plot fields
-
-for t = 1:Nt
-    figure; surface(x_, y_, abs(squeeze(R(t, :, :)).')); shading interp; colorbar;
+figure; h = surface(x_, y_, abs(squeeze(R(1, :, :)).')); shading interp; colorbar;
+for t = 2:Nt
+    h.CData = abs(squeeze(R(t, :, :))).';
+    %figure; surface(x_, y_, abs(squeeze(R(t, :, :)).')); shading interp; colorbar;
     caption = sprintf('Frame #%d of %d, t = %.1f', t, Nt, tau_v(t));
 	title(caption, 'FontSize', 15);
-	drawnow;
+% 	drawnow;
 	thisFrame = getframe(gca);
 	% Write this frame out to a new video file.
 %  	writeVideo(writerObj, thisFrame);
-	myMovie(t) = thisFrame;
+% 	myMovie(t) = thisFrame;
     
 end
 
