@@ -69,7 +69,7 @@ for i = 1:length(x_)
 end
 
 
-% figure; surface(x, y, db(abs(R1))/2); shading flat; colormap('jet'); colorbar;
+figure; surface(x, y, (abs(R1))/2); shading flat; colormap('jet'); colorbar;
 
 
 for i = 1:length(Kx_)
@@ -279,17 +279,17 @@ end
 
 figure; surface(xr, yr, db(abs(Rr).')./2); colorbar; colormap('jet'); shading flat;
 
-for i = 1:length(r)
-    for l = 1:length(phi)
-        X = (A(i, l).a(:, :)).' .* exp(-1j .* 4 * pi ./ lambda .* D(i, l).d(:, :));
-        X_re = reshape(X, 1, [size(X, 1) .* size(X, 2)]);
-        XF = 1./sqrt(length(X_re)) .* fftshift(fft(X_re));
-        dv = lambda./(2 .* length(XF) .* PRT);
-        vel_axis = linspace(-v_amb, v_amb-dv, length(X_re));
-        PT(i, l) = sum(abs(XF).^2 .* dv);
-        Vr(i, l) = sum(vel_axis .* abs(XF).^2 .* dv)./PT(i, l);
-    end
-end
-
-figure; surface(xr, yr, Vr.'); colorbar; colormap('jet'); shading flat;
+% for i = 1:length(r)
+%     for l = 1:length(phi)
+%         X = (A(i, l).a(:, :)).' .* exp(-1j .* 4 * pi ./ lambda .* D(i, l).d(:, :));
+%         X_re = reshape(X, 1, [size(X, 1) .* size(X, 2)]);
+%         XF = 1./sqrt(length(X_re)) .* fftshift(fft(X_re));
+%         dv = lambda./(2 .* length(XF) .* PRT);
+%         vel_axis = linspace(-v_amb, v_amb-dv, length(X_re));
+%         PT(i, l) = sum(abs(XF).^2 .* dv);
+%         Vr(i, l) = sum(vel_axis .* abs(XF).^2 .* dv)./PT(i, l);
+%     end
+% end
+% 
+% figure; surface(xr, yr, Vr.'); colorbar; colormap('jet'); shading flat;
 

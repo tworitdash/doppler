@@ -4,8 +4,8 @@ close all;
 %% Random Fields in 2D
 
 
-dx = 5;
-dy = 5;
+dx = 100;
+dy = 100;
 x_ = -5e3:dx:5e3;
 y_ = -5e3:dy:5e3;
 
@@ -27,7 +27,7 @@ y_ = -5e3:dy:5e3;
 SNR_db = 40;
 SNR = 10^(SNR_db/10);
 
-f = 0.00045;
+f = 0.045;
 
 % rand('seed', 0);
 
@@ -78,8 +78,8 @@ F             = (F + N)./max(max(F + N));
 %% VELOCITY FIELDS
 
 
-U = normrnd(1, 0.1, size(x));
-V = normrnd(1, 0.1, size(x));
+U = normrnd(10, 0.1, size(x));
+V = normrnd(0, 0.1, size(x));
 % Lx = x(end);
 % Ly = y(end);
 % 
@@ -89,7 +89,7 @@ V = normrnd(1, 0.1, size(x));
 
 PRT = 1;
 
-t = eps:PRT:128*PRT;
+t = eps:PRT:512*PRT;
 
 Rt = zeros(length(t), length(y), length(x));
 Rt(1, :, :) = F;

@@ -7,7 +7,7 @@ function [s, SNR] = TD_generator(mu, lambda, beta_wind, phi_0, Omega, t, n_sig)
     
 %     figure; plot(mu);
     
-    vel = mu .* cos(beta_wind - Omega .* t - phi_0);
+    vel = mu; % .* cos(beta_wind - Omega .* t - phi_0);
     
     for i = 1:length(t)
         dis(i) = sum(vel(1:i) .* PRT);

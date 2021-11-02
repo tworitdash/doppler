@@ -48,8 +48,8 @@ beta_wind = beta_wind_deg .* pi/180;
 
 v_amb = lambda/(4 * PRT);
 
-% mu_mean = linspace(-v_amb, v_amb, 100);
-mu_mean = 5;
+mu_mean = linspace(-v_amb, v_amb, 10);
+% mu_mean = 5;
 for l = 1:length(mu_mean)
 
 mu = normrnd(mu_mean(l), 1, [1 N]);
@@ -126,19 +126,19 @@ S1_norm = 1./sqrt(hs) .* fftshift(S1',2);
 S1_norm_db = 20*log(abs(S1_norm));
 
 
-txt = ['SNR = ', num2str(db(SNR)/2), ' dB , \Omega = ', num2str(Omega_rpm(i)), ' [rpm]'];
-
-
-
-figure;
-imagesc(vel_axis_hs, phi_axis*180/pi, S1_norm_db); shading flat;
-colormap('jet');
-colorbar;
-
-
-xlabel('Doppler velocity [ms^{-1}]', 'FontSize', 12, 'FontWeight', 'bold');
-ylabel('Azimuth [Deg]', 'FontSize', 12, 'FontWeight', 'bold');
-title(txt, 'FontSize', 12, 'FontWeight', 'bold');
+% txt = ['SNR = ', num2str(db(SNR)/2), ' dB , \Omega = ', num2str(Omega_rpm(i)), ' [rpm]'];
+% 
+% 
+% 
+% figure;
+% imagesc(vel_axis_hs, phi_axis*180/pi, S1_norm_db); shading flat;
+% colormap('jet');
+% colorbar;
+% 
+% 
+% xlabel('Doppler velocity [ms^{-1}]', 'FontSize', 12, 'FontWeight', 'bold');
+% ylabel('Azimuth [Deg]', 'FontSize', 12, 'FontWeight', 'bold');
+% title(txt, 'FontSize', 12, 'FontWeight', 'bold');
 % 
 
 %% Calculation of mean
