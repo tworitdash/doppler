@@ -1,0 +1,223 @@
+clear;
+close all;
+
+m_ = load('markers.mat'); 
+markers = m_.markers;
+
+%% Simulation Inputs
+
+PRT = 1e-3;
+lambda = 0.03;
+
+v_amb = lambda/(4 * PRT);
+
+mu = 6;
+sigma = 0.1;
+N_rot = 1;
+Sweep = 32;
+
+n = N_rot * Sweep;
+
+SNR_db = 30;
+SNR = 10^(SNR_db/10);
+
+m0 = 1;
+
+%% Simulator Output
+[df, d, ~, ~, vel_axis] = DS(SNR, m0, mu, sigma, n, v_amb);
+
+% txt = ['Original Spectrum'];
+% 
+% dtext = ['SNR = ', num2str(SNR_db), ' dB', ', \mu = ', num2str(mu), ' m/s', ' \sigma = ', num2str(sigma), ' m/s'];
+% xl = 'velocity [m/s]';
+% 
+% f = figure(105); hold on; f.Position = [10 10 1000 1000];
+% color = 'k';
+% yl =  ['Spectrum [dB]'];
+% plott(vel_axis, db(abs(df)), xl, yl, txt, 2, dtext, color, markers(1));
+
+%% Process
+
+Nfft = n;
+
+% df_process = 1/sqrt(n) .* fftshift(fft(d, Nfft));
+df_process = 1/sqrt(n) .* (fft(d, Nfft));
+if mod(Nfft, 2) == 0
+    
+    axis = linspace(-Nfft/2, Nfft/2-1, Nfft)/(Nfft);
+    vel_axis_n = 2 * v_amb * axis;
+    f_axis_n = linspace(0, 2*v_amb*2/lambda, Nfft);
+    
+else
+    
+    vel_axis_n = linspace(-v_amb, v_amb, Nfft);
+    f_axis_n = linspace(0, 2*v_amb*2/lambda, Nfft);
+end
+
+txt = ['Spectrum'];
+
+dtext = ['SNR = ', num2str(SNR_db), ' dB', ', \mu = ', num2str(mu), ' m/s', ' \sigma = ', num2str(sigma), ' m/s'];
+xl = 'frequency [Hz]';
+
+f = figure(105); hold on; f.Position = [10 10 1000 1000];
+hold on;
+color = 'r';
+yl =  ['Processed Spectrum [dB] from simulated data'];
+plott(f_axis_n, db(abs(df_process)), xl, yl, txt, 2, dtext, color, markers(2))
+
+%% Creating Non-uniformly sampled data in this section 
+
+tkind = 1:n; % time indices of the data
+t = (tkind - 1) * PRT;
+
+N = 5; % Number of samples that are available
+
+data_per = reshape(d, Sweep, N_rot);
+data_per(N+1:end, :) = 0; % data permitted
+data_per_1D = reshape(data_per, 1, n);
+
+txt = ['Data'];
+
+dtext = ['Original data for SNR = ', num2str(SNR_db), ' dB', ', \mu = ', num2str(mu), ' m/s', ' \sigma = ', num2str(sigma), ' m/s'];
+xl = 'time index';
+
+f = figure(106); hold on; f.Position = [10 10 1000 1000];
+hold on;
+color = 'y';
+yl =  ['Real Part of Data'];
+plott(t, (real(d)), xl, yl, txt, 2, dtext, color, markers(2));
+
+dtext = ['Data available SNR = ', num2str(SNR_db), ' dB', ', \mu = ', num2str(mu), ' m/s', ' \sigma = ', num2str(sigma), ' m/s'];
+xl = 'time index';
+
+f = figure(106); hold on; f.Position = [10 10 1000 1000];
+hold on;
+color = 'k';
+yl =  ['Real Part of Data'];
+plott(t, (real(data_per_1D)), xl, yl, txt, 2, dtext, color, markers(1));
+
+%% Raw Spectrum of Data available
+nrot = 1;
+data_rot = data_per_1D((nrot - 1)*N+1:nrot*N);
+
+if mod(N, 2) == 0
+    axis = linspace(-N/2, N/2-1, N)/(N);
+    vel_axis_rot = 2 * v_amb * axis;
+    f_axis_n = linspace(0, 2*v_amb*2/lambda, N);
+    
+else
+    
+    vel_axis_n = linspace(-v_amb, v_amb, N);
+    f_axis_n = linspace(0, 2*v_amb*2/lambda, N);
+end
+
+txt = ['Spectrum'];
+
+dtext = ['SNR = ', num2str(SNR_db), ' dB', ', \mu = ', num2str(mu), ' m/s', ' \sigma = ', num2str(sigma), ' m/s'];
+xl = 'frequency [Hz]';
+
+f = figure(107); hold on; f.Position = [10 10 1000 1000];
+hold on;
+color = 'r';
+yl =  ['Processed Spectrum [dB] per r'];
+plott(f_axis_n, db(abs(df_process)), xl, yl, txt, 2, dtext, color, markers(2))
+
+%% Reconstruction of the original data based on LS approach
+
+
+%% Determining Nyquist Frequency for this non-uniformly sampled data
+
+tkind_re = reshape(tkind, Sweep, N_rot); % reshape with sweeps per rot \times number of rot
+
+tkind_re(1:N, :) = 1;
+tkind_re(N+1:end, :) = 0;
+tkind_re_re = reshape(tkind_re, 1, n);
+tkind_valid = tkind(tkind_re_re==1);
+N_valid = length(tkind_valid);
+t_valid = t(tkind_valid);
+figure; plot(tkind*PRT, tkind_re_re);
+
+%% Spectral window of this sampling scheme
+
+Ohm = 10/PRT;
+Ohm_axis = linspace(eps, Ohm, n);
+
+for i = 1:n
+    W(i) = abs(1./N_valid .* sum(exp(1j .* Ohm_axis(i) .* t_valid))).^2;
+end
+
+figure; plot(Ohm_axis, abs(W));
+
+[~, idx] = min(abs(W(2:end) - 1));
+
+Ohm_nus = Ohm_axis(idx);
+
+f_ny = Ohm_nus/(2 * pi);
+v_ny = f_ny * lambda/2;
+
+df = 1/(t(end) - t(1));
+dOhm = 2 * pi * df;
+dv = df * lambda/2;
+
+tr = pi/Ohm_nus;
+
+% v_axis = linspace(-v_ny, v_ny-dv, n);
+% f_axis = linspace(-f_ny, f_ny-df, n);
+
+f_axis = eps:df:f_ny;
+omega_axis = eps:dOhm:Ohm_nus;
+M = length(f_axis);
+v_axis = linspace(-v_ny/2, v_ny/2-dv, M);
+
+
+%% LS method iterative IAA
+
+R = eye(N_valid);
+data_valid = d(tkind_valid);
+N_iter = 1024;
+iter_valid = 1;
+beta = zeros(N_iter, M);
+
+while iter_valid
+    for iter = 2:N_iter
+        disp(iter);
+        for om = 1:M
+            am(:, om) = exp(1j .* omega_axis(om) .* t_valid);
+            beta(iter, om) = (am(:, om)' * inv(R) * data_valid.')./((am(:, om)' * inv(R) * am(:, om)));
+            R_int(om, :, :) = (abs(beta(iter, om)).^2 * am * am');
+        end
+            R = squeeze(sum(R_int, 1));
+            conv_ = abs(beta(iter, :) - beta(iter - 1, :)).^2;
+            if conv_ < 1e-4
+                iter_valid = 0;
+                break
+            end
+    end
+end
+
+disp(iter);
+
+S = abs(beta(iter, :)).^2;
+
+figure; plot(f_axis, db(fftshift(S))/2);
+
+%% LS Schuster Periodogram
+% 
+data_valid = d(tkind_valid);
+for om = 1:M
+    betam(om) = sqrt(1/N_valid^2 .* abs(sum(data_valid .* exp(-1j .* omega_axis(om) .* t_valid))).^2);
+end
+S = abs(betam).^2;
+figure; plot(f_axis, db((S)));
+
+%% Lomb Scargle
+for om = 1:M
+    RLS = [sum(cos(omega_axis(om) .* t_valid).^2) sum(cos(omega_axis(om) .* t_valid) .* sin(omega_axis(om) .* t_valid))...
+        ; sum(cos(omega_axis(om) .* t_valid) .* sin(omega_axis(om) .* t_valid)) sum(sin(omega_axis(om) .* t_valid).^2)];
+    r = [sum(cos(omega_axis(om)) .* data_valid); sum(sin(omega_axis(om)) .* data_valid)];
+    
+  
+    SLS(om) = 1/N_valid .* r.' * inv(RLS) * r;
+end
+
+figure; plot(f_axis, db((S)));

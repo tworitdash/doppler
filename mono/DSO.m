@@ -1,5 +1,8 @@
 clear;
 close all;
+
+m_ = load('markers.mat'); 
+markers = m_.markers;
 %% Generating time domain data for a monochriomatic wind within a rotating radar
 dr = 2000;
 R = 15e3;
@@ -13,27 +16,52 @@ n_rot = 1;
 
 phi_0_deg = 0;
 PRT = 1e-3;
-Omega_rpm = 1;
-% Omega_rpm = 1;
+Omega_rpm = 60;
+% Omega_rpm = linspace(1, 60, 4);
+% Omega_rpm = 60;
 
 lambda = 0.03;
 
 
+
 BW = BW_deg * pi/180;
 Omega = Omega_rpm * 2*pi/60; % rotation speed in rad/s
-Td = BW/Omega;
-hs = round(Td/PRT);
+for m = 1:length(Omega_rpm)
+    
+clear s; 
+
+
+% T = (2*pi)/Omega(m);
+
+% N = ceil(T/PRT);
+
+% t = 0:PRT:(N - 1)*PRT;
+
+sec = ceil(2*pi/BW);
+
+ph = 0:BW:(sec)*BW;
+
+T = ph(end)/Omega(m);
+
+
+N = ceil(T/PRT);
+
+hs = ceil(N/sec);
+
+N = hs*sec;
+t = 0:PRT:(N - 1)*PRT;
+
+
+% Td = BW/Omega(m);
+% hs = round(Td/PRT);
+
+hs_(m) = hs;
 
 phi_0 = phi_0_deg * pi/180;
+% phi_axis_1 = phi_0:BW:phi_0+Omega(m)*t(end);
+phi_axis = linspace(phi_0, phi_0+Omega(m)*t(end), sec);
 
-sec = round((n_rot*2*pi)/BW);
-
-N = sec * hs;
-t = 0:PRT:(N - 1)*PRT;
-% phi_axis = phi_0:BW:phi_0+Omega*t(end);
-
-phi_axis_1 = phi_0:BW:phi_0+n_rot.*2*pi;
-phi_axis = mean([phi_axis_1(1:end-1); phi_axis_1(2:end)]);
+% phi_axis = mean([phi_axis_1(1:end-1); phi_axis_1(2:end)]);
 Nphi = length(phi_axis);
 % phi_axis = zeros(size(phi_axis));
 
@@ -52,7 +80,7 @@ v_amb = lambda/(4 * PRT);
 
 % Vmean = normrnd(5, 1, [1 Nr]);
 
-Vmean = 5;
+Vmean = 3;
 
 % u_mean = normrnd(Vmean .* cos(beta_wind), 0.1, [1 Nr]);
 % v_mean = normrnd(Vmean .* sin(beta_wind), 0.1, [1 Nr]);
@@ -61,22 +89,24 @@ Vmean = 5;
 u_phi = 0; v_phi = 0;
 
 % pd = makedist('Weibull');
-
+s = zeros(Nr, N);
 for i = 1:Nr
    
 %     mu = normrnd(mu_mean(i), 0.1, [1 N]);
 %     u = normrnd(u_mean(i), 0.2, [1 N]);
 %     v = normrnd(v_mean(i), 0, [1 N]);
     
-    V = normrnd(Vmean(i), 1, [1 N]);
+    V = normrnd(Vmean(i), 0.1, [1 N]);
 %     V = random('burr', Vmean(i), 2, 5, 1, N);
     u = V .* cos(beta_wind);
     v = V .* sin(beta_wind);
     
 %     V = sqrt(u.^2 + v.^2);
     
-    mu = V .* cos((beta_wind - Omega .* t - phi_0)) .* cos(theta); % +  v .* sin(beta_wind - Omega .* t - phi_0) .* cos(theta);
+    mu = V .* cos((beta_wind - Omega(m) .* t - phi_0)) .* cos(theta); % +  v .* sin(beta_wind - Omega .* t - phi_0) .* cos(theta);
     
+    p = Omega(m) .* t *180/pi;
+    figure(103); hold on; plot(p, mu, 'DisplayName', [num2str(Omega_rpm(m))]); legend;
 %     u_reshape = reshape(u, [Nphi hs]);
 %     u_phi(:, i) = mean(u_reshape, 2);
 %     
@@ -92,35 +122,98 @@ for i = 1:Nr
     % n_sig = 0;
 
     % mu = 3;
-    [s(i, :), SNR(i)] = TD_generator(mu, lambda, beta_wind, phi_0, Omega, t, n_sig);
+    [s(i, :), SNR(i)] = TD_generator(mu, lambda, beta_wind, phi_0, Omega(m), t, n_sig);
 end
 
 
 %% Retrieval
 
-if mod(hs, 2) == 0
+% if (mod(hs, 2) == 0) && (hs < 16)
+%     hsnew = hs + 1;
+% %     vel_axis_hs = linspace(-hs/2, hs/2-1, hs)./hs .* 2 .* v_amb;
+%      vel_axis_hs = linspace(-v_amb, v_amb, hsnew);
+% elseif (mod(hs, 2) ~= 0) && (hs < 16)
+%     
+%     if (2^(nextpow2(hs)) - hs) == 3
+%         hsnew = hs+2;
+%         vel_axis_hs = linspace(-v_amb, v_amb, hsnew);
+%     else
+%         hsnew = hs;
+%         vel_axis_hs = linspace(-v_amb, v_amb, hsnew);
+%     end
+% elseif (mod(hs, 2) == 0) && (hs > 16)
+%      hsnew = hs;
+% %     vel_axis_hs = linspace(-hs/2, hs/2-1, hs)./hs .* 2 .* v_amb;
+%      vel_axis_hs = linspace(-hs/2, hs/2-1, hs)./hs .* 2 .* v_amb;
+% elseif (mod(hs, 2) ~= 0) && (hs > 16)
+%     hsnew = hs;
+%     vel_axis_hs = linspace(-v_amb, v_amb, hsnew);
+% end
+
+% ================================================================================
+% if (mod(hs, 2) == 0) && (hs > 16)
+%     hsnew = hs;
+%     vel_axis_hs = linspace(-hs/2, hs/2-1, hs)./hs .* 2 .* v_amb;
+% elseif (hs < 16) && (mod(hs, 2) == 0)
+% %     hsnew = 2^(nextpow2(hs)) + 1;
+%     hsnew = hs;
+% %     vel_axis_hs = linspace(-v_amb, v_amb, hsnew);
+%     vel_axis_hs = linspace(-hs/2, hs/2-1, hs)./hs .* 2 .* v_amb;
+% else
+%     hsnew = hs;
+%     vel_axis_hs = linspace(-v_amb, v_amb, hsnew);
+% end
+
+% ================================================================================
+% 
+% if (mod(hs, 2) == 0) && (hs > 16)
+%     hsnew = hs;
+%     vel_axis_hs = linspace(-hs/2, hs/2-1, hs)./hs .* 2 .* v_amb;
+% elseif (hs < 16) 
+% %     hsnew = 2^(nextpow2(hs)) + 1;
+%     hsnew = hs;
+% %     hsnew = 64;
+%     vel_axis_hs = linspace(-v_amb, v_amb, hsnew);
+% %     vel_axis_hs = linspace(-hs/2, hs/2-1, hs)./hs .* 2 .* v_amb;
+% else
+%     hsnew = hs;
+%     vel_axis_hs = linspace(-v_amb, v_amb, hsnew);
+% end
+
+if (mod(hs, 2) == 0)
+    hsnew = hs;
     vel_axis_hs = linspace(-hs/2, hs/2-1, hs)./hs .* 2 .* v_amb;
-%      vel_axis_hs = linspace(-v_amb, v_amb, hs+1);
+%     vel_axis_hs = linspace(-v_amb, v_amb, hsnew);
 else
-    vel_axis_hs = linspace(-v_amb, v_amb, hs);
+    hsnew = hs;
+    vel_axis_hs = linspace(-v_amb, v_amb, hsnew);
 end
 
 
+
+
+S1_norm = zeros(Nr, Nphi, hsnew);
+
 for i = 1:Nr
+    si = s(i, :);
+    si2 = reshape(si, [hs Nphi]).';
+    z = zeros(Nphi, hsnew-hs);
+    si3 = [si2 z];
+    si4 = (reshape(si3.', [1 Nphi*hsnew]));
     
-    [S1, F1, Ti1, P1] = spectrogram(s(i, :)/max(s(i, :)), hs, 0, hs, N*1/60);
-    S1f(i, :, :) = 1./sqrt(hs) .* fftshift(S1',2);
-    S1_norm(i, :, :) = S1f(i, :, :)./max(max(squeeze(S1f(i, :, :))));
+    [S1, F1, Ti1, P1] = spectrogram(si4, hsnew, 0, hsnew, hsnew*sec*1/60); 
+    S1_norm(i, :, :) = 1./sqrt(hsnew) .* fftshift(S1',2);
+%     S1_norm(i, :, :) = S1f(i, :, :)./max(max(squeeze(S1f(i, :, :))));
     S1_norm_db = 20*log10(abs(squeeze(S1_norm(i, :, :))));
 
 
-    txt = ['SNR = ', num2str(db(SNR(i))/2), ' dB , \Omega = ', num2str(Omega_rpm), ' [rpm]'];
-
-    xl = 'Doppler Velocity [m.s^{-1}]';
-    yl = 'Azimuthal Angle \phi [{\circ}]';
-    zl = 'Power [dB]';
-
-    surplot(vel_axis_hs, phi_axis*180/pi, S1_norm_db, xl, yl, zl, txt);
+%     txt = ['SNR = ', num2str(db(SNR(i))/2), ' dB , \Omega = ', num2str(Omega_rpm(m)), ' [rpm]'];
+% 
+%     xl = 'Doppler Velocity [m.s^{-1}]';
+%     yl = 'Azimuthal Angle \phi [{\circ}]';
+%     zl = 'Power [dB]';
+% 
+%     surplot(vel_axis_hs, phi_axis*180/pi, S1_norm_db, xl, yl, zl, txt);
     
 end
 
@@ -135,44 +228,58 @@ sigma_re = zeros(1, length(phi_axis));
 for i = 1:Nr
     for k = 1:Nphi
         PT_i = squeeze(abs(S1_norm(i, k, :))).^2;
-        PT(i, k) = sum(PT_i .* dv);
+        PT(i, k, m) = sum(PT_i .* dv);
         mu_re_i = vel_axis_hs.' .* squeeze(abs(S1_norm(i, k, :))).^2;
-        mu_re(i, k) = sum(mu_re_i .* dv)./PT(i, k);
-        sigma_re_i = (vel_axis_hs.' - mu_re(i, k)).^2 .* squeeze(abs(S1_norm(i, k, :))).^2 .* dv;
-        sigma_re(i, k) = sqrt(sum(sigma_re_i)./PT(i, k));
+        mu_re(i, k, m) = sum(mu_re_i .* dv)./PT(i, k, m);
+        sigma_re_i = (vel_axis_hs.' - mu_re(i, k, m)).^2 .* squeeze(abs(S1_norm(i, k, :))).^2 .* dv;
+        sigma_re(i, k, m) = sqrt(sum(sigma_re_i)./PT(i, k, m));
     end
 end
-
-% txt = ['SNR = ', num2str(db(mean(SNR))/2), ' dB , \Omega = ', num2str(Omega_rpm), ' [rpm]'];
-% 
-% yl = 'Mean Doppler Velocity [m.s^{-1}]';
-% xl = 'Azimuthal Angle \phi [^{\circ}]';
-
-% plott(phi_axis.*180/pi, mu_re, xl, yl, txt, 4)
-
-txt = ['SNR = ', num2str(db(mean(SNR))/2), ' dB , \Omega = ', num2str(Omega_rpm), ' [rpm]'];
-
-xl = 'x [km]';
-yl = 'y [km]';
-zl = 'V_{r} Mean [m.s^{-1}]';
 
 [r_, phi_axis_] = meshgrid(r, phi_axis);
 
 x = r_ .* 1e-3 .* cos(phi_axis_) .* cos(theta); y = r_ .* 1e-3 .* sin(phi_axis_) .* cos(theta);
 
-surplot(x, y, mu_re.', xl, yl, zl, txt);
-% surplot(r_ .* 1e-3, phi_axis_*180/pi, mu_re.', xl, yl, zl, txt);
-% yl = 'Doppler Velocity width [m.s^{-1}]';
-% xl = 'Azimuthal Angle \phi [^{\circ}]';
-% 
-% plott(phi_axis.*180/pi, sigma_re, xl, yl, txt, 4);
 
-xl = 'x [km]';
-yl = 'y [km]';
-zl = 'V_{r} width [m.s^{-1}]';
+if Nr == 1
+    txt = ['SNR = ', num2str(db(mean(SNR))/2), ' dB , \Omega = ', num2str(Omega_rpm(m)), ' [rpm]'];
+    dtext = [' \Omega = ', num2str(Omega_rpm(m)), ' [rpm]'];
+    yl = 'Mean Doppler Velocity [m.s^{-1}]';
+	xl = 'Azimuthal Angle \phi [{\circ}]';
+    color = 'k';
+    marker = markers(m);
+    figure(103); hold on;
+    plott(phi_axis.*180/pi, squeeze(mu_re(1, :, m)), xl, yl, txt, 2, dtext, color, marker)
+else
+    txt = ['SNR = ', num2str(db(mean(SNR))/2), ' dB , \Omega = ', num2str(Omega_rpm(m)), ' [rpm]'];
 
+    xl = 'x [km]';
+    yl = 'y [km]';
+    zl = 'V_{r} Mean [m.s^{-1}]';
+    
+    
+    surplot(x, y, mu_re.', xl, yl, zl, txt); 
+end
 
-surplot(x, y, sigma_re.', xl, yl, zl, txt);
+if Nr == 1
+    txt = ['SNR = ', num2str(db(mean(SNR))/2), ' dB '];
+    dtext = [' \Omega = ', num2str(Omega_rpm(m)), ' [rpm]'];
+    yl = 'Doppler spectrum width [m.s^{-1}]';
+	xl = 'Azimuthal Angle \phi [{\circ}]';
+    color = 'k';
+    marker = markers(m);
+    figure(102); hold on;
+    plott(phi_axis.*180/pi, squeeze(sigma_re(1, :, m)), xl, yl, txt, 2, dtext, color, marker)
+else
+    txt = ['SNR = ', num2str(db(mean(SNR))/2), ' dB '];
+    xl = 'x [km]';
+    yl = 'y [km]';
+    zl = 'V_{r} width [m.s^{-1}]';
+    
+    
+    surplot(x, y, sigma_re.', xl, yl, zl, txt);
+end
+end
 
 %% Calculation of wind fields [VAD Technique]
 % Vr = @(a0, a1, b1, a2, b2) a0 + a1 .* cos(phi_axis) + a2 .* cos(2.*phi_axis) + ...

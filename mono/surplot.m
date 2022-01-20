@@ -1,7 +1,7 @@
 function [] = surplot(x, y, z, xl, yl, zl, tl)
 
     figure;
-    surface(x, y, z); colorbar; colormap('jet')
+    imagesc(x, y, z); colorbar; colormap('jet')
     shading flat; 
 %     caxis([-7.5 7.5]);
     
@@ -24,7 +24,7 @@ function [] = surplot(x, y, z, xl, yl, zl, tl)
 %     set(gca, 'YTick', T, 'YTickLabel', L);
 
     set(gca, 'FontSize', 18, 'LineWidth', 4);
-
+    box on;
 %     title(tl, 'Interpreter', 'latex', 'FontSize', 18);
 %     xlabel(xl, 'Interpreter', 'latex', 'FontSize', 18);
 %     ylabel(yl, 'Interpreter', 'latex', 'FontSize', 18);

@@ -7,8 +7,8 @@ n_rot = 1;
 
 phi_0_deg = 0;
 PRT = 1e-3;
-Omega_rpm = linspace(1, 60, 4);
-% Omega_rpm = 1;
+% Omega_rpm = linspace(1, 60, 4);
+Omega_rpm = 1;
 
 lambda = 0.03;
 %% 
@@ -54,12 +54,12 @@ for l = 1:length(mu_mean)
 
 mu = normrnd(mu_mean(l), 1, [1 N]);
 % mu = normrnd(4, 1, [1 N]);
-n_sig = sqrt(0.01);
+n_sig = sqrt(0.00001);
 
 % mu = 3;
 
 
-[s, SNR] = TD_generator(mu, lambda, beta_wind, phi_0, Omega(i), t, n_sig);
+[s, SNR] = TD_generator2(mu, lambda, beta_wind, phi_0, Omega(i), t, n_sig);
 
 %% variables for real life scenario
 
@@ -114,6 +114,8 @@ N = length(t);
 if mod(hs, 2) == 0
     vel_axis_hs = linspace(-hs/2, hs/2-1, hs)./hs .* 2 .* v_amb;
 %      vel_axis_hs = linspace(-v_amb, v_amb, hs+1);
+elseif hs == 7
+    vel_axis_hs = linspace(-(hs + 1)/2+1, (hs + 1)/2-1, hs)./hs .* 2 .* v_amb;
 else
     vel_axis_hs = linspace(-v_amb, v_amb, hs);
 end
@@ -172,30 +174,30 @@ end
 idx_phi = 1;
 
 txt = ['SNR = ', num2str(db(SNR)/2), ' dB', ', BeamWidth = ', num2str(BW_deg), '^{\circ}', ' \phi = ', num2str(phi_axis(idx_phi) .* 180/pi), '^{\circ}'];
-% 
-% figure;  imagesc(Omega_rpm, mu_mean, squeeze(v_mean(:, :, idx_phi)).'); colormap('jet'); colorbar; shading flat;% , '-', 'LineWidth', 2, 'DisplayName', txt); grid on; % hold on; plot(phi_0 + Omega .* t, v_max); 
-% % legend;
-% title(['Mean Doppler velocity', txt])
-% xlabel('\Omega [rpm]', 'FontSize', 12, 'FontWeight', 'bold');
-% ylabel('\mu_{True mean} [m s^{-1}]', 'FontSize', 12, 'FontWeight', 'bold');
-% 
-% xlim([Omega_rpm(1) Omega_rpm(end)]);
-% ylim([mu_mean(1) mu_mean(end)]);
-% 
-% figure;  imagesc(Omega_rpm, mu_mean, squeeze(v_spread(:, :, idx_phi)).'); colormap('jet'); colorbar; shading flat; %, '-', 'LineWidth', 2, 'DisplayName', txt); % hold on; plot(phi_0 + Omega .* t, v_max); 
-% % legend;
-% title(['Doppler spectrum width', txt])
-% xlabel('\Omega [rpm]', 'FontSize', 12, 'FontWeight', 'bold');
-% ylabel('\mu_{True mean} [m s^{-1}]', 'FontSize', 12, 'FontWeight', 'bold');
-% 
+
+figure;  imagesc(Omega_rpm, mu_mean, squeeze(v_mean(:, :, idx_phi)).'); colormap('jet'); colorbar; shading flat;% , '-', 'LineWidth', 2, 'DisplayName', txt); grid on; % hold on; plot(phi_0 + Omega .* t, v_max); 
+% legend;
+title(['Mean Doppler velocity', txt])
+xlabel('\Omega [rpm]', 'FontSize', 12, 'FontWeight', 'bold');
+ylabel('\mu_{True mean} [m s^{-1}]', 'FontSize', 12, 'FontWeight', 'bold');
+
+xlim([Omega_rpm(1) Omega_rpm(end)]);
+ylim([mu_mean(1) mu_mean(end)]);
+
+figure;  imagesc(Omega_rpm, mu_mean, squeeze(v_spread(:, :, idx_phi)).'); colormap('jet'); colorbar; shading flat; %, '-', 'LineWidth', 2, 'DisplayName', txt); % hold on; plot(phi_0 + Omega .* t, v_max); 
+% legend;
+title(['Doppler spectrum width', txt])
+xlabel('\Omega [rpm]', 'FontSize', 12, 'FontWeight', 'bold');
+ylabel('\mu_{True mean} [m s^{-1}]', 'FontSize', 12, 'FontWeight', 'bold');
+
 
 
 for i = 1:length(Omega_rpm)
     name = ['\Omega = ', num2str(Omega_rpm(i)), ' [rpm]'];
     figure(101);
-    hold on; plot(mu_mean, squeeze(v_mean(i, :, 1)), 'DisplayName', name);
+    hold on; plot(phi_axis*180/pi, squeeze(v_mean(i, 1, :)), 'DisplayName', name);
     figure(102);
-    hold on; plot(mu_mean, squeeze(v_spread(i, :, 1)), 'DisplayName', name)
+    hold on; plot(phi_axis*180/pi, squeeze(v_spread(i, 1, :)), 'DisplayName', name)
 end
 figure(101)
 grid on;
@@ -204,10 +206,11 @@ lgd.FontSize = 14;
 lgd.FontWeight = 'bold';
 title(['Mean Doppler velocity', txt], 'FontSize', 12, 'FontWeight', 'bold')
 ylabel('\mu_{re} [m.s^{-1}]', 'FontSize', 12, 'FontWeight', 'bold');
-xlabel('\mu_{True mean} [m s^{-1}]', 'FontSize', 12, 'FontWeight', 'bold');
+% xlabel('\mu_{True mean} [m s^{-1}]', 'FontSize', 12, 'FontWeight', 'bold');
+xlabel('\phi [\circ]', 'FontSize', 12, 'FontWeight', 'bold');
 
-xlim([mu_mean(1) mu_mean(end)]);
-ylim([mu_mean(1) mu_mean(end)]);
+% xlim([mu_mean(1) mu_mean(end)]);
+% ylim([mu_mean(1) mu_mean(end)]);
 
 
 figure(102)
@@ -217,8 +220,8 @@ lgd.FontSize = 14;
 lgd.FontWeight = 'bold';
 title(['Doppler spectrum width', txt], 'FontSize', 12, 'FontWeight', 'bold')
 ylabel('\sigma_{re} [m.s^{-1}]', 'FontSize', 12, 'FontWeight', 'bold');
-xlabel('\mu_{True mean} [m s^{-1}]', 'FontSize', 12, 'FontWeight', 'bold');
-
+% xlabel('\mu_{True mean} [m s^{-1}]', 'FontSize', 12, 'FontWeight', 'bold');
+xlabel('\phi [\circ]', 'FontSize', 12, 'FontWeight', 'bold');
 %% 
 idx_mean = 50;
 

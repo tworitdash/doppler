@@ -21,8 +21,9 @@ function [] = surplot(x, y, z, xl, yl, zl, tl)
 
 %     set(gca, 'XTick', T, 'XTickLabel', L);
 %     set(gca, 'YTick', T, 'YTickLabel', L);
-
+       
     set(gca, 'FontSize', 18, 'LineWidth', 4);
+    box on;
 
 %     title(tl, 'Interpreter', 'latex', 'FontSize', 18);
 %     xlabel(xl, 'Interpreter', 'latex', 'FontSize', 18);
