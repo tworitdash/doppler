@@ -7,16 +7,9 @@ dr = 227;
 
 %% velocity model ground truth
 
-[u, v] = meshgrid(normrnd(400, 1, [size(x, 1) 1]), normrnd(0, 1, [size(x, 1) 1])); 
+[u, v] = meshgrid(normrnd(4, 1, [size(x, 1) 1]), normrnd(0, 1, [size(x, 1) 1])); 
 
 V = sqrt(abs(u).^2 + abs(v).^2);
-
-
-
-
-% h = pcolor(x, y, V);
-% set(h,'ZData',-1+zeros(size(V))); hold on;  shading flat; 
-% quiver(x(1:e:end, 1:e:end), y(1:e:end, 1:e:end), u(1:e:end, 1:e:end), v(1:e:end, 1:e:end), 'w');
 
 %% Reflectivity ground truth
 
