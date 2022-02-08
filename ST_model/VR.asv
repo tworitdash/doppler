@@ -96,7 +96,19 @@ end
 
 %% Plot fields
 % <<<<<<< Updated upstream
-
+figure; h = surface(x_, y_, abs(squeeze(R(1, :, :)).')); shading interp; colorbar;
+for t = 2:Nt
+    h.CData = abs(squeeze(R(t, :, :))).';
+    %figure; surface(x_, y_, abs(squeeze(R(t, :, :)).')); shading interp; colorbar;
+    caption = sprintf('Frame #%d of %d, t = %.1f', t, Nt, tau_v(t));
+	title(caption, 'FontSize', 15);
+% 	drawnow;
+	thisFrame = getframe(gca);
+	% Write this frame out to a new video file.
+%  	writeVideo(writerObj, thisFrame);
+% 	myMovie(t) = thisFrame;
+% =======
+end
 h = surface(x_, y_, abs(squeeze(R(1, :, :)).')); shading interp; colorbar;
 for t = 2:Nt
     h.CData = abs(squeeze(R(t, :, :))).';

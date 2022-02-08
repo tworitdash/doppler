@@ -28,11 +28,14 @@ bs = 10;
 cs = 1;
 bt = 30;
 ct = 1;
-theta = 1;
+theta = 0;
 
 Theta = [bs cs bt ct theta];
 
-vx = 0.5; vy = 0.5;
+% <<<<<<< Updated upstream
+% =======
+vx = 0; vy = 0.5;
+% % >>>>>>> Stashed changes
 
 
 for t = 1:length(tau_v)
@@ -62,15 +65,16 @@ DeltaLT = reshape(squeeze(DL), [Nt Nxy Nxy]);
 
 
 alpha = 0.33;
+% <<<<<<< Updated upstream
 
 
 for t = 1:length(tau_v)
-%     [K(t, :, :)] = AMHW_corr(Theta, squeeze(DeltaLT(t, :, :)), tau_v(t));
-   
-    K(t, :, :) = alpha * exp(- squeeze(DeltaLT(t, :, :)).^2);
+    [K(t, :, :)] = AMHW_corr(Theta, squeeze(DeltaLT(t, :, :)), tau_v(t));
+%     K(t, :, :) = alpha * exp(- squeeze(DeltaLT(t, :, :)).^2);
+% >>>>>>> Stashed changes
     gamma = 3.33;
     sigma = 1e-3;
-    Q(t, :, :) = sigma^2 * exp(-DeltaLT(t, :, :)/gamma);
+    Q(t, :, :) = sigma^2 * exp(-(DeltaLT(t, :, :)).^2/gamma);
 end
 %%
 % figure; l = surface(1:Nxy, [1:Nxy].', abs(squeeze(K(1, :, :)).')); shading interp; colorbar; colormap('jet');
@@ -117,4 +121,4 @@ for t = 2:Nt
     
 end
 
-% movie(myMovie);
+% % movie(myMovie);

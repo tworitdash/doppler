@@ -79,7 +79,11 @@ F             = (F + N)./max(max(F + N));
 
 
 U = normrnd(10, 0.1, size(x));
+<<<<<<< Updated upstream
 V = normrnd(0, 0.1, size(x));
+=======
+V = normrnd(10, 0.1, size(x));
+>>>>>>> Stashed changes
 % Lx = x(end);
 % Ly = y(end);
 % 
