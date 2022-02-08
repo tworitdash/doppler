@@ -58,8 +58,7 @@ err_i1 = error_APES(sig, H, beta, omega);
 if abs(err_i1 - err_i0)/abs(err_i0) < 1e-3
 break;
 else
-disp(['iter: '
-num2str(iter) ', error: ' num2str(err_i1)])
+disp(['iter: ', num2str(iter), ', error: ' num2str(err_i1)])
 err_i0 = err_i1;
 end
 end

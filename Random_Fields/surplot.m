@@ -1,7 +1,7 @@
 function [] = surplot(x, y, z, xl, yl, zl, tl)
 
     figure;
-    surface(x, y, z); colorbar; colormap('jet'); shading flat;
+    surface(x, y, z); colorbar; colormap('jet'); %shading flat;
 %     shading interp; 
     
 %     axis equal tight; 

@@ -95,20 +95,20 @@ z_nrotp = zi(n_rot_p, 1:N_Sweep_Skipp:N_Sweepp);
 
 z_hybrid = z_nrotp;
 % 
-% for l = n_rot_p+1:n_rot_p+n_rotpp
+for l = n_rot_p+1:n_rot_p+n_rotpp
+
+z_nrotp1 = zi(l, 1:N_Sweep_Skipp:N_Sweepp);
+z_hybrid = [z_hybrid z_hybrid(end).*z_modelp z_nrotp1];
+% z_hybrid = [z_hybrid  z_nrotp1];
 % 
-% z_nrotp1 = zi(l, 1:N_Sweep_Skipp:N_Sweepp);
-% z_hybrid = [z_hybrid z_hybrid(end).*z_modelp z_nrotp1];
-% % z_hybrid = [z_hybrid  z_nrotp1];
-% % 
-% % z_nrotp = zi(n_rot_p, 1:N_Sweep_Skipp:N_Sweepp);
-% % z_nrotp1 = zi(n_rot_p+1, 1:N_Sweep_Skipp:N_Sweepp);
-% % z_nrotp2 = zi(n_rot_p+2, 1:N_Sweep_Skipp:N_Sweepp);
-% 
-% end
+% z_nrotp = zi(n_rot_p, 1:N_Sweep_Skipp:N_Sweepp);
+% z_nrotp1 = zi(n_rot_p+1, 1:N_Sweep_Skipp:N_Sweepp);
+% z_nrotp2 = zi(n_rot_p+2, 1:N_Sweep_Skipp:N_Sweepp);
+
+end
 
 % z_hybrid = hann(1, length(z_hybrid)) .* z_hybrid;
 
 % z_hybrid = [z_nrotp z_nrotp(end).*z_modelp z_nrotp1 z_nrotp1(end).*z_modelp z_nrotp2];
 
-[ZFFT, PT, mu_re, sigma_re, vel_axis_re, dv_re] = Spec(z_hybrid, length(z_hybrid), dtpp, lambda, SNR_db, 1, 1, 2);
+[ZFFT, PT, mu_re, sigma_re, vel_axis_re, dv_re] = Spec(z_hybrid, length(z_hybrid), dtpp, lambda, SNR_db, 1, 1, 3);
