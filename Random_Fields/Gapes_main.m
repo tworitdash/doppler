@@ -28,7 +28,7 @@ v_sigma = 0;
 
 [z_model] = Zmodel(N, r0, dr, ph0, dph, Nt, SNR_db, lambda, dt, u_mean, u_sigma, v_mean, v_sigma); 
 
-[ZFFT, PT, mu, sigma, vel_axis, dv] = Spec(z_model, Nt, dt, lambda, SNR_db, 1, 1, 5);
+% [ZFFT, PT, mu, sigma, vel_axis, dv] = Spec(z_model, Nt, dt, lambda, SNR_db, 1, 1, 5);
 
 [zi, z, z_with_gap] = Zavail(z_model, n_rot, n_bw*N_Sweep, N_sec/n_bw);
 %% Test Gapes
@@ -43,6 +43,7 @@ end
 
 [H, beta, sig_out] = GAPES(sig, Nvec, M, N_omg);
 
-[ZFFTa, PTa, mua, sigmaa, vel_axisa, dva] = Spec(sig(1:N_Sweep), N_Sweep, dt, lambda, SNR_db, 1, 1, 7);
+[ZFFT, PT, mu, sigma, vel_axis, dv] = Spec(Z_model(1:128), 128, dt, lambda, SNR_db, 1, 1, 5);
+[ZFFTa, PTa, mua, sigmaa, vel_axisa, dva] = Spec(Z_model(1:NSweep), NSweep, dt, lambda, SNR_db, 1, 1, 7);
 
 [ZFFTre, PTre, mure, sigmare, vel_axisre, dvre]  = Spec(sig_out.', length(sig_out), dt, lambda, SNR_db, 1, 1, 8);
