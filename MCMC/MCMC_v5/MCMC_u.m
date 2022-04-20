@@ -85,10 +85,18 @@ t_avail = reshape(t, [length(Z_avail_vec) 1]) .* dT; % vectorize the available t
 
 % E is the structure having options for MCMC
 
-E.n = 1;                            % Number o fvariables to be estimated
+alpha0 = 1;
+beta0 = 1;
 
-E.E0 = [mu_obs];                    % Initial value of u -> mu_obs
-E.sig = [50000];                    % Initial value of the Std of the prior of u 
+E.n = 3;                            % Number o fvariables to be estimated
+
+E.E0 = [alpha0 beta0 mu_obs];                    % Initial value of u -> mu_obs
+
+
+
+E.sig = [5 5 betarnd(alpha0, beta0, 1)];                    % Initial value of the Std of the prior of u 
+
+
 
 % E.H = [mu_obs + (sigma_obs-1.5)];
 % E.L = [mu_obs - (sigma_obs - 1.5)];
@@ -96,7 +104,7 @@ E.sig = [50000];                    % Initial value of the Std of the prior of u
 %% This section has MCMC algorithm 
 
 
-[accepted, rejected, itern, E_new] = MHu(E, 10000, Z_avail_vec, t_avail, x0, sigma_n);
+[accepted, rejected, itern, E_new] = MHu(E, 1000, Z_avail_vec, t_avail, x0, sigma_n);
 
 %% Plot MCMC outputs 
 
@@ -111,8 +119,8 @@ for i = 1:E.n
    figure(2000+i); histogram(accepted(burnin+1:end, i), 100);          % histogram of accepted
    burninrej = round(0.25 * length(rejected(:, i)));                   % Burnin for rejected
    figure(3000+i); histogram(rejected(burninrej+1:end, i), 100);       % Burnin for accepted
-   mu_re = mean(accepted(burnin+1:end, i));                            % Mean of accepted 
-   rej_re = mean(rejected(burnin+1:end, i));                           % Mean of rejected
+   mu_re(i) = mean(accepted(burnin+1:end, i));                            % Mean of accepted 
+   rej_re(i) = mean(rejected(burnin+1:end, i));                           % Mean of rejected
 end
 
 

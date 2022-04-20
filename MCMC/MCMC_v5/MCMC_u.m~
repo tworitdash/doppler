@@ -85,10 +85,14 @@ t_avail = reshape(t, [length(Z_avail_vec) 1]) .* dT; % vectorize the available t
 
 % E is the structure having options for MCMC
 
-E.n = 1;                            % Number o fvariables to be estimated
+E.n = 3;                            % Number o fvariables to be estimated
 
 E.E0 = [mu_obs];                    % Initial value of u -> mu_obs
+
+
 E.sig = [50000];                    % Initial value of the Std of the prior of u 
+
+
 
 % E.H = [mu_obs + (sigma_obs-1.5)];
 % E.L = [mu_obs - (sigma_obs - 1.5)];
@@ -96,7 +100,7 @@ E.sig = [50000];                    % Initial value of the Std of the prior of u
 %% This section has MCMC algorithm 
 
 
-[accepted, rejected, itern, E_new] = MHu(E, 10000, Z_avail_vec, t_avail, x0, sigma_n);
+[accepted, rejected, itern, E_new] = MHu(E, 1000, Z_avail_vec, t_avail, x0, sigma_n);
 
 %% Plot MCMC outputs 
 
