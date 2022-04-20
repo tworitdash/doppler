@@ -1,10 +1,10 @@
-function [Z_model, ZFFT, v_amb, vel_axis, dv, Vtmean, Vtspread, vr, PT, mu, sigma] = Signal_modelvmac(Nt, dt, lambda, x0, y0, z0, r0, D_min, D_max, N0, D0, N, u_mean, v_mean, u_sigma, v_sigma, th, ph, SNR_db)
+function [Z_model, ZFFT, v_amb, vel_axis, dv, Vtmean, Vtspread, vr, PT, mu, sigma, sigma_n] = Signal_modelvmac(Nt, dt, lambda, x0, y0, z0, r0, D_min, D_max, N0, D0, N, u_mean, v_mean, u_sigma, v_sigma, th, ph, SNR_db)
 
 
 
 markers = load('../mono/markers.mat');
 markers = markers.markers;
-colors = load('colors.mat');
+colors = load('../Random_Fields/colors.mat');
 colors = colors.color;
 v_amb = lambda/(4 * dt);
 
@@ -99,9 +99,9 @@ end
 Noise = sum(abs(Z).^2)./(Nt .* SNR);
 sigma_n = sqrt(Noise);
 
-Z_model = Z + sigma_n .* (randn(1, Nt));
+Z_model = Z + sigma_n .* (randn(1, Nt) + 1j .* randn(1, Nt))./sqrt(2);
 
-[ZFFT, PT, mu, sigma, vel_axis, dv] = Spec(Z_model, Nt, dt, lambda, SNR_db, 0, 1, 5);
+[ZFFT, PT, mu, sigma, vel_axis, dv] = Spec(Z_model, Nt, dt, lambda, SNR_db, 1, 1, 5);
 % 
 % Z_re = PT./(dv .* Nt);
 % ref_re =  db(Z_re/N)/2;

@@ -1,11 +1,14 @@
-function [] = plott2(x, y, xl, yl, tl, lw, dtext, c, m)
-    plot(x, y, m, 'Color', c, 'LineWidth', lw, 'DisplayName', dtext); 
-    grid on;
+function [] = surplot_surf(x, y, z, xl, yl, zl, tl)
+
+    figure;
+    imagesc(x, y, z); colorbar; colormap('jet')
+    shading flat; 
+%     caxis([-7.5 7.5]);
     
 %     axis equal tight; 
 
-    xlim([min(x) max(x)]);
-%     ylim([min(y) max(y)]);
+    xlim([min(min(x)) max(max(x))]);
+    ylim([min(min(y)) max(max(y))]);
 
 %     T = [-x(end):5:x(end)];
 %     L = {};
@@ -22,8 +25,6 @@ function [] = plott2(x, y, xl, yl, tl, lw, dtext, c, m)
 
     set(gca, 'FontSize', 30, 'LineWidth', 4);
     box on;
-    
-
 %     title(tl, 'Interpreter', 'latex', 'FontSize', 18);
 %     xlabel(xl, 'Interpreter', 'latex', 'FontSize', 18);
 %     ylabel(yl, 'Interpreter', 'latex', 'FontSize', 18);
@@ -31,18 +32,6 @@ function [] = plott2(x, y, xl, yl, tl, lw, dtext, c, m)
     title(tl,  'FontSize', 30);
     xlabel(xl, 'FontSize', 30);
     ylabel(yl, 'FontSize', 30);
-    lgd = legend;
-    lgd.FontSize = 30;
-    lgd.FontWeight = 'bold';
-    % for x
-%     set(gca,'XTickLabel',[])
-%     set(gca,'XTick',[])
-    set(gca,'xcolor', c) 
-    % for y
-%     set(gca,'YTickLabel',[])
-%     set(gca,'YTick',[])
-    set(gca,'ycolor', c)
-    
-    
+    zlabel(zl, 'FontSize', 30);
     
 end

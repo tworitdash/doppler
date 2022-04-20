@@ -1,4 +1,4 @@
-function [Z_model, ZFFT, v_amb, vel_axis, dv, Vtmean, Vtspread, vr, PT, mu, sigma] = Signal_model(Nt, dt, lambda, x0, y0, z0, r0, D_min, D_max, N0, D0, N, u_mean, v_mean, u_sigma, v_sigma, th, ph, SNR_db)
+function [Z_model, v_amb, Vtmean, Vtspread, vr, u, v, Wt, D] = Signal_model(Nt, dt, lambda, x0, y0, z0, r0, D_min, D_max, N0, D0, N, u_mean, v_mean, u_sigma, v_sigma, th, ph, SNR_db)
 
 
 
@@ -36,6 +36,7 @@ v = normrnd(v_mean, v_sigma, [1 N]);
 w = 0 * normrnd(0, 0, [1 N]);
 
 Wt = 9.65 - 10.3 .* exp(-600 .* D .* 1e-3) - w;
+
 
 
 %% Theoretical mean of Terminal Fall velocity
@@ -100,7 +101,7 @@ sigma_n = sqrt(Noise);
 
 Z_model = Z + sigma_n .* (randn(1, Nt));
 
-[ZFFT, PT, mu, sigma, vel_axis, dv] = Spec(Z_model, Nt, dt, lambda, SNR_db, 1, 1, 5);
+
 % 
 % Z_re = PT./(dv .* Nt);
 % ref_re =  db(Z_re/N)/2;

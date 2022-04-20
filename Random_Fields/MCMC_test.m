@@ -39,10 +39,10 @@ D_max = 4;
 D0 = 1;
 N0 = 8e3;
 N = 1000; 
-u_mean = 0;
-v_mean = 0;
-u_sigma = 0;
-v_sigma = 0;
+u_mean = 1;
+v_mean = 1;
+u_sigma = 2;
+v_sigma = 2;
 SNR_db = 30;
 n_rot = 10;
 NSweep = 5;
@@ -51,10 +51,31 @@ Nt = n_rot * NSweep * NSec;
 dt = 1e-3;
 lambda = 3e-2;
 
-[Z_model, ZFFT, v_amb, vel_axis, dv, Vtmean, Vtspread, vr, PT, mu, sigma] = ...
+[Z_model, v_amb, Vtmean, Vtspread, vr, u, v, Wt, D] = ...
     Signal_model(Nt, dt, lambda, x0, y0, z0, r0, D_min, D_max, N0, D0, N, u_mean, v_mean, u_sigma, v_sigma, th, ph, SNR_db);
+
+[ZFFT, PT, mu, sigma, vel_axis, dv] = Spec(Z_model(1:128), 128, dt, lambda, SNR_db, 1, 1, 5);
+
+
+[p_u, u_x] = hist(u);
+[p_v, v_x] = hist(u);
+[p_W, W_x] = hist(Wt);
+P_uvW = p_u .* p_v .* p_W;
+
+figure; scatter3(u_x, v_x, W_x, 50, P_uvW); colormap('copper'); colorbar; xlabel('u [m/s]'); ylabel('v [m/s]'); zlabel('Wt [m/s]'); 
 
 
 %% Signal available 
-Z_model_re = reshape(Z_model, [n_rot NSweep * Nsec]);
+Z_model_re = reshape(Z_model, [NSweep * NSec n_rot]);
 
+Z_model_re_re = Z_model_re(1:NSweep, :);
+
+Z_model_meas = reshape(Z_model_re_re, [1 n_rot * NSweep]);
+
+%% Available Spectrum
+n_rot_a = 1;
+Z_model_meas_a = Z_model_meas(1:n_rot_a * NSweep);
+
+[ZFFTm, PTm, mum, sigmam, vel_axism, dvm] = Spec(Z_model_meas_a, length(Z_model_meas_a), dt, lambda, SNR_db, 1, 1, 6);
+
+%% MCMC
