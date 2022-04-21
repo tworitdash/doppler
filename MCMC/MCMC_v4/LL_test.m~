@@ -1,0 +1,67 @@
+%% HD signal generator
+
+close all;
+clear;
+
+SNR_db = 80;                % Noise is added with a given SNR in dB
+SNR = 10^(SNR_db/10);       % SNR in linear scale
+
+
+lambda = 1;             
+
+r0 = 0;                     
+u = 0.01;                      % Ground truth u
+
+Nt = 1000;                 % Truth samples
+
+          
+
+dT = 0.1;                  % t step
+r(1) = r0;                  
+
+Z(1) = exp(1j * 4 * pi/lambda .* r(1)); 
+
+for i = 2:Nt
+    r(i) = r(i - 1) + u * dT;
+    Z(i) = exp(1j * 4 * pi/lambda .* r(i)); % Ground truth samples
+end
+
+Noise = sum(abs(Z).^2)./(Nt .* SNR);         % Finding Noise power and ...
+                                             %noise variance with the data and given SNR
+sigma_n = sqrt(Noise);
+
+Z_model = Z + sigma_n .* (randn(1, Nt) + 1j .* randn(1, Nt))./sqrt(2); % Adding complex noise 
+
+
+%% Available samples [Measurement model with only a few samples]
+
+NSweep = 5;  
+
+
+Z_model_re = reshape(Z, [10 10]); 
+Z_avail = Z_model_re(1:NSweep, :); 
+
+Z_avail_vec_ = reshape(Z_avail, [50 1]); % available samples for measurements
+
+
+Z_avail_vec = Z_avail_vec_ + sigma_n .* (randn(1, length(Z_avail_vec_)).'+ 1j .* randn(1, length(Z_avail_vec_)).')./sqrt(2);
+
+for k = 1:10
+    t(:, k) = (k - 1) * 20 * NSweep + [1:NSweep]; % This for loop calculates the t instances of the available samples
+end
+
+t_avail = reshape(t, [length(Z_avail_vec) 1]) .* dT; % vectorize the available time instances
+
+%% 
+
+u_test = linspace(-0.05, 0.2, 200);
+
+
+for i = 1:length(u_test)
+    LL(i) = LLu(u_test(i), Z_avail_vec, t_avail, r0, sigma_n, 1);
+end
+
+figure; plot(u_test, LL)
+
+
+

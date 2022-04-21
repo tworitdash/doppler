@@ -3,7 +3,7 @@
 close all;
 clear;
 
-SNR_db = 40;                % Noise is added with a given SNR in dB
+SNR_db = 20;                % Noise is added with a given SNR in dB
 SNR = 10^(SNR_db/10);       % SNR in linear scale
 
 
@@ -12,9 +12,10 @@ lambda = 1;
 r0 = 0;                     
 u = 0.01;                      % Ground truth u
 
-Nt = 100;                 % Truth samples
+N = 100; 
+M = 5;
 
-          
+Nt = 1000;                 % Number of Truth samples (N * M * 20)
 
 dT = 0.1;                  % t step
 r(1) = r0;                  
@@ -35,18 +36,18 @@ Z_model = Z + sigma_n .* (randn(1, Nt) + 1j .* randn(1, Nt))./sqrt(2); % Adding 
 
 %% Available samples [Measurement model with only a few samples]
 
-NSweep = 5;  
+  
 
 
-Z_model_re = reshape(Z, [100 100]); 
-Z_avail = Z_model_re(1:NSweep, :); 
+Z_model_re = reshape(Z, [100 10]); 
+Z_avail = Z_model_re(1:M, :); 
 
-Z_avail_vec_ = reshape(Z_avail, [500 1]); % available samples for measurements
+Z_avail_vec_ = reshape(Z_avail, [50 1]); % available samples for measurements
 
 
 Z_avail_vec = Z_avail_vec_ + sigma_n .* (randn(1, length(Z_avail_vec_)).'+ 1j .* randn(1, length(Z_avail_vec_)).')./sqrt(2);
 
-for k = 1:100
+for k = 1:10
     t(:, k) = (k - 1) * 20 * NSweep + [1:NSweep]; % This for loop calculates the t instances of the available samples
 end
 
@@ -64,7 +65,7 @@ E.sig = [0.0001];                    % Initial value of the Std of the prior of 
 
 
 %% This section has MCMC algorithm 
-No_iter = 10000; % Number of iterations
+No_iter = 2000; % Number of iterations
 
 [accepted, rejected, itern, E_new] = MHu(E, No_iter, Z_avail_vec, t_avail, r0, sigma_n);
 

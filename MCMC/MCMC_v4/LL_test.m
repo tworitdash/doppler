@@ -55,36 +55,16 @@ end
 
 t_avail = reshape(t, [length(Z_avail_vec) 1]) .* dT; % vectorize the available time instances
 
+%% 
 
-%% MCMC parameters in a structure var
-
-% E is the structure having options for MCMC
-
-E.n = 1;                            % Number of variables to be estimated
-
-E.E0 = [0.014];                    % Initial value of u 
-E.sig = [0.0001];                    % Initial value of the Std of the prior of u 
+u_test = linspace(-0.05, 0.2, 200);
 
 
-%% This section has MCMC algorithm 
-No_iter = 10000; % Number of iterations
-
-[accepted, rejected, itern, E_new] = MHu(E, No_iter, Z_avail_vec, t_avail, r0, sigma_n);
-
-%% Plot MCMC outputs 
-
-
-for i = 1:E.n
-
-    
-   figure(1000+i);plot(rejected(:, i)); hold on; plot(accepted(:, i)); % Accepted and rejected values
-   
-   burnin = round(0.25 * length(accepted(:, i)));                      % 25% of the data is taken as burnin
-   figure(2000+i); histogram(accepted(burnin+1:end, i), 100);          % histogram of accepted
-   burninrej = round(0.25 * length(rejected(:, i)));                   % Burnin for rejected
-   figure(3000+i); histogram(rejected(burninrej+1:end, i), 100);       % Burnin for accepted
-   mu_re = mean(accepted(burnin+1:end, i));                            % Mean of accepted 
-   rej_re = mean(rejected(burnin+1:end, i));                           % Mean of rejected
+for i = 1:length(u_test)
+    LL(i) = LLu(u_test(i), Z_avail_vec, t_avail, r0, sigma_n, 1);
 end
+
+figure; plot(u_test, LL)
+
 
 

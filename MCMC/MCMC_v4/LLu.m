@@ -22,6 +22,10 @@ function ret = LLu(u, data, t_avail, r0, sigma_n, pu)
     ret_re = log(pu) -Nt/2 .* log(2*pi) - 1/2 * (real(data) - real(Z_model).').' * inv(K) * (real(data) - real(Z_model).');
     ret_im = log(pu) -Nt/2 .* log(2*pi) - 1/2 * (imag(data) - imag(Z_model).').' * inv(K) * (imag(data) - imag(Z_model).');
     
+%     ret_re = -Nt/2 .* log(2*pi) - 1/2 * (real(data) - real(Z_model).').' * inv(K) * (real(data) - real(Z_model).');
+%     ret_im = -Nt/2 .* log(2*pi) - 1/2 * (imag(data) - imag(Z_model).').' * inv(K) * (imag(data) - imag(Z_model).');
+%     
+    
     ret = ret_re + ret_im; % Total likelihood (multiplication of real and imaginary likelihoods in linear scale)
     
 
