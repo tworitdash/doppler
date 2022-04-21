@@ -88,7 +88,7 @@ t_avail = reshape(t, [length(Z_avail_vec) 1]) .* dT; % vectorize the available t
 E.n = 1;                            % Number o fvariables to be estimated
 
 E.E0 = [mu_obs];                    % Initial value of u -> mu_obs
-E.sig = [50000];                    % Initial value of the Std of the prior of u 
+E.sig = [1];                    % Initial value of the Std of the prior of u 
 
 % E.H = [mu_obs + (sigma_obs-1.5)];
 % E.L = [mu_obs - (sigma_obs - 1.5)];
