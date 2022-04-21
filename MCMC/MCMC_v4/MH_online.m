@@ -3,7 +3,7 @@
 close all;
 clear;
 
-SNR_db = 40;                % Noise is added with a given SNR in dB
+SNR_db = 20;                % Noise is added with a given SNR in dB
 SNR = 10^(SNR_db/10);       % SNR in linear scale
 
 
