@@ -1,4 +1,4 @@
-function [accepted, rejected, itern, E] = MHu(E, iter, data, t_avail, x0, sigma_n)
+function [accepted, rejected, itern, E, Esigu] = MHu(E, iter, data, t_avail, x0, sigma_n)
 
 %% Inputs:
 
@@ -33,7 +33,7 @@ function [accepted, rejected, itern, E] = MHu(E, iter, data, t_avail, x0, sigma_
     
     for i = 1:iter
         disp(i);
-        [x_new, pxnew, px] = TMu(x, E.sig);     % x_new is a new sample drawn for u 
+        [x_new, pxnew, px, Esigu(i)] = TMu(x, E.sig);     % x_new is a new sample drawn for u 
                                                 % pxnew is the prior
                                                 % prior probability of x_new
                                                 % prior probability of x 

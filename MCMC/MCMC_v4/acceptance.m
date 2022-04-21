@@ -1,6 +1,6 @@
-function ret = acceptance(x, x_new)
+function ret = acceptance(u, u_new)
    
-        alpha = exp(x_new - x);
+        alpha = exp(u_new - u);
         rnd = rand;
         
     if alpha > rnd

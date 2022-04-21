@@ -10,7 +10,7 @@ SNR = 10^(SNR_db/10);       % SNR in linear scale
 lambda = 0.03;              % Center frequency of the radar
 
 x0 = 100;                   % Start position of the target
-u = 4;                      % Ground truth velocity of the target
+u = 20;                      % Ground truth velocity of the target
 
 NSweep = 5;                 % Number of sweeps available per beamwidth 
                             %(low resolution, used for measurement)
@@ -94,7 +94,7 @@ E.E0 = [alpha0 beta0 mu_obs];                    % Initial value of u -> mu_obs
 
 
 
-E.sig = [5 5 betarnd(alpha0, beta0, 1)];                    % Initial value of the Std of the prior of u 
+E.sig = [5 5 500 .* betarnd(alpha0, beta0, 1)];                    % Initial value of the Std of the prior of u 
 
 
 
@@ -104,7 +104,7 @@ E.sig = [5 5 betarnd(alpha0, beta0, 1)];                    % Initial value of t
 %% This section has MCMC algorithm 
 
 
-[accepted, rejected, itern, E_new] = MHu(E, 1000, Z_avail_vec, t_avail, x0, sigma_n);
+[accepted, rejected, itern, E_new, Esigu] = MHu(E, 1000000, Z_avail_vec, t_avail, x0, sigma_n);
 
 %% Plot MCMC outputs 
 
@@ -115,16 +115,16 @@ for i = 1:E.n
    figure(1000+i);plot(rejected(:, i)); hold on; plot(accepted(:, i)); % Accepted and rejected values
    
 %    Mest(i) = mean(accepted(:, i));
-   burnin = round(0.25 * length(accepted(:, i)));                      % 25% of the data is taken as burnin
+   burnin = round(0.5 * length(accepted(:, i)));                      % 25% of the data is taken as burnin
    figure(2000+i); histogram(accepted(burnin+1:end, i), 100);          % histogram of accepted
-   burninrej = round(0.25 * length(rejected(:, i)));                   % Burnin for rejected
+   burninrej = round(0.5 * length(rejected(:, i)));                   % Burnin for rejected
    figure(3000+i); histogram(rejected(burninrej+1:end, i), 100);       % Burnin for accepted
    mu_re(i) = mean(accepted(burnin+1:end, i));                            % Mean of accepted 
    rej_re(i) = mean(rejected(burnin+1:end, i));                           % Mean of rejected
 end
 
 
-
+figure; plot(Esigu);
 
 
 

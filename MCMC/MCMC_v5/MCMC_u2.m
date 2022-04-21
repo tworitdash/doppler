@@ -9,8 +9,8 @@ SNR = 10^(SNR_db/10);       % SNR in linear scale
 
 lambda = 0.03;              % Center frequency of the radar
 
-x0 = 0;                   % Start position of the target
-u = 4;                      % Ground truth velocity of the target
+x0 = 100;                   % Start position of the target
+u = 3;                      % Ground truth velocity of the target
 
 NSweep = 5;                 % Number of sweeps available per beamwidth 
                             %(low resolution, used for measurement)
@@ -85,10 +85,18 @@ t_avail = reshape(t, [length(Z_avail_vec) 1]) .* dT; % vectorize the available t
 
 % E is the structure having options for MCMC
 
-E.n = 1;                            % Number o fvariables to be estimated
+alpha0 = 1;
+beta0 = 1;
 
-E.E0 = [mu_obs];                    % Initial value of u -> mu_obs
-E.sig = [50000];                    % Initial value of the Std of the prior of u 
+E.n = 3;                            % Number o fvariables to be estimated
+
+E.E0 = [alpha0 beta0 mu_obs];                    % Initial value of u -> mu_obs
+
+
+
+E.sig = [5 5 7.5 .* betarnd(alpha0, beta0, 1)];                    % Initial value of the Std of the prior of u 
+
+
 
 % E.H = [mu_obs + (sigma_obs-1.5)];
 % E.L = [mu_obs - (sigma_obs - 1.5)];
@@ -96,7 +104,7 @@ E.sig = [50000];                    % Initial value of the Std of the prior of u
 %% This section has MCMC algorithm 
 
 
-[accepted, rejected, itern, E_new] = MHu(E, 10000, Z_avail_vec, t_avail, x0, sigma_n);
+[accepted, rejected, itern, E_new, Esigu] = MHu(E, 100000, Z_avail_vec, t_avail, x0, sigma_n);
 
 %% Plot MCMC outputs 
 
@@ -107,17 +115,13 @@ for i = 1:E.n
    figure(1000+i);plot(rejected(:, i)); hold on; plot(accepted(:, i)); % Accepted and rejected values
    
 %    Mest(i) = mean(accepted(:, i));
-   burnin = round(0.25 * length(accepted(:, i)));                      % 25% of the data is taken as burnin
+   burnin = round(0.5 * length(accepted(:, i)));                      % 25% of the data is taken as burnin
    figure(2000+i); histogram(accepted(burnin+1:end, i), 100);          % histogram of accepted
-   burninrej = round(0.25 * length(rejected(:, i)));                   % Burnin for rejected
+   burninrej = round(0.5 * length(rejected(:, i)));                   % Burnin for rejected
    figure(3000+i); histogram(rejected(burninrej+1:end, i), 100);       % Burnin for accepted
-   mu_re = mean(accepted(burnin+1:end, i));                            % Mean of accepted 
-   rej_re = mean(rejected(burnin+1:end, i));                           % Mean of rejected
+   mu_re(i) = mean(accepted(burnin+1:end, i));                            % Mean of accepted 
+   rej_re(i) = mean(rejected(burnin+1:end, i));                           % Mean of rejected
 end
 
 
-
-
-
-
-
+figure; plot(Esigu);
