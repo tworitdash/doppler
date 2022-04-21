@@ -10,7 +10,7 @@ SNR = 10^(SNR_db/10);       % SNR in linear scale
 lambda = 1;             
 
 r0 = 0;                     
-u = 0.01;                      % Ground truth u
+u = 1;                      % Ground truth u
 
 N = 100; 
 M = 5;
@@ -62,8 +62,8 @@ t_avail = reshape(t, [length(Z_avail_vec) 1]) .* dT; % vectorize the available t
 
 E.n = 1;                            % Number of variables to be estimated
 
-E.E0 = [0.014];                    % Initial value of u 
-E.sig = [0.0001];                    % Initial value of the Std of the prior of u 
+E.E0 = [1.3];                    % Initial value of u 
+E.sig = [1];                    % Initial value of the Std of the prior of u 
 
 
 %% This section has MCMC algorithm 
