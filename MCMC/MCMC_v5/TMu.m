@@ -9,7 +9,7 @@ function [y, pynew, px, Esig] = TMu(x, Esigma)
             
         else
         
-            Esigma(i) = 500 * betarnd(y(1), y(2), 1);
+            Esigma(i) = 200 * betarnd(y(1), y(2), 1);
             Esig = Esigma(i);
 
             y(i) = normrnd(x(i), Esigma(i), 1); % Draw a new value

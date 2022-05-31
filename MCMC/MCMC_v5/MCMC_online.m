@@ -3,14 +3,14 @@
 close all;
 clear;
 
-SNR_db = 20;                % Noise is added with a given SNR in dB
+SNR_db = 50;                % Noise is added with a given SNR in dB
 SNR = 10^(SNR_db/10);       % SNR in linear scale
 
 
-lambda = 1;             
+lambda = 0.03;             
 
 r0 = 0;                     
-u = 0.01;                      % Ground truth u
+u = 3;                      % Ground truth u
 
 N = 100; 
 M = 5;
@@ -19,7 +19,7 @@ K = linspace(1, 10, 10);
 
 Nt = K(end) * N;                 % Number of Truth samples (N * M * 20)
 
-dT = 0.1;                  % t step
+dT = 0.001;                  % t step
 r(1) = r0;                  
 
 Z(1) = exp(1j * 4 * pi/lambda .* r(1)); 
@@ -64,16 +64,26 @@ t_avail = reshape(t, [length(Z_avail_vec) 1]) .* dT; % vectorize the available t
 
 % E is the structure having options for MCMC
 
-E.n = 1;                            % Number of variables to be estimated
+alpha0 = 1;
+beta0 = 1;
 
-E.E0 = [0.014];                    % Initial value of u 
-E.sig = [1];                    % Initial value of the Std of the prior of u 
+E.n = 3;                            % Number o fvariables to be estimated
 
+E.E0 = [alpha0 beta0 100];                    % Initial value of u -> mu_obs
+
+
+
+E.sig = [5 5 200 * betarnd(alpha0, beta0, 1)];                    % Initial value of the Std of the prior of u 
+
+
+
+% E.H = [mu_obs + (sigma_obs-1.5)];
+% E.L = [mu_obs - (sigma_obs - 1.5)];
 
 %% This section has MCMC algorithm 
-No_iter = 2500; % Number of iterations
 
-[accepted, rejected, itern, E_new] = MHu(E, No_iter, Z_avail_vec, t_avail, r0, sigma_n);
+
+[accepted, rejected, itern, E_new, Esigu] = MHu(E, 10000000, Z_avail_vec, t_avail, r0, sigma_n);
 
 %% Plot MCMC outputs 
 
@@ -83,12 +93,14 @@ for i = 1:E.n
     
    figure(1000+i);plot(rejected(:, i)); hold on; plot(accepted(:, i)); % Accepted and rejected values
    
-   burnin = round(0.25 * length(accepted(:, i)));                      % 25% of the data is taken as burnin
+%    Mest(i) = mean(accepted(:, i));
+   burnin = round(0.5 * length(accepted(:, i)));                      % 25% of the data is taken as burnin
    figure(2000+i); histogram(accepted(burnin+1:end, i), 100);          % histogram of accepted
-   burninrej = round(0.25 * length(rejected(:, i)));                   % Burnin for rejected
+   burninrej = round(0.5 * length(rejected(:, i)));                   % Burnin for rejected
    figure(3000+i); histogram(rejected(burninrej+1:end, i), 100);       % Burnin for accepted
-   mu_re = mean(accepted(burnin+1:end, i));                            % Mean of accepted 
-   rej_re = mean(rejected(burnin+1:end, i));                           % Mean of rejected
+   mu_re(i) = mean(accepted(burnin+1:end, i));                            % Mean of accepted 
+   rej_re(i) = mean(rejected(burnin+1:end, i));                           % Mean of rejected
 end
 
 
+figure; plot(Esigu);

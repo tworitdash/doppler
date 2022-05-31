@@ -1,0 +1,107 @@
+%% Likelihood test
+%% HD signal generator
+
+close all;
+clear;
+
+SNR_db = 0;                % Noise is added with a given SNR in dB
+SNR = 10^(SNR_db/10);       % SNR in linear scale
+
+
+lambda = 0.03;             
+
+x0 = 0; y0 = 0;
+r0 = sqrt(x0.^2 + y0.^2);
+
+u = 4;
+v = 4; % Ground truth u
+
+N = 100; 
+M = 10;
+
+% K = linspace(1, 10, 10);
+K = 10;
+
+Nt = K(end) * N;                 % Number of Truth samples 
+
+dT = 1e-3;                       % t step
+
+u_amb = lambda/(2 * dT);
+u_amb_gap = lambda/(2 * (N-M+1)*dT);
+x(1) = x0; y(1) = y0;
+r(1) = r0;             
+
+Z(1) = exp(1j * 4 * pi/lambda .* r(1)); 
+
+t_whole = linspace(0, dT*(Nt - 1), Nt);
+
+for i = 2:Nt
+    r(i) = sqrt((x(1) + u * t_whole(i)).^2 + (y(1) + v * t_whole(i)).^2);
+    Z(i) = exp(1j * 4 * pi/lambda .* r(i)); % Ground truth samples
+end
+
+Noise = sum(abs(Z).^2)./(Nt .* SNR);         % Finding Noise power and ...
+                                             %noise variance with the data and given SNR
+sigma_n = sqrt(Noise);
+
+Z_model = Z + sigma_n .* (randn(1, Nt) + 1j .* randn(1, Nt))./sqrt(2); % Adding complex noise 
+
+
+%% Available samples [Measurement model with only a few samples]
+
+Z_model_re = reshape(Z_model, [N K(end)]); 
+Z_avail = Z_model_re(1:M, :); 
+
+Z_avail_vec = reshape(Z_avail, [M * K(end) 1]); % available samples for measurements
+
+
+% Z_avail_vec = Z_avail_vec_ + sigma_n .* (randn(1, length(Z_avail_vec_)).'+ 1j .* randn(1, length(Z_avail_vec_)).')./sqrt(2);
+
+for k = 1:K(end)
+    t(:, k) = (k - 1) * N + [0:M-1]; % This for loop calculates the t instances of the available samples
+end
+
+t_avail = reshape(t, [length(Z_avail_vec) 1]) .* dT; % vectorize the available time instances
+
+%% 
+
+u_test = linspace(0, u_amb, 200);
+v_test = linspace(0, u_amb, 200);
+B_test = linspace(1, 200, 200);
+
+for i = 1:length(u_test)
+    for l = 1:length(v_test)
+        for n = 1:length(B_test)
+            %     pu = normpdf(u, 0, 1);
+            pu = 1;
+            LL(i, l, n) = LLu2D([u_test(i) v_test(l) B_test(n)], Z_avail_vec, t_avail, x0, y0, sigma_n, pu);
+        end
+    end
+end
+
+% txt = ['Number of Gap samples: ', num2str(N-M), ', Gap Ambiguity: ', num2str(u_amb_gap), ' [m/s]'];
+% 
+% figure; plot(u_test, LL, 'LineWidth', 2, 'DisplayName', txt); grid on; legend;
+
+%% 
+xl = 'u[m/s]';
+yl = 'v[m/s]';
+zl = 'p(z|u, v, B)';
+tl = ['Likelihood ~ p(z|u, v) at B = ', num2mstr(B_test(100))];
+% figure;
+surplot_pcolor(u_test, v_test, db(squeeze(LL(:, :, 100))), xl, yl, zl, tl)
+
+xl = 'v[m/s]';
+yl = 'B';
+zl = 'p(z|u, v, B)';
+tl = ['Likelihood ~ p(z|u, v, B) at u = ', num2str(u_test(54)), ' [m/s]'];
+% figure;
+surplot_pcolor(v_test, B_test, db(squeeze(LL(54, :, :))), xl, yl, zl, tl)
+
+xl = 'u[m/s]';
+yl = 'B';
+zl = 'p(z|u, v, B)';
+tl = ['Likelihood ~ p(z|u, v, B) at v = ', num2str(v_test(54)), ' [m/s]'];
+% figure;
+surplot_pcolor(u_test, B_test, db(squeeze(LL(:, 54, :))), xl, yl, zl, tl)
+
