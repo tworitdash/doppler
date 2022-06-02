@@ -49,8 +49,8 @@ function [accepted, rejected, itern, E, sample_MC_seq, sample_all, Flag, NB] = M
 
         sample_all(i) = x_new;
 
-        x_lik = LLudouble(x, data, t_avail, x0, sigma_n, pxnew); % Likelihood of x wth data
-        x_new_lik = LLudouble(x_new, data, t_avail, x0, sigma_n, px); % Likelihood of x_new with data
+        x_lik = LLu(x, data, t_avail, x0, sigma_n, pxnew); % Likelihood of x wth data
+        x_new_lik = LLu(x_new, data, t_avail, x0, sigma_n, px); % Likelihood of x_new with data
         
 %         if mod(i, 10) == 0
 %             E.sig = 0.95 .* E.sig;
@@ -100,22 +100,22 @@ function [accepted, rejected, itern, E, sample_MC_seq, sample_all, Flag, NB] = M
             sample_MC_seq(i) = x;
         end
         
-        if i > 1
-            slope(i-1) = sample_MC_seq(i) - sample_MC_seq(i -1);
-            if i > 2100
-                while f
-                    if slope(i-2000:i-1) < epislon
-                        Flag = 1;
-                        NB = round(mean([i i - 2000]));
-                        f = 0;
-                        
-                    else
-                        NB = 0;
-                        Flag = 0;
-                        f = 0;
-                    end
-                end
-            end
-        end
+%         if i > 1
+%             slope(i-1) = sample_MC_seq(i) - sample_MC_seq(i -1);
+%             if i > 2100
+%                 while f
+%                     if slope(i-2000:i-1) < epislon
+%                         Flag = 1;
+%                         NB = round(mean([i i - 2000]));
+%                         f = 0;
+%                         
+%                     else
+%                         NB = 0;
+%                         Flag = 0;
+%                         f = 0;
+%                     end
+%                 end
+%             end
+%         end
     end
 end

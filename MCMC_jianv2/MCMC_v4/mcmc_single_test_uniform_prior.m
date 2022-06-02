@@ -10,7 +10,7 @@ SNR = 10^(SNR_db/10);       % SNR in linear scale
 lambda = 0.03; %0.03;              % Center frequency of the radar
 c = 3e8;
 
-x0 = 100;                   % Start position of the target
+x0 = 0;                   % Start position of the target
 u = 4;                      % Ground truth velocity of the target
 
 NSweep = 5;                 % Number of sweeps available per beamwidth 
@@ -64,9 +64,9 @@ Z_model = Z + sigma_n .* (randn(1, Nt) + 1j .* randn(1, Nt)); % Adding complex n
 % Here, the ground truth signal is given as input
 % mu is mean Doppler velocity, sigma is Doppler spectrum width, vel_axis is
 % the velocity axis with Nt points. The last 3 inputs are for plot options
-
-%  [~, ~, mu, sigma, vel_axis, dv] = Spec(Z_model, Nt, dT, lambda, SNR_db, 1, 1, 7);
-
+if m == 1
+ [~, ~, mu, sigma, vel_axis, dv] = Spec(Z_model, Nt, dT, lambda, SNR_db, 1, 1, 7);
+end
 
 %% Available samples [Measurement model with only a few samples]
 
@@ -101,9 +101,9 @@ t_avail = reshape(t, [length(Z_avail_vec) 1]) .* dT; % vectorize the available t
 % in one rotation only N_Sweeps coherent samples. mu_obs and sigma_obs are
 % the mean Doppler velocity and Doppler spectrum width with only N_Sweeps
 % samples. Mu_obs is taken as the starting point for the MCMC algorithm.
-
-% [~, ~, mu_obs, sigma_obs, vel_axis_obs, dv_obs] =  Spec(Z_avail_vec(1:NSweep).', NSweep, dT, lambda, SNR_db, 1, 1, 5);
-
+if m == 1
+[~, ~, mu_obs, sigma_obs, vel_axis_obs, dv_obs] =  Spec(Z_avail_vec(1:NSweep).', NSweep, dT, lambda, SNR_db, 1, 1, 5);
+end
 
 %% MCMC parameters in a structure var
 

@@ -10,20 +10,21 @@ SNR = 10^(SNR_db/10);       % SNR in linear scale
 lambda = 0.03; %0.03;              % Center frequency of the radar
 c = 3e8;
 
-x0 = 100;                   % Start position of the target
+x0 = 0;                   % Start position of the target
 u = 4;                      % Ground truth velocity of the target
 
 NSweep = 5;                 % Number of sweeps available per beamwidth 
                             %(low resolution, used for measurement)
-N_rot = round(linspace(1, 100, 10));
+% N_rot = round(linspace(1, 100, 10));
+N_rot = 100;
             
 for ni = 1:length(N_rot)
 
 n_rot = N_rot(ni);                % Number of rotations of radar
 
 % Sections = [1 20 50 100 200];
-Sections = round(linspace(1, 200, 20));
-% Sections = 200;
+% Sections = round(linspace(1, 200, 20));
+Sections = 200;
 
 es = 0.5;
 
@@ -116,13 +117,15 @@ E.E0 = 2;
 Num_Simu = 20000;
 epsilon = 1e-2;
 
-[accepted, rejected, itern, E_new, sample_MC_seq(l, :), sample_all, Flag, NB(ni, l, m)] = MHu_uniformprior(E, Num_Simu, Z_avail_vec, t_avail, x0, sigma_n, epsilon);
+% [accepted, rejected, itern, E_new, sample_MC_seq(l, :), sample_all, Flag, NB(ni, l, m)] = MHu_uniformprior(E, Num_Simu, Z_avail_vec, t_avail, x0, sigma_n, epsilon);
+[accepted, rejected, itern, E_new, sample_MC_seq(l, :), sample_all, Flag] = MHu_uniformprior(E, Num_Simu, Z_avail_vec, t_avail, x0, sigma_n, epsilon);
 
 Sample_mc_seq_with_burnin(ni, l, m).seq = sample_MC_seq(l, :);
 
 
 if Flag
     sample_MC(ni, l).seq = sample_MC_seq(l, NB(ni, l, m)+1:end);
+    sample_mc_all(ni, l).seq = sample_all(l, NB(ni, l, m)+1:end);
     u_mean_unwraped(ni, l, m) = mean(sample_MC(ni, l).seq);
     u_mean(ni, l, m) = u_mean_unwraped(ni, l, m); % mod(u_mean_unwraped(ni, l, m), v_amb);
     if abs(u - u_mean(ni, l, m)) < es
@@ -133,9 +136,15 @@ if Flag
 else
     NB(ni, l, m) = 2000;
     sample_MC(ni, l).seq = sample_MC_seq(l, NB(ni, l, m)+1:end);
+    sample_mc_all(ni, l).seq = sample_all(l, NB(ni, l, m)+1:end);
     u_mean_unwraped(ni, l, m) = mean(sample_MC(ni, l).seq);
     u_mean(ni, l, m) = u_mean_unwraped(ni, l, m); %mod(u_mean_unwraped(ni, l, m), v_amb);
     F(ni, l, m) = 0;
+end
+
+if m == 1
+    figure; plot(sample_mc_all(ni, l).seq); hold on; plot(sample_MC(ni, l).seq); hold on; ...
+    plot(u .* ones(1, length(sample_MC(ni, l).seq)), '--', 'Color', 'g');
 end
 
 end
