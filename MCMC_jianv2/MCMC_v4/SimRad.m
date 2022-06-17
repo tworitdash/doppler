@@ -1,0 +1,148 @@
+%% Radar data simulator for one specific resolution cell
+
+% INPUT:
+
+%       1. Number of Scatters                                               N_{scatters}
+%       2. Mean Range                                                       r_0
+%       3. Range resolution                                                 dr
+%       4. Azimuth resolution                                               dphi
+%       3. Mean Azimuth                                                     phi_0
+%       4. Standard Deviaton ratio                                          p
+%       5. Spatial Distribution Dist_space                                 ´Gaussian´, ´Poisson´, etc...
+%       6. Gap samples                                                      N_gap
+%       7. Number of rotations                                              N_rot
+%       8. Number of pulses per sector                                      N_pulses
+%      10. plot_Geometry [0 or 1]                                           Plot_Geo
+%      11. plot_Spectrum [0 or 1]                                           Plot_spectrum
+%      12. SNR (dB)
+%      13. PRT
+%      14. Velocity parameters: Mean and Standard deviation (mu_u, sigma_u)
+
+
+%% OUTPUT:
+%       1. signal available
+%       2. signal in HD
+%       3. Time instances of the HD signal and also the available signal
+
+% function [output_info.sig, output_info.sig_HD] = SimRad(input_info)
+
+
+function [out] = SimRad(input_info)
+
+
+% r0 = input_info.r0;
+% phi0 = input_info.phi0;
+% 
+% dr = input_info.dr;
+% dph = input_info.dph;
+
+%% Geometry of the scatterers
+
+[geo] = Geo(input_info);
+
+xc0 = geo.xc0;
+yc0 = geo.yc0;
+rc0 = geo.rc0;
+
+
+%% signal generation
+
+Nt = (sum(input_info.N_gap(2:end) + input_info.N_pulse)); % * input_info.N_rot; % number of time samples in HD signal
+
+input_info.RADAR.dTv = input_info.RADAR.dT - input_info.RADAR.dTjitter + 2 .* input_info.RADAR.dTjitter  .* rand(1, Nt-1);
+
+x(1) = sum( exp(1j .* (rc0) .* 4*pi/input_info.RADAR.lambda) );
+% r(1, :) = rc0;
+
+if input_info.velocity.type == 1 % 1 for config with drops
+%     D = linspace(input_info.velocity.D_min, input_info.velocity.D_max, input_info.NScatters);
+% 
+%     dD = D(2) - D(1);
+%     ND = input_info.velocity.N0 * exp(-3.67 * D./input_info.velocity.D0);
+%     D_int = ND.*D.^6.*dD;
+%     Wt = 9.65 - 10.3 .* exp(-600 .* D .* 1e-3)
+else
+    u = normrnd(input_info.velocity.u.mu, input_info.velocity.u.sigma,[1 input_info.NScatters]);
+    v = normrnd(input_info.velocity.v.mu, input_info.velocity.v.sigma, [1 input_info.NScatters]);
+end
+
+xc(1, :) = xc0; 
+yc(1, :) = yc0;
+rc(1, :) = rc0;
+t_ = [];
+t_(1) = 0;
+
+for ti = 2:Nt
+%   r(ti, :) = r(ti-1, :) + U .* input_info.RADAR.dT;
+    xc(ti, :) = xc(ti - 1, :) + u .* input_info.RADAR.dTv(ti-1);
+    yc(ti, :) = yc(ti - 1, :) + v .* input_info.RADAR.dTv(ti-1);
+    rc(ti, :) = sqrt(xc(ti, :).^2 + yc(ti, :).^2);
+%     zc(ti, :) = zc(ti - 1, :) + Wt .* dt;
+    x(ti) = sum( exp(1j .* rc(ti, :) .* 4 .* pi ./ input_info.RADAR.lambda) );
+    t_ = [t_ t_(end)+input_info.RADAR.dTv(ti-1)];
+end
+
+% plot(real(x)); hold on; plot(imag(x));
+
+SNR = 10^(input_info.SNR/10);
+
+Noise = sum(abs(x).^2)./(Nt .* SNR);         % Finding Noise power and ...
+                                             %noise variance with the data and given SNR
+sigma_n = sqrt(Noise);
+
+z = x + sigma_n/sqrt(2) .* (randn(1, Nt) + 1j .* randn(1, Nt)); % Adding complex noise 
+
+%% collecting available data with limited samples in time
+
+% Z_model_re = reshape(z, [(input_info.N_gap + input_info.N_pulse)  input_info.N_rot]); 
+% Z_avail = Z_model_re(1:input_info.N_pulse, :);              % Takes only N_Sweep number of samples from all rotations             
+% Z_avail_vec_ = reshape(Z_avail, [input_info.N_pulse * input_info.N_rot 1]); % vectorize all samples available
+% 
+% Z_avail_vec = Z_avail_vec_; %  + sigma_n .* (randn(1, length(Z_avail_vec_)).'+ 1j .* randn(1, length(Z_avail_vec_)).')./sqrt(2);
+% 
+% for k = 1:input_info.N_rot
+%     t(:, k) = t_((k - 1) * (input_info.N_gap + input_info.N_pulse) + [1:input_info.N_pulse]); % .* input_info.RADAR.dTv; % This for loop calculates the time instances of the available samples
+% end
+% 
+% t_avail = reshape(t, [length(Z_avail_vec) 1]); % vectorize the available time instances
+% 
+
+%% Avaialble samples in time [Limited]
+NGap = input_info.N_gap;
+
+for k = 1:input_info.N_rot
+    Z_model_re(k).data = z( (sum(NGap(1:k))+(k-1)*input_info.N_pulse) + [1:(NGap(k+1)+input_info.N_pulse)]);
+    Z_avail_vec((k-1)*input_info.N_pulse + [1:input_info.N_pulse]) = Z_model_re(k).data(1:input_info.N_pulse);
+    t(k).time = t_( sum(NGap(1:k))+(k-1)*input_info.N_pulse + [1:(NGap(k+1)+input_info.N_pulse)] );
+    t_avail((k-1)*input_info.N_pulse + [1:input_info.N_pulse]) = t(k).time(1:input_info.N_pulse);
+end
+
+%% Plot Options for the Doppler spectrum
+
+dTavg = mean(input_info.RADAR.dTv);
+
+if input_info.Doppler_plot == 1
+    if isempty(input_info.Ngt)
+        input_info.Ngt = Nt;
+    end
+    [~, ~, out.mu, out.sigma, out.vel_axis, out.dv] = Spec(z(1:input_info.Ngt), input_info.Ngt, dTavg, input_info.RADAR.lambda, input_info.SNR, 1, 1, 7);
+    [~, ~, out.mu_obs, out.sigma_obs, out.vel_axis_obs, out.dv_obs] =  ...
+        Spec(Z_avail_vec.', length(Z_avail_vec), dTavg, input_info.RADAR.lambda, input_info.SNR, 1, 1, 5);
+
+end
+
+
+%% Output
+
+out.x = x;
+out.z = z;
+out.Z_avail_vec = Z_avail_vec;
+out.t = t_;
+out.t_avail = t_avail;
+out.dTavg = dTavg;
+out.sigma_n = sigma_n;
+out.dTv = input_info.RADAR.dTv;
+out.u_true = u;
+out.v_true = v;
+
+

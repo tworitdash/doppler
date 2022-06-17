@@ -3,7 +3,7 @@
 close all;
 clear;
 
-SNR_db = 20;                % Noise is added with a given SNR in dB
+SNR_db = 0;                % Noise is added with a given SNR in dB
 SNR = 10^(SNR_db/10);       % SNR in linear scale
 
 
@@ -27,7 +27,7 @@ n_rot = 10;                % Number of rotations of radar
 
 % Sections = [1 20 50 100 200];
 % Sections = round(linspace(1, 200, 200));
-Sections = 200;
+Sections = 2;
 
 
 
@@ -103,7 +103,7 @@ t_avail = reshape(t, [length(Z_avail_vec) 1]) .* dT; % vectorize the available t
 u_test = linspace(0, v_amb, 100000);
 
 nbeta = 2;
-betay = linspace(0.01, 0.1, nbeta);
+betay = linspace(1e-1000000, 1, nbeta);
 % betay ;
 
 for b = 1:nbeta
@@ -123,7 +123,7 @@ end
 
 de = sum(exp(-beta .* E));
 
-Pr(b, :) = E .* exp(-beta .* E)./de;
+Pr(b, :) = E .* exp(-beta .* E); %./de;
 
 end
 

@@ -3,7 +3,7 @@
 close all;
 clear;
 
-SNR_db = 20;                % Noise is added with a given SNR in dB
+SNR_db = 0;                % Noise is added with a given SNR in dB
 SNR = 10^(SNR_db/10);       % SNR in linear scale
 
 
@@ -15,7 +15,7 @@ a = 1;
 
 Nscatters = 1; 
 
-u1mean = 3; 
+u1mean = 5; 
 u1spread = 1;
 
 
@@ -23,11 +23,11 @@ gt = [u1mean u1spread];
 
 NSweep = 5;                 % Number of sweeps available per beamwidth 
                             %(low resolution, used for measurement)
-n_rot = 10;                % Number of rotations of radar
+n_rot = 5;                % Number of rotations of radar
 
 % Sections = [1 20 50 100 200];
 % Sections = round(linspace(1, 200, 200));
-Sections = 10;
+Sections = 20;
 
 
 
@@ -56,7 +56,8 @@ u_amb_gap = lambda/(2*Gap*dT);
 
 % u = normrnd(u1mean, u1spread, [1 Nscatters]);  %u2 = 3.2;                % Ground truth velocity of the target
 % u = 2 + 3 .* rand(1, Nscatters);
-u = u1mean - u1spread/2 + u1spread .* rand(1, Nscatters);
+% u = u1mean - u1spread/2 + u1spread .* rand(1, Nscatters);
+u = u1mean;
 
 x1(1, :) = x0*rand(1, Nscatters); % Initializing position
 % x2(1) = x0;
@@ -99,11 +100,36 @@ t_avail = reshape(t, [length(Z_avail_vec) 1]) .* dT; % vectorize the available t
 %% Likelihood test at different 
 
 
-u_test = linspace(0, v_amb, 10000);
+u_test = linspace(0, v_amb, 100000);
 
-beta = 0;
+nbeta = 2;
+betay = linspace(1e-1000000, 1, nbeta);
+% betay ;
 
-E = Z_avail_vec - 
+for b = 1:nbeta
+beta = betay(b);
+
+for ui = 1:length(u_test)
+    
+    yu = exp(1j * 4 * pi/lambda .* u_test(ui) .* t_avail);
+    
+    Zri = [real(Z_avail_vec); imag(Z_avail_vec)];
+    yui = [real(yu); imag(yu)];
+
+    E(ui) = (Zri - yui).'  * (Zri - yui);
+
+    
+end
+
+de = sum(exp(-beta .* E));
+
+Pr(b, :) = E .* exp(-beta .* E); %./de;
+
+end
+
+% figure; plot(u_test, E);
+
+figure; plot(u_test, log(Pr));
 
 
 %% DA algorithm
