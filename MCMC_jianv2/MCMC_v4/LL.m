@@ -45,6 +45,8 @@ end
 xri = [real(x), imag(x)];
 zri = [real(z), imag(z)];
 
+% figure(2); plot(real(x)); hold on; plot(imag(x));
+
 % LLout = -Navail * log(2*pi) - Navail*2*log(out.sigma_n) -([zri - xri] * [zri - xri].')./(2 .* out.sigma_n^2);
 
 LLout =  -([zri - xri] * [zri - xri].')./(2 .* out.sigma_n^2);

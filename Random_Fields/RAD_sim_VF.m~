@@ -43,8 +43,8 @@ U = normrnd(5, 0.1, size(x));
 V = normrnd(0, 0, size(y));
 
 
-dt = 1; % Volume Scan Time
-Nt = 10; % Number of time steps
+dt = 1e-3; % Volume Scan Time
+Nt = 1000; % Number of time steps
 
 [Rt, Eta] = RFTV3(x_, y_, x, y, dx, dy, E0, U, V, dt, Nt, Energy0);
 

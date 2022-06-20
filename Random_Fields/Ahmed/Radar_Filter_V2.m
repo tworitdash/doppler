@@ -1,7 +1,8 @@
 function [Rr, N_sweep] = Radar_Filter_V2(r, phi, x_, y_, x, y, dx, dy, Rt, Nt, PRT, Omega, dph, lambda)
 
 % phi_sec = round((phi(end) - phi(1))./dph);
-N_sweep = floor(dph/(Omega * PRT));
+% N_sweep = floor(dph/(Omega * PRT));
+N_sweep = Nt;
 
 
 for l = 1:length(phi)

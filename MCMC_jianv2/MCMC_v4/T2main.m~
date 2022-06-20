@@ -9,7 +9,7 @@ input_info.dr = 0;
 input_info.dph = 0; % 0.001*pi/180;
 
 input_info.spatial_dist.type = 1;
-input_info.plot_geo = 0;
+input_info.plot_geo = 1;
 input_info.NScatters = 2;
 
 input_info.spatial_dist.lamr = 10;
@@ -18,9 +18,9 @@ input_info.spatial_dist.lamp = 20;
 input_info.RADAR.dT = 1e-3;
 
 input_info.RADAR.dTjittervec = 0; %input_info.RADAR.dT/3; % linspace(0, 4*input_info.RADAR.dT, 5);
-input_info.N_pulse = 5;
+input_info.N_pulse = 32;
 
-input_info.Ngap_avg = 95;
+input_info.Ngap_avg = 0;
 
 input_info.sig_gap = 0; %2 * input_info.N_pulse .* linspace(0, 2, 3);
 
@@ -30,13 +30,13 @@ input_info.RADAR.dTjitter = 0; % input_info.RADAR.dTjittervec(k); % input_info.R
 input_info.RADAR.lambda = 3e-2;
 
 
-input_info.N_rot         = 1;
+input_info.N_rot         = 2;
 
 input_info.N_gap         = [0 randi([input_info.Ngap_avg-input_info.sig_gap(k)/2 input_info.Ngap_avg+input_info.sig_gap(k)/2], 1, input_info.N_rot)];
-input_info.velocity.u.mu = 3;
+input_info.velocity.u.mu = 0.5;
 input_info.velocity.v.mu = 0;
 
-input_info.velocity.u.sigma = 4;
+input_info.velocity.u.sigma = 0.1;
 input_info.velocity.v.sigma = 0;
 
 input_info.SNR = 20;

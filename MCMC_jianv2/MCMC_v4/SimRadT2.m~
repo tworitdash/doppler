@@ -27,7 +27,7 @@
 % function [output_info.sig, output_info.sig_HD] = SimRad(input_info)
 
 
-function [out] = SimRad(input_info)
+function [out] = SimRadT2(input_info)
 
 
 % r0 = input_info.r0;
@@ -62,8 +62,10 @@ if input_info.velocity.type == 1 % 1 for config with drops
 %     D_int = ND.*D.^6.*dD;
 %     Wt = 9.65 - 10.3 .* exp(-600 .* D .* 1e-3)
 else
-    u = normrnd(input_info.velocity.u.mu, input_info.velocity.u.sigma,[1 input_info.NScatters]);
-    v = normrnd(input_info.velocity.v.mu, input_info.velocity.v.sigma, [1 input_info.NScatters]);
+%     u = normrnd(input_info.velocity.u.mu, input_info.velocity.u.sigma,[1 input_info.NScatters]);
+%     v = normrnd(input_info.velocity.v.mu, input_info.velocity.v.sigma, [1 input_info.NScatters]);
+      u = [input_info.velocity.u.mu + input_info.velocity.u.sigma];
+      v = [input_info.velocity.v.mu + input_info.velocity.v.sigma];
 end
 
 xc(1, :) = xc0; 
@@ -146,5 +148,3 @@ out.sigma_n = sigma_n;
 out.dTv = input_info.RADAR.dTv;
 out.u_true = u;
 out.v_true = v;
-
-

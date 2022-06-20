@@ -1,12 +1,13 @@
-function [E0] = Eta_0(x_, y, lambda, f)
+function [E0] = Eta_0(x_, y_, x, y, dx, dy, lambdax, lambday, fx, fy)
 
     R0 = (rand(size(x)) + 1j .* rand(size(x)) - 0.5);
-    k0 = 2*pi/lambda;
+    kx0 = 2*pi/lambdax;
+    ky0 = 2*pi/lambday;
 
-    Kx_ = linspace(-k0, k0, 100);
+    Kx_ = linspace(-kx0, kx0, 100);
     dKx = Kx_(2) - Kx_(1);
 
-    Ky_ = linspace(-k0, k0, 100);
+    Ky_ = linspace(-ky0, ky0, 100);
     dKy = Ky_(2) - Ky_(1);
 
     [Kx, Ky] = meshgrid(Kx_, Ky_);
@@ -24,11 +25,11 @@ function [E0] = Eta_0(x_, y, lambda, f)
     % figure; surface(Kx, Ky, abs(Spec)); shading flat; colormap('jet'); colorbar;
     Spec_modified = Spec;
 
-    nx1 = 1 + floor(0.9999.*f*length(Kx_));
-    nx2 = length(Kx_) - nx1 + 1; 
+    nx1 = 1 + floor(0.9999.*fx*length(Kx_));
+%     nx2 = length(Kx_) - nx1 + 1; 
 
-    ny1 = 1 + floor(0.9999.*f*length(Ky_));
-    ny2 = length(Ky_) - ny1 + 1;
+    ny1 = 1 + floor(0.9999.*fy*length(Ky_));
+%     ny2 = length(Ky_) - ny1 + 1;
 
 
     Spec_modified(nx1:end, :) = 0;

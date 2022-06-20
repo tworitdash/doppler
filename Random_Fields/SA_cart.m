@@ -11,7 +11,7 @@ y_ = -5e3:dy:5e3;
 
 [x, y] = meshgrid(x_, y_); % Meshgrid of rho and phi forming a circle 
 
-[E0] = Eta_0(x_, y_, x, y, dx, dy, 1e3, 0.5);
+[E0] = Eta_0(x_, y_, x, y, dx, dy, 1e3, 0.5, 0.5, 0.5);
 
 E0_norm = E0./max(max(E0));
 
@@ -70,13 +70,18 @@ end
 %% RADAR Filter
 
 lambda = 0.03;
+PRT = 1e-3;
 R = 1e3;
 dr = 100; dph = 2*pi/180; 
 
 phi = eps:dph:pi/2;
 r = eps:dr:R;
 
-[Rr] = Radar_Filter_V2(r, phi, xd_, yd_, xd, yd, dx, dy, Rt(:, idy, idx), Nt, PRT, );
+Omega_rpm = 60;
+Omega = Omega_rpm/(2*pi/60);
+
+[Rr] = Radar_Filter_V2(r, phi, xd_, yd_, xd, yd, dx, dy, Rt(:, idy, idx), Nt, PRT, Omega, dph, lambda);
+                     
 
 %% Plot radar image with time 
 close all;
