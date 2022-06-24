@@ -10,7 +10,7 @@ input_info.dph = 0; % 0.001*pi/180;
 
 input_info.spatial_dist.type = 1;
 input_info.plot_geo = 0;
-input_info.NScatters = 200;
+input_info.NScatters = 25;
 
 input_info.spatial_dist.lamr = 10;
 input_info.spatial_dist.lamp = 20;
@@ -18,11 +18,11 @@ input_info.spatial_dist.lamp = 20;
 input_info.RADAR.dT = 1e-3;
 
 input_info.RADAR.dTjittervec = 0; %input_info.RADAR.dT/3; % linspace(0, 4*input_info.RADAR.dT, 5);
-input_info.N_pulse = 5;
+input_info.N_pulse = 1024;
 
-input_info.Ngap_avg = 95;
+input_info.Ngap_avg = 0;
 
-input_info.sig_gap = 32 * input_info.N_pulse; %2 * input_info.N_pulse .* linspace(0, 2, 3);1
+input_info.sig_gap = 0; %2 * input_info.N_pulse; %2 * input_info.N_pulse .* linspace(0, 2, 3);1
 
 %%
 
@@ -33,16 +33,16 @@ input_info.RADAR.dTjitter = 0; % input_info.RADAR.dTjittervec(k); % input_info.R
 input_info.RADAR.lambda = 3e-2;
 
 
-input_info.N_rot         = 32;
+input_info.N_rot         = 1;
 
 input_info.N_gap         = [0 randi([input_info.Ngap_avg-input_info.sig_gap(k)/2 input_info.Ngap_avg+input_info.sig_gap(k)/2], 1, input_info.N_rot)];
 input_info.velocity.u.mu = 5;
 input_info.velocity.v.mu = 0;
 
-input_info.velocity.u.sigma = 0.5;
+input_info.velocity.u.sigma = 3;
 input_info.velocity.v.sigma = 0;
 
-input_info.SNR = 200;
+input_info.SNR = 2000;
 input_info.velocity.type = 2;
 input_info.Doppler_plot = 0;
 % input_info.Ngt = 128;
@@ -150,4 +150,47 @@ xticks(linspace(0, llinfo.v_amb, 16));
 lgd = legend;
 lgd.FontSize = 10;
 lgd.FontWeight = 'bold';
+
+
+
+%% SAMOS 
+
+L = 512; 
+M = out.N_avail - L;
+
+for i = 1:L
+    H(i, :) = out.Z_avail_vec(i:i+M);
+end
+
+
+[U, S, V] = svd(H);
+
+
+figure; plot(db(diag(S)));
+%% Optmize for K 
+
+K_L = 1;
+K_M = min(L, M);
+
+kaxis = linspace(K_L, K_M, K_M-K_L+1);
+
+E = @(k) Cost_K(k, U);
+
+for ki = 1:length(kaxis)
+    En(ki) = E(kaxis(ki));
+end
+
+figure; plot(kaxis, db(En));
+
+% K_start = 10;
+% options = optimoptions('lsqnonlin');
+% options.OptimalityTolerance = 1e-10000000;
+% options.StepTolerance = 1e-10000000;
+% options.MaxFunctionEvaluations = 1.000000e+10;
+% options.MaxIterations = 1e10;
+% 
+% % opt = options.fxOptimizationOptions;
+
+% k = lsqnonlin(E, K_start, K_L, K_M, options);
+
 

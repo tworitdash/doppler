@@ -34,7 +34,7 @@ input_info.RADAR.dTjitter = 0; % input_info.RADAR.dTjittervec(k); % input_info.R
 input_info.RADAR.lambda = 3e-2;
 
 
-input_info.N_rot         = 32;
+input_info.N_rot         = 2;
 
 input_info.N_gap         = [0 randi([input_info.Ngap_avg-input_info.sig_gap/2 input_info.Ngap_avg+input_info.sig_gap/2], 1, input_info.N_rot)];
 input_info.velocity.u.mu = 3;
