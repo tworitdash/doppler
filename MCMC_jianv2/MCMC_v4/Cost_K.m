@@ -12,7 +12,11 @@ Uup = U(2:end, 1:k);
 
 Uupdown = [Uup Udown];
 
-[Y G W] = svd(Uupdown);
+[~, G, ~] = svd(Uupdown);
+
+gamma = diag(G);
+
+E_samos = 1/k * sum(gamma(k+1:end));
 
 
 end
