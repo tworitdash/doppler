@@ -10,7 +10,7 @@ input_info.dph = 0; % 0.001*pi/180;
 
 input_info.spatial_dist.type = 1;
 input_info.plot_geo = 0;
-input_info.NScatters = 20;
+input_info.NScatters = 100000;
 
 input_info.spatial_dist.lamr = 10;
 input_info.spatial_dist.lamp = 20;
@@ -18,11 +18,11 @@ input_info.spatial_dist.lamp = 20;
 input_info.RADAR.dT = 1e-3;
 
 input_info.RADAR.dTjittervec = 0; %input_info.RADAR.dT/3; % linspace(0, 4*input_info.RADAR.dT, 5);
-input_info.N_pulse = 5;
+input_info.N_pulse = 128;
 
-input_info.Ngap_avg = 0;
+input_info.Ngap_avg = 95;
 
-input_info.sig_gap = 0; %2 * input_info.N_pulse; %2 * input_info.N_pulse .* linspace(0, 2, 3);1
+input_info.sig_gap = 0; %32 * input_info.N_pulse; %2 * input_info.N_pulse .* linspace(0, 2, 3);1
 
 %%
 
@@ -30,19 +30,19 @@ input_info.sig_gap = 0; %2 * input_info.N_pulse; %2 * input_info.N_pulse .* lins
 for k = 1:length( input_info.sig_gap )
     
 input_info.RADAR.dTjitter = 0; % input_info.RADAR.dTjittervec(k); % input_info.RADAR.dT/2;
-input_info.RADAR.lambda = 3e-2;
+input_info.RADAR.lambda   = 3e-2;
 
 
-input_info.N_rot         = 1;
+input_info.N_rot          = 2;
 
-input_info.N_gap         = [0 0]; %[0 randi([input_info.Ngap_avg-input_info.sig_gap(k)/2 input_info.Ngap_avg+input_info.sig_gap(k)/2], 1, input_info.N_rot)];
-input_info.velocity.u.mu = 5;
-input_info.velocity.v.mu = 0;
+input_info.N_gap          = [0 randi([input_info.Ngap_avg-input_info.sig_gap(k)/2 input_info.Ngap_avg+input_info.sig_gap(k)/2], 1, input_info.N_rot)];
+input_info.velocity.u.mu  = 5;
+input_info.velocity.v.mu  = 0;
 
-input_info.velocity.u.sigma = 3;
+input_info.velocity.u.sigma = 1;
 input_info.velocity.v.sigma = 0;
 
-input_info.SNR = 200;
+input_info.SNR = 2000;
 input_info.velocity.type = 2;
 input_info.Doppler_plot = 0;
 % input_info.Ngt = 128;
@@ -65,6 +65,10 @@ llinfo.v_ambscan = input_info.RADAR.lambda/(2*max(input_info.RADAR.dT*input_info
 llinfo.Nutest = 1e4;
 
 llinfo.velocity.u.muvec = linspace(eps, llinfo.v_amb, llinfo.Nutest); %0:llinfo.v_ambscan/2000:llinfo.v_amb; %linspace(eps, llinfo.v_amb, llinfo.Nutest);
+
+
+% llinfo.velocity.u.muvec = linspace(eps, llinfo.v_amb, input_info.N_rot * input_info.N_pulse); 
+
 llinfo.plot_geo = 0;
 
 llinfo.t_known = 1; % 1 if time instances are known: 0 if not known
@@ -131,7 +135,7 @@ dtext = ['N_{scans}: ', num2str(input_info.N_rot),...
 
 % figure(101); hold on; plot(llinfo.velocity.u.muvec, db(-(LLout).*sinc(llinfo.velocity.u.muvec - input_info.velocity.u.mu)), 'DisplayName', dtext); grid on;
 
-figure(101); hold on; plot(llinfo.velocity.u.muvec, abs(LLout2)./max(abs(LLout2)), 'DisplayName', dtext); grid on;
+figure(101); hold on; plot(llinfo.velocity.u.muvec, LLout2 - max(LLout2), 'DisplayName', dtext); grid on;
 
 % figure(101); hold on; plot(llinfo.velocity.u.muvec, ((-LLout1+LLout2)), 'DisplayName', dtext); grid on;
 

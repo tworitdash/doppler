@@ -10,7 +10,7 @@ input_info.dph = 0; % 0.001*pi/180;
 
 input_info.spatial_dist.type = 1;
 input_info.plot_geo = 0;
-input_info.NScatters = 25;
+input_info.NScatters = 50;
 
 input_info.spatial_dist.lamr = 10;
 input_info.spatial_dist.lamp = 20;
@@ -39,7 +39,7 @@ input_info.N_gap         = [0 randi([input_info.Ngap_avg-input_info.sig_gap(k)/2
 input_info.velocity.u.mu = 5;
 input_info.velocity.v.mu = 0;
 
-input_info.velocity.u.sigma = 3;
+input_info.velocity.u.sigma = 0.5;
 input_info.velocity.v.sigma = 0;
 
 input_info.SNR = 2000;

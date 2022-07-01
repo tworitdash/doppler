@@ -63,11 +63,11 @@ if input_info.velocity.type == 1 % 1 for config with drops
 %     Wt = 9.65 - 10.3 .* exp(-600 .* D .* 1e-3)
 else
     rng(1, 'twister');
-%     u = normrnd(input_info.velocity.u.mu, input_info.velocity.u.sigma,[1 input_info.NScatters]);
-    u = input_info.velocity.u.mu - input_info.velocity.u.sigma/2 + input_info.velocity.u.sigma .* rand([1 input_info.NScatters]);
+    u = normrnd(input_info.velocity.u.mu, input_info.velocity.u.sigma,[1 input_info.NScatters]);
+%     u = input_info.velocity.u.mu - input_info.velocity.u.sigma/2 + input_info.velocity.u.sigma .* rand([1 input_info.NScatters]);
     rng(1, 'twister');
-%     v = normrnd(input_info.velocity.v.mu, input_info.velocity.v.sigma, [1 input_info.NScatters]);
-    v = input_info.velocity.v.mu - input_info.velocity.v.sigma/2 + input_info.velocity.v.sigma .* rand([1 input_info.NScatters]);
+    v = normrnd(input_info.velocity.v.mu, input_info.velocity.v.sigma, [1 input_info.NScatters]);
+%     v = input_info.velocity.v.mu - input_info.velocity.v.sigma/2 + input_info.velocity.v.sigma .* rand([1 input_info.NScatters]);
 end
 
 xc(1, :) = xc0; 
