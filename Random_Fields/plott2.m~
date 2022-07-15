@@ -7,8 +7,7 @@ function [] = plott2(x, y, xl, yl, tl, lw, dtext, c, m)
     xlim([min(x) max(x)]);
 %     ylim([min(y) max(y)]);
 
-    T = [-x(end):1.5:x(end)];
-    T = [1:0.5:5.5];
+    T = [-x(end):1:x(end)];
     L = {};
     for m = 1:length(T)
         if T(m) == 0

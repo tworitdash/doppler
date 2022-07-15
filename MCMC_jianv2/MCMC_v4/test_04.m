@@ -1,7 +1,7 @@
 
 
 Np = 5;
-M = 2;
+M = 1;
 dT = 1e-3;
 lambda = 0.03;
 
@@ -21,10 +21,13 @@ Y3 = cos((ut - u)/2 .* ((Np - 1) * dT + Tscan * (M - 1)));
 
 % figure; plot(u, Y1./max(Y1)); 
 
+S = 1*4 * pi / lambda;
 
+% Y4 = Np * exp(-ut^2/(2*S^2)) * M/(2 * pi * S^2);
+Y4 = 1;
 
-Y = 2 .* Y1 .* Y2 .* Y3 - 2 * M * Np;
-hold on; plot(u*lambda/(4*pi), Y); grid on;
+Y = 2 .* Y1 .* Y2 .* Y3 .* Y4 - 2 * M * Np;
+hold on; plot(u*lambda/(4*pi), Y-max(Y)); grid on;
  
 % X = sin(Np * (ut - u)/2) ./ sin((ut - u)/2) .* sin(Nscan .* Tscan .* (ut - u)/2) ./ sin(Tscan .* (ut - u)/2)...
 %     .* cos((ut - u)/2 .* (Np + Tscan * (M - 1)));

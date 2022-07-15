@@ -49,7 +49,7 @@ zri = [real(z), imag(z)];
 
 % LLout = -Navail * log(2*pi) - Navail*2*log(out.sigma_n) -([zri - xri] * [zri - xri].')./(2 .* out.sigma_n^2);
 
-LLout =  -([zri - xri] * [zri - xri].'); % ./ (2 .* out.sigma_n^2);
+LLout =  -([zri - xri] * [zri - xri].') ./ (2 .* out.sigma_n^2);
 
 
 

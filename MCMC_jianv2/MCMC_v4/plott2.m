@@ -1,5 +1,6 @@
 function [] = plott2(x, y, xl, yl, tl, lw, dtext, c, m)
-    plot(x, y, m, 'Color', c, 'LineWidth', lw, 'DisplayName', dtext); 
+%     plot(x, y, m, 'Color', c, 'LineWidth', lw, 'DisplayName', dtext); 
+    plot(x, y, m, 'LineWidth', lw, 'DisplayName', dtext); 
     grid on;
     
 %     axis equal tight; 
@@ -37,11 +38,11 @@ function [] = plott2(x, y, xl, yl, tl, lw, dtext, c, m)
     % for x
 %     set(gca,'XTickLabel',[])
 %     set(gca,'XTick',[])
-    set(gca,'xcolor', c) 
+%     set(gca,'xcolor', c) 
     % for y
 %     set(gca,'YTickLabel',[])
 %     set(gca,'YTick',[])
-    set(gca,'ycolor', c)
+%     set(gca,'ycolor', c)
     
     
     

@@ -63,11 +63,11 @@ if input_info.velocity.type == 1 % 1 for config with drops
 %     Wt = 9.65 - 10.3 .* exp(-600 .* D .* 1e-3)
 else
     rng(1, 'twister');
-%     u = normrnd(input_info.velocity.u.mu, input_info.velocity.u.sigma,[1 input_info.NScatters]);
-    u = input_info.velocity.u.mu + input_info.velocity.u.sigma .* rand(input_info.velocity.u.sigma,[1 input_info.NScatters]);
+    u = normrnd(input_info.velocity.u.mu, input_info.velocity.u.sigma,[1 input_info.NScatters]);
+%     u = input_info.velocity.u.mu - input_info.velocity.u.sigma/2 + input_info.velocity.u.sigma .* rand([1 input_info.NScatters]);
     rng(1, 'twister');
-%     v = normrnd(input_info.velocity.v.mu, input_info.velocity.v.sigma, [1 input_info.NScatters]);
     v = normrnd(input_info.velocity.v.mu, input_info.velocity.v.sigma, [1 input_info.NScatters]);
+%     v = input_info.velocity.v.mu - input_info.velocity.v.sigma/2 + input_info.velocity.v.sigma .* rand([1 input_info.NScatters]);
 end
 
 xc(1, :) = xc0; 
@@ -131,9 +131,9 @@ if input_info.Doppler_plot == 1
     if isempty(input_info.Ngt)
         input_info.Ngt = Nt;
     end
-    [~, ~, out.mu, out.sigma, out.vel_axis, out.dv] = Spec(z(1:input_info.Ngt), input_info.Ngt, dTavg, input_info.RADAR.lambda, input_info.SNR, 1, 1, 7);
+    [~, ~, out.mu, out.sigma, out.vel_axis, out.dv] = Spec(z(1:input_info.Ngt), input_info.Ngt, dTavg, input_info.RADAR.lambda, input_info.SNR, input_info.vel_amb, 0, 1, 7);
     [~, ~, out.mu_obs, out.sigma_obs, out.vel_axis_obs, out.dv_obs] =  ...
-        Spec(Z_avail_vec.', length(Z_avail_vec), dTavg, input_info.RADAR.lambda, input_info.SNR, 1, 1, 5);
+        Spec(Z_avail_vec, length(Z_avail_vec), dTavg, input_info.RADAR.lambda, input_info.SNR, input_info.vel_amb, 1, 1, 5);
 
 end
 
@@ -150,5 +150,6 @@ out.sigma_n = sigma_n;
 out.dTv = input_info.RADAR.dTv;
 out.u_true = u;
 out.v_true = v;
+out.N_avail = length(out.t_avail);
 
 

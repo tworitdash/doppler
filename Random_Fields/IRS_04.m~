@@ -13,13 +13,13 @@ colors = colors.color;
 r0 = 100;
 dr = 50;
 ph0 = 0*pi/180;
-dph = 2*pi/180;
+dph = 1*pi/180;
 theta_0 = 0*pi/180;
 dth = 2*pi/180;
 
 % Scatterers positions
 
-N = 200;
+N = 2000;
 r = r0-dr/2 + dr* rand(1, N);
 ph = ph0 - dph/2 + dph .* rand(1, N);
 th = theta_0 - dth/2 + dth .* rand(1, N);
@@ -42,7 +42,7 @@ D_max = 4;
 D0 = 1;
 N0 = 8e3;
 % u_mean_ = linspace(-7.5, 7.5, 100);
-u_sigma_ = linspace(0, 7.5, 100);
+u_sigma_ = linspace(0.5, 7.5, 100);
 % N_Sweep = [300 15 9 5];
 N_Sweep = 5;
 Omega = [1 20 40 60];
@@ -55,7 +55,7 @@ v_mean = 0;
 u_sigma = u_sigma_(i);
 v_sigma = 0;
 SNR_db = 30;
-n_rot = 1;
+n_rot = 32;
 NSweep = N_Sweep(k);
 NSec = 1;
 Nt = n_rot * NSweep * NSec;
@@ -71,32 +71,51 @@ lambda = 3e-2;
 
 Z_model_re = reshape(Z_model, [NSweep * NSec n_rot]);
 
-[ZFFT_, PT_(i), mu_(i), sigma_(i), vel_axis_, dv_] = Spec(Z_model_re(1:NSweep).', NSweep, dt, lambda, SNR_db, 0, 1, 7);
+for l = 1:n_rot
 
+[ZFFT_, PT_(l), mu__(l), sigma__(l), vel_axis_, dv_] = Spec(Z_model_re(1:NSweep, l).', NSweep, dt, lambda, SNR_db, 0, 1, 7);
+
+end
+
+% txt = ['Doppler Spectrum'];
+% % dtext = ['Nt = ', num2str(Nt), ', dv = ', num2str(dv), ' [m/s]', ', SNR = ', num2str(SNR_db), ' [dB]'];
+% dtext = ['N_{sweeps} = ', num2str(NSweep), ', dv = ', num2str(dv_), ' [m/s]'];
+% xl = 'velocity [m/s]';
+% 
+% % f = figure(108); hold on; f.Position = [10 10 1000 1000];
+% 
+% %zl =  ['Angle [{\circ}]'];
+% yl =  ['Spectrum [dB]'];
+% color = colors(2).c;
+% marker = markers(k);
+% plott2(vel_axis_, db(abs(ZFFT_)), xl, yl, txt, 2, dtext, color, marker); 
+
+mu_(k, i) = mean(mu__);
+sigma_(k, i) = mean(sigma__);
 end
 
 txt = ['SNR = ', num2str(SNR_db), ' [dB]'];
 % dtext = ['Nt = ', num2str(Nt), ', dv = ', num2str(dv), ' [m/s]', ];
-dtext = ['\Omega = ', num2str(Omega(k)), ' [rpm]'];
-xl = '\mu True [m.sec^{-1}]';
+dtext = ['BW = ', num2str(dph*180/pi), '^{\circ}'];
+xl = '\sigma True [m.sec^{-1}]';
 
 f = figure(108); hold on; f.Position = [10 10 1000 1000];
-color = colors(k).c;
+color = colors(4).c;
 yl =  ['\mu retrieved [m.sec^{-1}]'];
 
 marker = markers(k);
-plott2(u_mean_, mu_, xl, yl, txt, 2, dtext, color, marker); % hold on; histogram(v);
+plott2(u_sigma_, mu_(k, :), xl, yl, txt, 2, dtext, color, marker); % hold on; histogram(v);
 
 txt = ['SNR = ', num2str(SNR_db), ' [dB]'];
 % dtext = ['Nt = ', num2str(Nt), ', dv = ', num2str(dv), ' [m/s]', ];
-dtext = ['\Omega = ', num2str(Omega(k)), ' [rpm]'];
-xl = '\mu True [m.sec^{-1}]';
+dtext = ['BW = ', num2str(dph*180/pi), '^{\circ}'];
+xl = '\sigma True [m.sec^{-1}]';
 
 f = figure(109); hold on; f.Position = [10 10 1000 1000];
-color = colors(k).c;
+color = colors(4).c;
 yl =  ['\sigma retrieved [m.sec^{-1}]'];
 
 marker = markers(k);
-plott2(u_mean_, sigma_, xl, yl, txt, 2, dtext, color, marker); % hold on; histogram(v);
+plott2(u_sigma_, sigma_(k, :), xl, yl, txt, 2, dtext, color, marker); % hold on; histogram(v);
 
 end

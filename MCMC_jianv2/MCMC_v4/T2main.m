@@ -6,11 +6,11 @@ clear;
 input_info.r0 = 100;
 input_info.phi0 = 0*pi/180;
 input_info.dr = 0;
-input_info.dph = 0; % 0.001*pi/180;
+input_info.dph = 0*pi/180; % 0.001*pi/180;
 
 input_info.spatial_dist.type = 1;
 input_info.plot_geo = 0;
-input_info.NScatters = 1;
+input_info.NScatters = 200000;
 
 input_info.spatial_dist.lamr = 10;
 input_info.spatial_dist.lamp = 20;
@@ -18,13 +18,15 @@ input_info.spatial_dist.lamp = 20;
 input_info.RADAR.dT = 1e-3;
 
 input_info.RADAR.dTjittervec = 0; %input_info.RADAR.dT/3; % linspace(0, 4*input_info.RADAR.dT, 5);
-input_info.N_pulse = 5;
+input_info.N_pulse = 1024;
 
-input_info.Ngap_avg = 95;
+input_info.Ngap_avg = 0;
 
 input_info.sig_gap = 0; %32 * input_info.N_pulse; %2 * input_info.N_pulse .* linspace(0, 2, 3);1
 
 %%
+
+
 
 
 for k = 1:length( input_info.sig_gap )
@@ -33,21 +35,22 @@ input_info.RADAR.dTjitter = 0; % input_info.RADAR.dTjittervec(k); % input_info.R
 input_info.RADAR.lambda   = 3e-2;
 
 
-input_info.N_rot          = 2;
+input_info.N_rot          = 1;
 
 input_info.N_gap          = [0 randi([input_info.Ngap_avg-input_info.sig_gap(k)/2 input_info.Ngap_avg+input_info.sig_gap(k)/2], 1, input_info.N_rot)];
-input_info.velocity.u.mu  = 5;
+input_info.velocity.u.mu  = 7.5;
 input_info.velocity.v.mu  = 0;
-
-input_info.velocity.u.sigma = 0;
+input_info.velocity.u.sigma = 1;
 input_info.velocity.v.sigma = 0;
 
-input_info.SNR = 2000;
+input_info.SNR = 30;
 input_info.velocity.type = 2;
 input_info.Doppler_plot = 0;
 % input_info.Ngt = 128;
 input_info.Ngt = [];
-
+input_info.Doppler_plot = 1;
+input_info.vel_amb = 0;
+% input_info.plot_geo = 1;
 
 rng(1, 'twister');
 
@@ -110,12 +113,12 @@ end
 %% Mean and Width Calculation
 
 dv = llinfo.velocity.u.muvec(2) - llinfo.velocity.u.muvec(1);
-LLout2e = (((LLout2)-min(LLout2))./ llinfo.Nutest).^2;
+LLout2e = (((LLout2)-min(LLout2))).^2;
 
 PT = sum((LLout2e)  .* dv);
 mu = 1./PT .* sum(llinfo.velocity.u.muvec .* (LLout2e) .* (dv));
 sigma = sqrt(sum(1./PT .* (llinfo.velocity.u.muvec - mu).^2 .* (LLout2e) .* dv));
-
+% sqrt(sum(1./PT .* (vel_axis - mu).^2 .* abs(ZFFT).^2 .* dv));
 
 %% plot likelihood
 
@@ -128,14 +131,19 @@ sigma = sqrt(sum(1./PT .* (llinfo.velocity.u.muvec - mu).^2 .* (LLout2e) .* dv))
 %     ' True velocity gap: v_2 - v_1 = ', num2str(input_info.velocity.u.sigma), ' [m/s]', '\mu = ', num2str(mu), ' [m/s]', ...
 %     ' , \sigma = ', num2str(sigma), ' [m/s]'];
 
+% dtext = ['N_{scans}: ', num2str(input_info.N_rot),...
+%     ',  N_{scatterers} = ', num2str(input_info.NScatters), ', u_{\mu} = ', num2str(mu), ' [m/s]', ...
+%     ' , u_{\sigma} = ', num2str(sigma), ' [m/s]',  ', N_{pulse} = ', num2str(input_info.N_pulse)];
+
 dtext = ['N_{scans}: ', num2str(input_info.N_rot),...
-    ',  N_{scatterers} = ', num2str(input_info.NScatters), ', u_{\mu} = ', num2str(mu), ' [m/s]', ...
-    ' , u_{\sigma} = ', num2str(sigma), ' [m/s]',  ', N_{pulse} = ', num2str(input_info.N_pulse)];
+    ',  N_{scatterers} = ', num2str(input_info.NScatters), ', u_{\mu} = ', num2str(input_info.velocity.u.mu), ' [m/s]', ...
+    ' , u_{\sigma} = ', num2str(input_info.velocity.u.sigma), ' [m/s]',  ', N_{pulse} = ', num2str(input_info.N_pulse), ', u_{\mu_{re}} = ', num2str(out.mu_obs), ' [m/s]', ...
+    ' , u_{\sigma_{re}} = ', num2str(out.sigma_obs), ' [m/s]'];
 
 
 % figure(101); hold on; plot(llinfo.velocity.u.muvec, db(-(LLout).*sinc(llinfo.velocity.u.muvec - input_info.velocity.u.mu)), 'DisplayName', dtext); grid on;
 
-figure(101); hold on; plot(llinfo.velocity.u.muvec, LLout2 - max(LLout2), 'DisplayName', dtext); grid on;
+figure(102); hold on; plot(llinfo.velocity.u.muvec, LLout2-max(LLout2), 'DisplayName', dtext); grid on;
 
 % figure(101); hold on; plot(llinfo.velocity.u.muvec, ((-LLout1+LLout2)), 'DisplayName', dtext); grid on;
 

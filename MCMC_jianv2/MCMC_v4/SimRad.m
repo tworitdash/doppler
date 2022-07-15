@@ -131,9 +131,20 @@ if input_info.Doppler_plot == 1
     if isempty(input_info.Ngt)
         input_info.Ngt = Nt;
     end
-    [~, ~, out.mu, out.sigma, out.vel_axis, out.dv] = Spec(z(1:input_info.Ngt), input_info.Ngt, dTavg, input_info.RADAR.lambda, input_info.SNR, 1, 1, 7);
+    
+ % Without zero pad
+ 
+% [~, ~, out.mu, out.sigma, out.vel_axis, out.dv] = Spec(z(1:input_info.Ngt), input_info.Ngt, dTavg, input_info.RADAR.lambda, input_info.SNR, input_info.vel_amb, 0, 1, 7);
+
+% Without zero pad
+
+[~, ~, out.mu_obs, out.sigma_obs, out.vel_axis_obs, out.dv_obs] =  ...
+        Spec(Z_avail_vec, length(Z_avail_vec), dTavg, input_info.RADAR.lambda, input_info.SNR, input_info.vel_amb, 0, 1, 5);
+
+
+% Zero pad
     [~, ~, out.mu_obs, out.sigma_obs, out.vel_axis_obs, out.dv_obs] =  ...
-        Spec(Z_avail_vec.', length(Z_avail_vec), dTavg, input_info.RADAR.lambda, input_info.SNR, 1, 1, 5);
+        Spec(Z_avail_vec, input_info.Ngt, dTavg, input_info.RADAR.lambda, input_info.SNR, input_info.vel_amb, 0, 1, 5);
 
 end
 

@@ -6,9 +6,9 @@ colors = colors.color;
 
 
 if isvelamb == 1
-    ZFFT = 1./sqrt(Nt) .* fftshift(fft(z_model, Nt));
+    ZFFT = 1./sqrt(Nt) .* fftshift(fft(z_model));
 else
-    ZFFT = 1./sqrt(Nt) .* (fft(z_model, Nt));
+    ZFFT = 1./sqrt(Nt) .* (fft(z_model));
 end
 
 v_amb = lambda/(4 * dt);
@@ -28,7 +28,7 @@ end
 else
     if (mod(Nt, 2) == 0)
 %     hsnew = hs+1;
-    vel_axis = linspace(0, Nt, Nt)./Nt .* 2 .* v_amb;
+    vel_axis = linspace(0, Nt-1, Nt)./Nt .* 2 .* v_amb;
 %     vel_axis_hs = linspace(-v_amb, v_amb, hsnew);
     else
 %     hsnew = hs;
