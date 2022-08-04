@@ -1,0 +1,39 @@
+clear;
+% close all;
+
+Sigma = linspace(eps, 4, 100); 
+
+Ntvec = 1:1:128;
+
+for s = 1:length(Sigma)
+
+sigma = Sigma(s);
+
+lambda = 3e-2; 
+dt = 1e-3;
+
+L = 4 * pi * dt/lambda;
+
+G = sqrt(L.^2 .* sigma.^2);
+
+for i = 1:length(Ntvec)
+
+Nt = Ntvec(i);
+
+
+k = 0:1:Nt-1;
+
+S(i) = sum(exp(-k.^2.*L.^2.*sigma.^2));
+
+end
+
+for m = 2:length(Ntvec)
+    dSdN = (S(m) - S(m-1));
+end
+
+H = dSdN < 1e-
+
+end
+
+% figure(1); hold on; plot(Ntvec, S, 'DisplayName', ['L^2\sigma^2 = ', num2str(G^2)]); legend;
+

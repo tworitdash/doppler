@@ -1,10 +1,7 @@
 %% Weather simulator
 
-clear;
-markers = load('markers.mat');
-markers = markers.markers;
-colors = load('colors.mat');
-colors = colors.color;
+clear; 
+% close all;
 
 input_info.r0 = 100;
 input_info.phi0 = 0*pi/180;
@@ -22,7 +19,7 @@ input_info.RADAR.dT = 1e-3;
 
 input_info.RADAR.dTjittervec = 0; %input_info.RADAR.dT/3; % linspace(0, 4*input_info.RADAR.dT, 5);
 
-input_info.N_pulsevec = 5:1:128;
+input_info.N_pulsevec = 5;
 
 for n = 1:length(input_info.N_pulsevec)
 
@@ -50,7 +47,7 @@ input_info.velocity.u.mu  = 7.5;
 input_info.velocity.v.mu  = 0;
 
 
-input_info.velocity.u.sigmavec = linspace(eps, 3, 100);
+input_info.velocity.u.sigmavec = linspace(eps, 4, 100);
 
 for i = 1:length(input_info.velocity.u.sigmavec)
 
@@ -59,7 +56,7 @@ disp(i);
 input_info.velocity.u.sigma = input_info.velocity.u.sigmavec(i);
 input_info.velocity.v.sigma = 0;
 
-input_info.SNR = 30;
+input_info.SNR = 3000;
 input_info.velocity.type = 2;
 input_info.Doppler_plot = 0;
 input_info.Ngt = 128;
@@ -70,7 +67,7 @@ input_info.vel_amb = 0;
 
 % rng(1, 'twister');
 
-MC = 32;
+MC = 1;
 
 for m = 1:MC
     
@@ -92,26 +89,26 @@ end
 end
 %% Error Plots
 
-x = input_info.N_pulsevec;
-y = input_info.velocity.u.sigmavec;
-z = Mu_error;
-
-xl = [' Number of Pulses ' ];
-yl = [' True velocity width u_{sigma}' ];
-zl = ['Error in mean velocity estimation u_{\mu_{re}}' ];
-tl = ['Error in mean velocity estimation u_{\mu_{re}}' ];
-surplot_pcolor(x, y, z.', xl, yl, zl, tl)
-
-
-x = input_info.N_pulsevec;
-y = input_info.velocity.u.sigmavec;
-z = Sigma_error;
-
-xl = [' Number of Pulses ' ];
-yl = [' True velocity width u_{sigma}' ];
-zl = ['Error in velocity width estimation u_{\sigma_{re}}' ];
-tl = ['Error in velocity width estimation u_{\sigma_{re}}' ];
-surplot_pcolor(x, y, z.', xl, yl, zl, tl)
+% x = input_info.N_pulsevec;
+% y = input_info.velocity.u.sigmavec;
+% z = Mu_error;
+% 
+% xl = [' Number of Pulses ' ];
+% yl = [' True velocity width u_{sigma}' ];
+% zl = ['Error in mean velocity estimation u_{\mu_{re}}' ];
+% tl = ['Error in mean velocity estimation u_{\mu_{re}}' ];
+% surplot_pcolor(x, y, z.', xl, yl, zl, tl)
+% 
+% 
+% x = input_info.N_pulsevec;
+% y = input_info.velocity.u.sigmavec;
+% z = Sigma_error;
+% 
+% xl = [' Number of Pulses ' ];
+% yl = [' True velocity width u_{sigma}' ];
+% zl = ['Error in velocity width estimation u_{\sigma_{re}}' ];
+% tl = ['Error in velocity width estimation u_{\sigma_{re}}' ];
+% surplot_pcolor(x, y, z.', xl, yl, zl, tl)
 
 % llinfo = input_info;
 % llinfo.v_amb = input_info.RADAR.lambda/(2*out.dTavg);
@@ -199,17 +196,3 @@ surplot_pcolor(x, y, z.', xl, yl, zl, tl)
 % % figure(101); hold on; plot(llinfo.velocity.u.muvec, ((-LLout1+LLout2)), 'DisplayName', dtext); grid on;
 % 
 % 
-% end
-% %% =================================================================================================================
-% 
-% xl = 'Velocity [m/s]';
-% yl = 'Log Likelihood [dB] ';
-% % yl = '|log(p(u | z))| / max|log(p(u | z))|';
-% % tl = 'Likelihood';
-% % title(tl,  'FontSize', 30);
-% xlabel(xl, 'FontSize', 20);
-% ylabel(yl, 'FontSize', 20);
-% xticks(linspace(0, llinfo.v_amb, 16));
-% lgd = legend;
-% lgd.FontSize = 10;
-% lgd.FontWeight = 'bold';

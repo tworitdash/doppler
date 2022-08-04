@@ -5,20 +5,20 @@ clear;
 
 input_info.r0 = 100;
 input_info.phi0 = 0*pi/180;
-input_info.dr = 0;
-input_info.dph = 0*pi/180; % 0.001*pi/180;
+input_info.dr = 50;
+input_info.dph = 2*pi/180; % 0.001*pi/180;
 
-input_info.spatial_dist.type = 1;
-input_info.plot_geo = 0;
-input_info.NScatters = 200000;
+input_info.spatial_dist.type = 3;
+input_info.plot_geo = 1;
+input_info.NScatters = 10000;
 
-input_info.spatial_dist.lamr = 10;
-input_info.spatial_dist.lamp = 20;
+input_info.spatial_dist.lamr = 1;
+input_info.spatial_dist.lamp = 2;
 
 input_info.RADAR.dT = 1e-3;
 
 input_info.RADAR.dTjittervec = 0; %input_info.RADAR.dT/3; % linspace(0, 4*input_info.RADAR.dT, 5);
-input_info.N_pulse = 1024;
+input_info.N_pulse = 128;
 
 input_info.Ngap_avg = 0;
 
@@ -40,23 +40,23 @@ input_info.N_rot          = 1;
 input_info.N_gap          = [0 randi([input_info.Ngap_avg-input_info.sig_gap(k)/2 input_info.Ngap_avg+input_info.sig_gap(k)/2], 1, input_info.N_rot)];
 input_info.velocity.u.mu  = 7.5;
 input_info.velocity.v.mu  = 0;
-input_info.velocity.u.sigma = 1;
+input_info.velocity.u.sigma = 1.5;
 input_info.velocity.v.sigma = 0;
 
 input_info.SNR = 30;
 input_info.velocity.type = 2;
 input_info.Doppler_plot = 0;
-% input_info.Ngt = 128;
-input_info.Ngt = [];
+input_info.Ngt = 128;
+% input_info.Ngt = [];
 input_info.Doppler_plot = 1;
 input_info.vel_amb = 0;
 % input_info.plot_geo = 1;
 
-rng(1, 'twister');
+% rng(1, 'twister');
 
 [out] = SimRad(input_info); % Signal generator
 
-
+figure(1001); hold on; plot(real(out.z)); hold on; plot(imag(out.z));
 
 %% Likelihood check
 

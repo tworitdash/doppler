@@ -27,7 +27,7 @@
 % function [output_info.sig, output_info.sig_HD] = SimRad(input_info)
 
 
-function [out] = SimRad(input_info)
+function [out] = SimRadGauss(input_info)
 
 
 % r0 = input_info.r0;
@@ -69,6 +69,10 @@ else
     v = normrnd(input_info.velocity.v.mu, input_info.velocity.v.sigma, [1 input_info.NScatters]);
 %     v = input_info.velocity.v.mu - input_info.velocity.v.sigma/2 + input_info.velocity.v.sigma .* rand([1 input_info.NScatters]);
 end
+
+
+% mean(u) 
+% std(u)
 
 xc(1, :) = xc0; 
 yc(1, :) = yc0;
@@ -139,12 +143,12 @@ if input_info.Doppler_plot == 1
 % Without zero pad
 
 [~, ~, out.mu_obs, out.sigma_obs, out.vel_axis_obs, out.dv_obs] =  ...
-        Spec(Z_avail_vec, length(Z_avail_vec), dTavg, input_info.RADAR.lambda, input_info.SNR, input_info.vel_amb, 0, 1, 5);
+        SpecGauss(Z_avail_vec, length(Z_avail_vec), dTavg, input_info.RADAR.lambda, input_info.SNR, input_info.vel_amb, 0, 1, 5, input_info.velocity.u.mu, input_info.velocity.u.sigma);
 
 
 % Zero pad
     [~, ~, out.mu_obszp, out.sigma_obszp, out.vel_axis_obszp, out.dv_obszp] =  ...
-        Spec(Z_avail_vec, input_info.Ngt, dTavg, input_info.RADAR.lambda, input_info.SNR, input_info.vel_amb, 0, 1, 5);
+        SpecGauss(Z_avail_vec, input_info.Ngt, dTavg, input_info.RADAR.lambda, input_info.SNR, input_info.vel_amb, 1, 1, 5, input_info.velocity.u.mu, input_info.velocity.u.sigma, length(Z_avail_vec), out.dv_obs);
 
 end
 
@@ -162,5 +166,3 @@ out.dTv = input_info.RADAR.dTv;
 out.u_true = u;
 out.v_true = v;
 out.N_avail = length(out.t_avail);
-
-

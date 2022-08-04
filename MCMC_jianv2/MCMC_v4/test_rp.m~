@@ -1,0 +1,24 @@
+clear; 
+close all;
+
+Nu = 10000;
+
+
+% histogram(x);
+
+MC = 128;
+
+y = exp(1j .* x); 
+
+for i 
+
+% y =  sin(x);
+
+s = sum(y); %/Nu;
+
+%% 
+
+% z = normrnd(5, 0.1, [1 Nu]);
+% 
+% c = sum(z)/Nu;
+

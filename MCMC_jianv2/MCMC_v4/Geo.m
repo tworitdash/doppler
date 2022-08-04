@@ -29,16 +29,18 @@ elseif input_info.spatial_dist.type == 2
     phi = tdphi.random(1, input_info.NScatters);
     
 else
-    drho = makedist('poisson', 'lambda', input_info.spatial_dist.lamr);
-%     tdrho = drho.truncate(r0-dr/2, r0+dr/2);
-    r = drho.random(1, input_info.NScatters);
-    r = r0 - dr/2 + dr .* r/max(r);
-  
-    dphi = makedist('poisson', 'lambda', input_info.spatial_dist.lamp);
-%     tdphi = dphi.truncate(phi0-dph/2, phi0+dph/2);
-    phi = dphi.random(1, input_info.NScatters);
-    phi = phi0 - dph/2 + dph .* phi/max(phi);
+%     drho = makedist('poisson', 'lambda', input_info.spatial_dist.lamr);
+% %     tdrho = drho.truncate(r0-dr/2, r0+dr/2);
+%     r = drho.random(1, input_info.NScatters);
+%     r = r0 - dr/2 + dr .* r/max(r);
+%   
+%     dphi = makedist('poisson', 'lambda', input_info.spatial_dist.lamp);
+% %     tdphi = dphi.truncate(phi0-dph/2, phi0+dph/2);
+%     phi = dphi.random(1, input_info.NScatters);
+%     phi = phi0 - dph/2 + dph .* phi/max(phi);
     
+    r = r0 - dr/2 + dr .* rand([1 input_info.NScatters]);
+    phi = phi0 - dph/2 + dph .* rand([1 input_info.NScatters]);
 end
 
 xc0 = r .* cos(phi);
@@ -54,6 +56,17 @@ if input_info.plot_geo == 1
     xlabel('x [m]'); 
     ylabel('y [m]'); 
     zlabel('z [m]'); 
+    
+    
+   if input_info.spatial_dist.type == 1
+      title('Distributed according to Poisson distribution');
+   elseif input_info.spatial_dist.type == 2
+       title('Distributed according to Gaussian distribution');
+   else
+       title('Distributed according to Uniform distribution');
+   end
+   
+   
 end
 
 geo.r = r;

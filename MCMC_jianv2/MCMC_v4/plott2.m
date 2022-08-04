@@ -1,11 +1,11 @@
 function [] = plott2(x, y, xl, yl, tl, lw, dtext, c, m)
-%     plot(x, y, m, 'Color', c, 'LineWidth', lw, 'DisplayName', dtext); 
-    plot(x, y, m, 'LineWidth', lw, 'DisplayName', dtext); 
+    plot(x, y, m, 'Color', c, 'LineWidth', lw, 'DisplayName', dtext); 
+%     plot(x, y, m, 'LineWidth', lw, 'DisplayName', dtext); 
     grid on;
     
 %     axis equal tight; 
 
-    xlim([min(x) max(x)]);
+%     xlim([min(x) max(x)]);
 %     ylim([min(y) max(y)]);
 
 %     T = [-x(end):5:x(end)];

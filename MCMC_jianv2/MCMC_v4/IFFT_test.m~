@@ -1,0 +1,25 @@
+clear; 
+close all;
+
+lambda = 3e-2;
+dt = 1e-3;
+L = 4*pi/lambda * dt;
+
+m0 = 1;
+
+mu = 3;
+v_amb = 7.5;
+N = 32;
+sigma = 1;
+
+SNR_db = 30;
+SNR = 10^(SNR_db/20);
+
+
+[data, vel] = DS(SNR, m0, mu, sigma, N, v_amb);
+
+FFT = abs(fftshift(fft(data)));
+
+figure; plot(vel, db(FFT));
+
+[PT, mu, sig] = Mom(FFT, vel);
