@@ -153,7 +153,7 @@ SIGMAALL(l - 1) = Sigmanew;
 
 end
 
-%%
+
 figure; 
 plot(MUALL, 'y', 'LineWidth', 1.2); 
 hold on;

@@ -1,5 +1,5 @@
 clear;
-% close all;
+close all;
 
 lambda = 3e-2;
 dt = 1e-3;
@@ -17,9 +17,9 @@ Sigma = 1;
 
 Gamma = L .* Sigma;
 epsilon = 1e-4;
-N_min  = 1./Gamma .* ( sqrt(-log(epsilon) - log(1 - exp(-Gamma.^2))) - 1);
+% N_min  = 1./Gamma .* ( sqrt(-log(epsilon) - log(1 - exp(-Gamma.^2))) - 1);
 
-Nt = 128;
+Nt = 100000;
 
 %K = 0:1:Nt-1;
 
@@ -33,8 +33,8 @@ end
 Mu_width = Mu/20;
 Sigma_width = Sigma./20;
 
-Muvec = Mu; % - Mu_width/2 + Mu_width .* rand(1, M);
-Sigmavec = Sigma; % - Sigma_width/2 + Sigma_width .* rand(1, M);
+Muvec = Mu - Mu_width/2 + Mu_width .* rand(1, M);
+Sigmavec = Sigma - Sigma_width/2 + Sigma_width .* rand(1, M);
 
 Ntot = Nt .* M;
 
@@ -63,28 +63,6 @@ for i = 1:M
 
 end
 
-%%
-% x = [];
-% 
-% %% Generate signal with IFFT
-% 
-% U = linspace(0, v_amb, Nt);
-% 
-% for i = 1:M
-% 
-% X = 1/sqrt(2 * pi * Sigmavec(i).^2 .* L.^2) .* exp(-(U - Muvec(i)).^2./(2 .* Sigmavec(i).^2));
-% 
-% x = [x (ifft((X)))];
-% 
-% end
-%%
-
-% x = [];
-% for i = 1:M
-% x = [x exp(-1/2 * Sigmavec(i).^2 .* L.^2 .* K.^2) .* exp(1j .* L .* K .* Muvec(i))]; %/sqrt(2*pi)];
-% 
-% end
-
 SNR_db = 30;
 
 SNR = 10^(SNR_db/10);
@@ -102,32 +80,33 @@ Nfft = 128;
 
 FFT = fft(z, Nfft);
 
-U = linspace(0, v_amb, Nfft);
+vr = linspace(0, v_amb, Nfft);
 
-figure; plot(U, db(abs(FFT)));
+figure; plot(vr, db(abs(FFT)));
 
-[~, M1, S1] = Mom(FFT, U);
+[~, M1, S1] = Mom(FFT, vr);
 
 
-%% LL Test
 
-MU_0 = Mu;
+% 
+% [LLold] = LLGaussrandomOpt(x, K, L, M, sigma_n, z, Nu, Nt, MC);
+% [LLnew] = LLGaussrandomOpt(x, K, L, M, sigma_n, z, Nu, Nt, MC);
 
-Iter = 400;
+%%
+
 MC = 2048;
 
-SIGMA_ = [linspace(0.8, 1, 100) linspace(1, 4, 10000)] ;
 
-% x_mc = [];
-
-MU(1) = MU_0; 
-
-parfor i = 1:length(SIGMA_)
-disp(i);
-SIGMA = SIGMA_(i);
- 
-[LL(i)] = LLGaussrandom(MU_0, SIGMA, K, L, M, sigma_n, z, Nu, Nt, MC);
-
-end
-
-figure; plot(SIGMA_, LL);
+Opt.fitnessfcn  = @(x) LLGaussrandomOpt(x, K, L, M, sigma_n, z, Nu, Nt, MC);
+Opt.nvars = 2;
+Opt.lb = [M1-M1/20 M1 + M1/20];
+Opt.ub = [0 S1*1.2];
+IP = [M1 S1];
+  
+% Opt.fitnesslimit = 1e-4; % input('Input the minimum limit till which the solver needs to reach in dB: ');
+Opt.options = optimoptions(@ga, 'PlotFcn', {'gaplotbestf', 'gaplotbestindiv'}, 'Display', 'iter',... 
+    'InitialPopulationMatrix', [IP], 'UseParallel',...
+    true); % , 'FitnessLimit', Opt.fitnesslimit );
+tic;
+[Result, fval, exf2, out] = ga(Opt);
+time_consumed = toc;

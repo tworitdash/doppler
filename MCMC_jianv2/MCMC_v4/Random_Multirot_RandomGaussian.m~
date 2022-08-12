@@ -17,9 +17,9 @@ Sigma = 1;
 
 Gamma = L .* Sigma;
 epsilon = 1e-4;
-N_min  = 1./Gamma .* ( sqrt(-log(epsilon) - log(1 - exp(-Gamma.^2))) - 1);
+% N_min  = 1./Gamma .* ( sqrt(-log(epsilon) - log(1 - exp(-Gamma.^2))) - 1);
 
-Nt = 128;
+Nt = 100000;
 
 %K = 0:1:Nt-1;
 
@@ -102,11 +102,11 @@ Nfft = 128;
 
 FFT = fft(z, Nfft);
 
-U = linspace(0, v_amb, Nfft);
+vr = linspace(0, v_amb, Nfft);
 
-figure; plot(U, db(abs(FFT)));
+figure; plot(vr, db(abs(FFT)));
 
-[~, M1, S1] = Mom(FFT, U);
+[~, M1, S1] = Mom(FFT, vr);
 
 %% MCMC
 
@@ -114,7 +114,7 @@ MU_0 = Mu;
 SIGMA_0 = 2;
 
 Iter = 400;
-MC = 128;
+MC = 256;
 
 % x_mc = [];
 
@@ -153,7 +153,7 @@ SIGMAALL(l - 1) = Sigmanew;
 
 end
 
-
+%%
 figure; 
 plot(MUALL, 'y', 'LineWidth', 1.2); 
 hold on;
