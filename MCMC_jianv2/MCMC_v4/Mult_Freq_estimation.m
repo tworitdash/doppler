@@ -98,7 +98,7 @@ Noise = sum(abs(s).^2)./(Nt .* SNR);
 n = sqrt(Noise)/sqrt(2) .* (randn(1, Nt) + 1j .* randn(1, Nt));
 z = s + n;
 
-[~, ~, vrmu, vrsigma, vel_axis, dv] = Spec(z, Nt, dT, lambda, SNR_db, 1, 1, 7);
+[~, ~, vrmu, vrsigma, vel_axis, dv] = Spec(z, Nt, dT, lambda, SNR_db, 1, 1, 1, 7);
 
 
 %% Available measurement model 
@@ -119,7 +119,7 @@ t_avail = reshape(t_, [length(Z_avail_vec) 1]) .* dT; % vectorize the available 
 N_avail = length(t_avail);
 
 [~, ~, vrmu_obs, vrsigma_obs, vel_axis_obs, dv_obs] =  ...
-    Spec(Z_avail_vec(1:NSweep).', NSweep, dT, lambda, SNR_db, 1, 1, 5);
+    Spec(Z_avail_vec(1:NSweep).', NSweep, dT, lambda, SNR_db, 1, 1, 1, 5);
 
 %% MCMC estimator using MH
 k0 = 5;

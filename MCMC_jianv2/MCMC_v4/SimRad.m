@@ -144,7 +144,7 @@ if input_info.Doppler_plot == 1
 
 % Zero pad
     [~, ~, out.mu_obszp, out.sigma_obszp, out.vel_axis_obszp, out.dv_obszp] =  ...
-        Spec(Z_avail_vec, input_info.Ngt, dTavg, input_info.RADAR.lambda, input_info.SNR, input_info.vel_amb, 0, 1, 5);
+        Spec(Z_avail_vec, input_info.Ngt, dTavg, input_info.RADAR.lambda, input_info.SNR, input_info.vel_amb, 1, 1, 5);
 
 end
 
